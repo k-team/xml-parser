@@ -19,3 +19,9 @@
 *.exe
 *.out
 *.app
+xmltool
+commun
+xml.output
+xml.tab.c
+xml.tab.h
+lex.xml.c

@@ -1,0 +1,25 @@
+Q1 : l'enchaînement de deux analyses XML ne marche pas
+R1 : il se peut que flex ne soit pas dans un état approprié, vous pouvez avoir recours
+à la fonction yyrestart() qui permet de le réinitialiser. Parfois, cela ne suffit pas, 
+il faut aussi remettre explicitement l'analyseur dans un état précis avec l'appel à
+BEGIN(INITIAL). Cette macro étant définie uniquement dans le fichier généré par
+flex, vous devrez définir une fonction dans le fichier flex qui y fait appel. Dans votre
+main(), il faudra déclarer cette nouvelle fonction.
+
+Q2 : J'ai des erreurs de compilation dans le .y correpondant à des types que j'ai implémentés
+et qui seraient inconnus.
+R2 : Il faut inclure vos fichier d'en-têtes dans le .y
+
+Q3 : J'ai bien inclus mes fichiers d'en-têtes dans le .y mais j'ai encore une erreur du 
+même genre que dans Q2.
+R3 : il faut aussi inclure vos fichiers d'en-têtes dans le fichier .l et ce *avant* 
+l'inclusion du fichier .tab.h.
+
+Q4 : je m'embrouille complètement dans la chaîne de compilation, help me !
+R4 : Il n'y a pas grand chose de différent par rapport à ce que vous avez pu faire dans
+d'autres TP de programmation. La nouveauté c'est que certains des fichiers sources sont 
+générés. Gardez en mémoire les principes fondamentaux :
+- La compilation (option -c de g++) nécessite la connaissance de toutes les signatures de 
+  fonctions et méthodes donc de *déclarations* (qui peuvent être dans un fichier .h séparé)
+- L'édition des liens (absence de l'option -c de g++) nécessite la présence de tous les 
+  symboles donc de tous les fichiers objets.
