@@ -10,6 +10,13 @@ class Attribute {
 
     Attribute(name_type const &, value_type const &);
     virtual ~Attribute();
+
+    name_type const & name() const;
+    value_type const & value() const;
+
+  protected:
+    name_type _name;
+    value_type _value;
 };
 
 #endif
