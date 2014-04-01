@@ -11,7 +11,7 @@ class CDSect : public Content {
     std::string const & sect() const;
 
   protected:
-    std::string const & _sect;
+    std::string _sect;
 };
 
 #endif
