@@ -8,6 +8,11 @@ class CompositeElement : public Element {
     CompositeElement(std::vector<Content *> const &,
         std::vector<Attribute *> const &);
     virtual ~CompositeElement();
+
+    std::vector<Content *> const & content() const;
+
+  protected:
+    std::vector<Content *> _content;
 };
 
 #endif
