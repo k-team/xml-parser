@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 echo "Test ID;Return code validation;Out result;StdErr result;File creation result;Global result" >results.csv
 nOk=0
 nKo=0

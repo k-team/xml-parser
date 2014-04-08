@@ -8,18 +8,11 @@
 extern FILE * xmlin;
 extern int xmlparse(Document **);
 
-static std::string help_message = \
-"                                                                             \n\
-Usage:                                                                        \n\
-                                                                              \n\
-   xmltool OPTION [ARGS...]                                                   \n\
-                                                                              \n\
-Options:                                                                      \n\
-   -h                      Display this help                                  \n\
-   -p file.xml             Process XML file and display on standard output.   \n\
-   -v file.xml file.xsd    Validate XML file's syntax with a XSD.             \n\
-   -t file.xml file.xsl    Apply stylesheet to XML file.                      \n\
-";
+static std::string help_message = "Available commands are:\n\
+../xmltool -p file.xml : parse and display the xml file\n\
+../xmltool -v file.xml file.xsd : parse both xml and xsd files and display the validation result\n\
+../xmltool -t file.xml file.xsl : parse both xml and xsl files and display de transformation result of file.xml by the stylesheet file.xsl\n\
+../xmltool -h : displays this help\n";
 
 static int handle_help(int, const char **);
 static int handle_validate(int, const char **);
@@ -65,8 +58,8 @@ int main(int argc, const char ** argv)
 
 int handle_help(int, const char **)
 {
-  std::cout << help_message << std::endl;
-  return 0;
+  std::cerr << help_message;
+  return 1;
 }
 
 static Document * read_document(const char * fname)

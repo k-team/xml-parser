@@ -12,7 +12,7 @@ Attribute::~Attribute()
 
 std::string Attribute::str() const
 {
-  return _name + "=" + _value;
+  return _name + "=\"" + _value + "\"";
 }
 
 Attribute::name_type const & Attribute::name() const
