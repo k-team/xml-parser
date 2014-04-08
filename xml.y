@@ -58,13 +58,9 @@ Attribute_0_N
   | /* empty */
   ;
 
-/*Attribute*/
-/*  : NOM EGAL VALEUR                                     { std::cout << "Attribute" << std::endl; }*/
-/*  ;*/
-
 element
   : INF NOM Attribute_0_N SLASH SUP                     { std::cout << "element - empty" << std::endl; }
-  | INF NOM Attribute_0_N SUP content INF SLASH NOM SUP { std::cout << "element - composite" << std::endl; }
+  | INF NOM Attribute_0_N SUP content INF SLASH NOM SUP { std::cout << "element - composite : " << $2 << std::endl; }
   ;
 
 content
@@ -73,7 +69,11 @@ content
   ;
 
 sub_element
-  : DONNEES | element | CDSect | PI | COMMENT           { std::cout << "sub_element" << std::endl; }
+  : DONNEES                                             { std::cout << "sub_element - DONNEES : " << $1 << std::endl; }
+  | element                                             { std::cout << "sub_element - element : " << "" << std::endl; }
+  | CDSect                                              { std::cout << "sub_element - CDSect : " << "" << std::endl; }
+  | PI                                                  { std::cout << "sub_element - PI : " << "" << std::endl; }
+  | COMMENT                                             { std::cout << "sub_element - COMMENT" << std::endl; }
   ;
 
 CDSect
