@@ -29,7 +29,12 @@ CompositeElement::content_list const & CompositeElement::content() const
 std::string CompositeElement::str() const
 {
   std::ostringstream oss;
-  oss << "<" << name() << ">";
+  oss << "<" << name() << " ";
+  for (auto attr: attributes())
+  {
+    oss << attr->str() << " ";
+  }
+  oss << ">";
   for (auto c: _content)
   {
     oss << c;

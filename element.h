@@ -18,6 +18,8 @@ class Element: public Content {
     std::string const & name() const;
     attribute_list const & attributes() const;
 
+    virtual std::string str() const;
+
   private:
     std::string _name;
     attribute_list _attributes;
