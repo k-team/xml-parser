@@ -11,7 +11,7 @@ class CharData : public Content {
 
     std::string const & data() const;
 
-  protected:
+  private:
     std::string _data;
 };
 

@@ -21,7 +21,7 @@ class Prolog: public Base {
     Doctype * doctype() const;
     std::vector<PI *> const & lastPIs() const;
 
-  protected:
+  private:
     XMLDecl * _xmlDecl;
     std::vector<PI *> _firstPIs;
     Doctype * _doctype;

@@ -15,7 +15,7 @@ class Attribute: public Base {
     name_type const & name() const;
     value_type const & value() const;
 
-  protected:
+  private:
     name_type _name;
     value_type _value;
 };

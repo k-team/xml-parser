@@ -16,7 +16,7 @@ class Document: public Base {
     Element * root() const;
     PI * endPI() const;
 
-  protected:
+  private:
     Prolog * _prolog;
     Element * _root;
     PI * _endPI;

@@ -1,10 +1,10 @@
 #include "commun.h"
 #include <iostream>
-#include <cstring>
+#include <string>
 
 using namespace std;
 
-int xmlparse(void);
+extern int xmlparse(void);
 
 int main(void)
 {

@@ -20,7 +20,7 @@ class Element: public Base {
     std::string const & name() const;
     attribute_list const & attributes() const;
 
-  protected:
+  private:
     std::string _name;
     attribute_list _attributes;
 };

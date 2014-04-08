@@ -15,7 +15,7 @@ class CompositeElement: public Element {
 
     content_list const & content() const;
 
-  protected:
+  private:
     content_list _content;
 };
 
