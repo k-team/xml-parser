@@ -22,18 +22,18 @@ Prolog::~Prolog() {
     delete *it;
 }
 
-XMLDecl * xmlDecl() const {
+XMLDecl * Prolog::xmlDecl() const {
   return _xmlDecl;
 }
 
-std::vector<PI *> const & firstPIs() const {
+std::vector<PI *> const & Prolog::firstPIs() const {
   return _firstPIs;
 }
-Doctype * doctype() const {
+Doctype * Prolog::doctype() const {
   return _doctype;
 }
 
-std::vector<PI *> const & lastPIs() const {
+std::vector<PI *> const & Prolog::lastPIs() const {
   return _lastPIs;
 }
 

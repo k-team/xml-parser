@@ -1,7 +1,9 @@
-#include "base.h"
+#include "document.h"
 
-Document::~Document() {
+Document::Document(Prolog *, Element *, PI *)
+{
 }
 
-Document::Document() {
+Document::~Document()
+{
 }

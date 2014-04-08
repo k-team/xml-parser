@@ -1,6 +1,7 @@
 #ifndef CDSECT_H
 #define CDSECT_H
 
+#include <string>
 #include "content.h"
 
 class CDSect : public Content {
