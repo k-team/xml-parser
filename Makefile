@@ -21,18 +21,38 @@ all: $(EXE)
 $(EXE): $(OBJECTS)
 	$(LD) $(LDFLAGS) $(OBJECTS) -DYYDEBUG -o $(EXE)
 
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.cpp: %.h
+
+# These two are generated
 lex.xml.cpp: xml.l
 	flex -o lex.xml.cpp -P xml xml.l
 
 xml.tab.cpp: xml.y
 	bison -o xml.tab.cpp -p xml --debug --verbose --defines=xml.tab.h xml.y
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-%.cpp: %.h
-
-# TODO dépendances supplémentaires
+# Specified dependencies
+xml.l: content.h doctype.h attribute.h document.h
+xml.y: attribute.h cd_sect.h char_data.h composite_element.h content.h \
+	doctype.h document.h element.h pi.h prolog.h
+attribute.h: base.h
+cd_sect.h: content.h
+char_data.h: content.h
+composite_element.h: element.h
+composite_element.cpp: content.h attribute.h
+content.h: base.h
+doctype.h: base.h
+document.h: base.h
+document.cpp: prolog.h element.h pi.h
+element.h: content.h
+element.cpp: attribute.h
+main.cpp: document.h
+pi.h: content.h
+pi.cpp: attribute.h
+prolog.h: base.h
+prolog.cpp: doctype.h pi.h
 
 test: all
 	cd Tests; ./mktest.sh
