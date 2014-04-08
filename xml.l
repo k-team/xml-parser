@@ -1,4 +1,5 @@
 %option 8bit noyywrap
+%option nounput
 
 %{
 #include <stdio.h>

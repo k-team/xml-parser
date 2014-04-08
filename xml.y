@@ -1,10 +1,5 @@
 %{
 
-#include <stack>
-#include <list>
-#include <cstring>
-#include <cstdio>
-#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -22,15 +17,13 @@
 #include "prolog.h"
 #include "pi.h"
 
-using namespace std;
-
 extern char xmltext[];
 
 int xmllex(void);
 
 void xmlerror(const char * msg)
 {
-   fprintf(stderr,"%s\n",msg);
+   std::cerr << msg << std::endl;
 }
 
 %}
