@@ -1,0 +1,1 @@
+../xmltool -v ../files/personne_bad_order.xml ../files/personne.xsd

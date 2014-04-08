@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<personne xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="personne.xsd">
+   <nom>MBODJ</nom>
+   <prenom>Babacar</prenom>
+   <date_naissance>1996-10-06</date_naissance>
+   <num_tel>764704140</num_tel>
+   <etablissement>NIIT</etablissement>
+</personne>

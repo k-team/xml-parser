@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <xsd:element name="personne">
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="nom" type="xsd:string" />
+            <xsd:element name="prenom" type="xsd:string" />
+            <xsd:element name="date_naissance" type="xsd:date" />
+            <xsd:element name="etablissement" type="xsd:string" />
+            <xsd:element name="num_tel" type="xsd:string" />
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+   <xsd:element name="personnes">
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="personne" maxOccurs="2" />
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+</xsd:schema>

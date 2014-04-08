@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE doc SYSTEM "no.dtd">
+<?xml-stylesheet href="no.xsl" type="text/xsl"?>
+<doc>
+<a>
+   <x>blabla</x>
+   <y>blabla</y>
+   <z a="a" b="b">blabla</z>
+   <x>blabla</x>
+</a>
+<a>
+<!-- un commentaire -->
+   <x>blabla</x>
+   <y>blabla</y>
+   <z>blabla</z>
+   <x>blabla</x>
+<![CDATA[Du CDATA qui peut contenir une balise comme ca <balise> !]]>
+</a>
+</doc>

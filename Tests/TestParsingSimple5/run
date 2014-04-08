@@ -1,0 +1,1 @@
+../xmltool -p ../files/with_header_comment_and_CDATA.xml

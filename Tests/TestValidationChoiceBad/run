@@ -1,0 +1,1 @@
+../xmltool -v ../files/choice_bad.xml ../files/choice.xsd

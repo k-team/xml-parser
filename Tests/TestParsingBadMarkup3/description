@@ -1,0 +1,1 @@
+Parsage d'un fichier XML dont un des éléments est fermé avec une balise incorrecte (un espace de nom est présent mais c'est le nom qui est incorrect).

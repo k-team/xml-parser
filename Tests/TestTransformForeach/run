@@ -1,0 +1,1 @@
+../xmltool -t ../files/catalog.xml ../files/catalog_foreach.xsl
