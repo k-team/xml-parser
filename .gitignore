@@ -25,3 +25,6 @@ xml.output
 xml.tab.c
 xml.tab.h
 lex.xml.c
+
+# Test result files
+Test/results.csv
