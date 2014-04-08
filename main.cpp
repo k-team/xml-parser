@@ -33,10 +33,8 @@ int main(int argc, const char ** argv)
   // Command must be given
   if (argc < 2)
   {
-    std::cerr << "Missing option parameter!" << std::endl
-      //<< help_message << std::endl
-    ;
-    return EXIT_FAILURE;
+    std::cerr << "No argument given" << std::endl;
+    return handle_help(argc, argv);
   }
 
   // Command must be handled
@@ -44,9 +42,7 @@ int main(int argc, const char ** argv)
   std::map<std::string, command_handler>::const_iterator it;
   if ((it = command_map.find(cmd)) == command_map.end())
   {
-    std::cerr << "Bad option parameter!" << std::endl
-      << help_message << std::endl;
-    return EXIT_FAILURE;
+    return handle_help(argc, argv);
   }
 
   // Call command handler, making argc and argv correspond
