@@ -11,7 +11,6 @@ SOURCES = attribute.cpp base.cpp cd_sect.cpp char_data.cpp \
 		  xml.tab.cpp lex.xml.cpp
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 
-GRAMMAR = commun
 EXE = xmltool
 
 .PHONY: all clean test
@@ -58,7 +57,7 @@ test: all
 	cd Tests; ./mktest.sh
 
 clean:
-	@rm -f $(OBJECTS) $(GRAMMAR) $(EXE)
+	@rm -f $(OBJECTS) $(EXE)
 	@rm -f xml.tab.cpp xml.tab.h
 	@rm -f lex.xml.cpp xml.output
 
