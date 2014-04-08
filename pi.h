@@ -5,6 +5,8 @@
 #include <vector>
 #include "content.h"
 
+class Attribute;
+
 class PI : public Content {
   public:
     typedef std::vector<Attribute *> data_list;

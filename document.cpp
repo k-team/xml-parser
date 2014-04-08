@@ -11,7 +11,10 @@ Document::Document(Prolog * p, Element * r, std::vector<PI *> const & pis):
 Document::~Document() {
   delete _prolog;
   delete _root;
-  delete _endPI;
+  for (std::vector<PI *>::iterator it(_endPIs.begin());
+      it != _endPIs.end(); it++) {
+    delete *it;
+  }
 }
 
 Prolog * Document::prolog() const {
@@ -22,7 +25,7 @@ Element * Document::root() const {
   return _root;
 }
 
-std::vector<PI *> Document::endPIs() const{
+std::vector<PI *> const & Document::endPIs() const {
   return _endPIs;
 }
 

@@ -1,5 +1,7 @@
 #include "pi.h"
 
+#include "attribute.h"
+
 PI::PI(std::string const & target, PI::data_list const & data):
     _target(target), _data(data)
 {

@@ -12,7 +12,6 @@ Prolog::Prolog(std::vector<PI *> const & firsts, Doctype * t,
 }
 
 Prolog::~Prolog() {
-  delete _xmlDecl;
   for (std::vector<PI *>::iterator it = _firstPIs.begin();
       it != _firstPIs.end(); it++)
     delete *it;

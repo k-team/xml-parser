@@ -1,6 +1,8 @@
 #ifndef DOCUMENT_H
 #define DOCUMENT_H
 
+#include <vector>
+
 #include "base.h"
 
 class Prolog;
