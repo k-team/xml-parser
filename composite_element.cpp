@@ -29,15 +29,23 @@ CompositeElement::content_list const & CompositeElement::content() const
 std::string CompositeElement::str() const
 {
   std::ostringstream oss;
-  oss << "<" << name() << " ";
+  oss << "<" << name();
   for (auto attr: attributes())
   {
-    oss << attr->str() << " ";
+    oss << " " << attr->str();
   }
-  oss << ">";
+  oss << ">\n";
   for (auto c: _content)
   {
-    oss << c->str();
+    std::string s = c->str();
+    size_t from = 0;
+    size_t pos;
+    while ((pos = s.find("\n", from)) != std::string::npos)
+    {
+      s.replace(pos, 1, "\n  ");
+      from = pos + 3;
+    }
+    oss << "  " << s << "\n";
   }
   oss << "</" << name() << ">";
   return oss.str();
