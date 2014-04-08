@@ -82,7 +82,7 @@ static Document * read_document(const char * fname)
   // Construct document
   Document * doc = nullptr;
   int re = xmlparse(&doc); // who gives a f**k about the return code ?
-  if (!re)
+  if (doc != nullptr)
   {
     std::cout << "Entrée standard reconnue" << std::endl;
   }

@@ -67,7 +67,7 @@ document
     delete $2->second;
     delete $2;
     delete $4;
-    $$ = nullptr;
+    *doc_ptr = $$;
   }
   ;
 
