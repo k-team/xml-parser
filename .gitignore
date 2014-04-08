@@ -27,4 +27,4 @@ xml.tab.h
 lex.xml.c
 
 # Test result files
-Test/results.csv
+Tests/results.csv
