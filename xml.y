@@ -21,7 +21,7 @@ extern char xmltext[];
 
 int xmllex(void);
 
-void xmlerror(const char * msg)
+void xmlerror(Document **, const char * msg)
 {
    std::cerr << msg << std::endl;
 }
@@ -54,7 +54,7 @@ void xmlerror(const char * msg)
 %type<attribute_list> Attribute_0_N
 %type<content_list> content
 
-%parse-param {Document**}
+%parse-param {Document ** doc_ptr}
 
 %%
 
@@ -112,12 +112,12 @@ doctypedecl_Misc_0_N_0_1
   : doctypedecl Misc_0_N
   {
     std::cout << "doctypedecl_Misc_0_N_0_1" << std::endl;
-    $$ = new pair<Doctype *, std::vector<PI *> *>($1, $2);
+    $$ = new std::pair<Doctype *, std::vector<PI *> *>($1, $2);
   }
   | /* empty */
   {
     std::cout << "doctypedecl_Misc_0_N_0_1 empty" << std::endl;
-    $$ = new pair<Doctype *, std::vector<PI *> *>(nullptr, nullptr);
+    $$ = new std::pair<Doctype *, std::vector<PI *> *>(nullptr, nullptr);
   }
   ;
 

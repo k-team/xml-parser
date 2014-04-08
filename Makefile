@@ -2,7 +2,7 @@ CXX = g++
 WARNFLAGS = -W -Wall
 CXXFLAGS = -std=c++0x $(WARNFLAGS)
 
-SOURCES = $(wildcard *.cpp) xml.tab.cpp lex.xml.cpp
+SOURCES = $(wildcard *.cpp)
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 
 GRAMMAR = commun
@@ -13,11 +13,13 @@ EXE = xmltool
 all: $(EXE)
 	
 $(EXE): $(GRAMMAR) $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -g -DYYDEBUG -o $(EXE) $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -g -DYYDEBUG -o $(EXE) $(OBJECTS) xml.tab.o lex.xml.o
 
 $(GRAMMAR): xml.l xml.y
 	flex -o lex.xml.cpp -P xml xml.l
 	bison -o xml.tab.cpp -p xml --debug --verbose --defines=xml.tab.h xml.y
+	$(CXX) $(CXXFLAGS) -c xml.tab.cpp -o xml.tab.o
+	$(CXX) $(CXXFLAGS) -c lex.xml.cpp -o lex.xml.o
 	touch $(GRAMMAR)
 
 %.o: %.cpp %.h
