@@ -6,7 +6,7 @@ LDFLAGS=
 
 SOURCES = attribute.cpp base.cpp cd_sect.cpp char_data.cpp \
 		composite_element.cpp content.cpp document.cpp element.cpp \
-		empty_element.cpp main.cpp prolog.cpp
+		main.cpp prolog.cpp
 OBJECTS = $(subst .cpp,.o,$(SOURCES))
 GRAMMAR = commun
 EXE = xmltool
