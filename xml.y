@@ -175,8 +175,7 @@ element
   | INF NOM Attribute_0_N SUP content INF SLASH NOM SUP
   {
     std::cout << "element - composite : " << "" << std::endl;
-    // TODO check $2 == $7
-    $$ = new CompositeElement($2, *$3, *$5);
+    $$ = new CompositeElement($2, $8, *$3, *$5);
     free($2);
     delete $3;
     delete $5;

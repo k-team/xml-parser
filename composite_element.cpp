@@ -3,9 +3,11 @@
 #include "attribute.h"
 
 CompositeElement::CompositeElement(std::string const & name,
+    std::string const & end,
     Element::attribute_list const & attrs,
     CompositeElement::content_list const & content):
   Element(name, attrs),
+  _end(end),
   _content(content)
 {
 }
