@@ -11,6 +11,4 @@ using namespace std;
 #define debug(x) ((void) 0)
 #endif
 
-#endif
-
-// vim:ft=cpp et sw=2 sts=2:
+#endif // vim:ft=cpp et sw=2 sts=2:

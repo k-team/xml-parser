@@ -3,11 +3,11 @@
 
 #include <vector>
 
-#include "content.h"
+#include "base.h"
 
 class Attribute;
 
-class Element {
+class Element: public Base {
   public:
     Element(std::vector<Attribute *> const &);
     virtual ~Element();
@@ -18,6 +18,4 @@ class Element {
     std::vector<Attribute *> _attributes;
 };
 
-#endif
-
-// vim:ft=cpp et sw=2 sts=2:
+#endif // vim:ft=cpp et sw=2 sts=2:

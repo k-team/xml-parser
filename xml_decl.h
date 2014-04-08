@@ -9,6 +9,4 @@ class XMLDecl : public PI {
     virtual ~XMLDecl();
 };
 
-#endif
-
-// vim:ft=cpp et sw=2 sts=2:
+#endif // vim:ft=cpp et sw=2 sts=2:

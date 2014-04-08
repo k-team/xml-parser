@@ -1,7 +1,9 @@
-#include "base.h"
+#include "document.h"
 
-Document::~Document() {
+Base::Base()
+{
 }
 
-Document::Document() {
+Base::~Base()
+{
 }

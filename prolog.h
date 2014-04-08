@@ -28,6 +28,4 @@ class Prolog: public Base {
     std::vector<PI *> _lastPIs;
 };
 
-#endif
-
-// vim:ft=cpp et sw=2 sts=2:
+#endif // vim:ft=cpp et sw=2 sts=2:

@@ -1,11 +1,13 @@
 #ifndef DOCUMENT_H
 #define DOCUMENT_H
 
+#include "base.h"
+
 class Prolog;
 class Element;
 class PI;
 
-class Document {
+class Document: public Base {
   public:
     Document(Prolog *, Element *, PI *);
     virtual ~Document();
@@ -20,6 +22,4 @@ class Document {
     PI * _endPI;
 };
 
-#endif
-
-// vim:ft=cpp et sw=2 sts=2:
+#endif // vim:ft=cpp et sw=2 sts=2:

@@ -2,8 +2,9 @@
 #define ATTRIBUTE_H
 
 #include <string>
+#include "base.h"
 
-class Attribute {
+class Attribute: public Base {
   public:
     typedef std::string name_type;
     typedef std::string value_type;
@@ -19,6 +20,4 @@ class Attribute {
     value_type _value;
 };
 
-#endif
-
-// vim:ft=cpp et sw=2 sts=2:
+#endif // vim:ft=cpp et sw=2 sts=2:

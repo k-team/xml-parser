@@ -1,4 +1,5 @@
 #include "composite_element.h"
+#include "content.h"
 #include "attribute.h"
 
 CompositeElement::CompositeElement(std::vector<Content *> const & c,
@@ -9,9 +10,7 @@ CompositeElement::CompositeElement(std::vector<Content *> const & c,
 }
 
 CompositeElement::~CompositeElement() {
-  for (std::vector<Content *>::iterator it = _content.begin();
-      it != _content.end(); it++)
-    delete *it;
+  for (auto c: _content) { delete c; }
 }
 
 std::vector<Content *> const & CompositeElement::content() const {
