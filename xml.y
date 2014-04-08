@@ -7,7 +7,6 @@
 #include <cstdlib>
 #include <iostream>
 using namespace std;
-#include "commun.h"
 
 extern char xmltext[];
 
