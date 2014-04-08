@@ -3,8 +3,8 @@
 #include "element.h"
 #include "pi.h"
 
-Document::Document(Prolog * p, Element * r, PI * pi):
-  _prolog(p), _root(r), _endPI(pi)
+Document::Document(Prolog * p, Element * r, std::vector<PI *> const & pis):
+  _prolog(p), _root(r), _endPIs(pis)
 {
 }
 
@@ -22,8 +22,8 @@ Element * Document::root() const {
   return _root;
 }
 
-PI * Document::endPI() const{
-  return _endPI;
+std::vector<PI *> Document::endPIs() const{
+  return _endPIs;
 }
 
 // vim:ft=cpp et sw=2 sts=2:

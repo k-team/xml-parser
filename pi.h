@@ -7,7 +7,7 @@
 
 class PI : public Content {
   public:
-    typedef std::vector<std::string> data_list;
+    typedef std::vector<Attribute *> data_list;
 
     PI(std::string const &, data_list const &);
     virtual ~PI();

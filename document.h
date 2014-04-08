@@ -9,17 +9,17 @@ class PI;
 
 class Document: public Base {
   public:
-    Document(Prolog *, Element *, PI *);
+    Document(Prolog *, Element *, std::vector<PI *> const &);
     virtual ~Document();
 
     Prolog * prolog() const;
     Element * root() const;
-    PI * endPI() const;
+    std::vector<PI *> const & endPIs() const;
 
   private:
     Prolog * _prolog;
     Element * _root;
-    PI * _endPI;
+    std::vector<PI *> _endPIs;
 };
 
 #endif // vim:ft=cpp et sw=2 sts=2:
