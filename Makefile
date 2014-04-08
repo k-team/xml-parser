@@ -3,7 +3,6 @@ WARNFLAGS = -W -Wall
 CXXFLAGS = -std=c++0x $(WARNFLAGS)
 
 SOURCES = $(wildcard *.cpp)
-SOURCES = main.cpp xml.tab.cpp lex.xml.cpp
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 
 GRAMMAR = commun
