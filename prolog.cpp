@@ -22,12 +22,12 @@ std::string Prolog::str() const
 {
   std::string s = "";
   for (auto a : _firstPIs) {
-    s += a->str() + "\n";
+    s += a->str();
   }
   if (_doctype != nullptr)
-    s += _doctype->str() + "\n";
+    s += _doctype->str();
   for (auto a : _lastPIs) {
-    s += a->str() + "\n";
+    s += a->str();
   }
   return s;
 }

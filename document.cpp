@@ -21,12 +21,12 @@ std::string Document::str() const
 {
   std::string s = "";
   if (_prolog != nullptr)
-    s += _prolog->str() + "\n";
+    s += _prolog->str();
   if (_root != nullptr)
-    s += _root->str() + "\n";
+    s += _root->str();
   for(auto pi : _endPIs)
   {
-    s += pi->str() + "\n";
+    s += pi->str();
   }
   return s;
 }
