@@ -30,12 +30,7 @@ void xmlerror(const char * msg)
 %%
 
 document
-  : Misc_0_N doctypedecl_0_N element Misc_0_N           { std::cout << "document" << std::endl; }
-  ;
-
-doctypedecl_0_N
-  : DOCTYPE Misc_0_N                                    { std::cout << "doctypedecl_0_N" << std::endl; }
-  | /* empty */
+  : Misc_0_N doctypedecl_Misc_0_N_0_1 element Misc_0_N  { std::cout << "document" << std::endl; }
   ;
 
 Misc_0_N
@@ -49,18 +44,28 @@ Misc
   ;
 
 PI
-  : INFSPECIAL NOM DONNEES SUPSPECIAL                   { std::cout << "PI" << std::endl; }
+  : INFSPECIAL NOM Attribute_0_N SUPSPECIAL            { std::cout << "PI" << std::endl; }
   ;
 
+doctypedecl_Misc_0_N_0_1
+  : doctypedecl Misc_0_N
+  | /* empty */
+  ;
+
+doctypedecl
+  : DOCTYPE NOM SUP                                    { std::cout << "doctypedecl_0_N - 1" << std::endl; }
+  | DOCTYPE NOM NOM SUP                               { std::cout << "doctypedecl_0_N - 2" << std::endl; }
+  | DOCTYPE NOM NOM VALEUR SUP                        { std::cout << "doctypedecl_0_N - 3" << std::endl; }
+  ;
 
 Attribute_0_N
-  : Attribute_0_N NOM EGAL VALEUR                       { std::cout << "Attribute_0_N" << std::endl; }
+  : Attribute_0_N NOM EGAL VALEUR                      { std::cout << "Attribute_0_N" << std::endl; }
   | /* empty */
   ;
 
 element
-  : INF NOM Attribute_0_N SLASH SUP                     { std::cout << "element - empty" << std::endl; }
-  | INF NOM Attribute_0_N SUP content INF SLASH NOM SUP { std::cout << "element - composite : " << $2 << std::endl; }
+  : INF NOM Attribute_0_N SLASH SUP                      { std::cout << "element - empty" << std::endl; }
+  | INF NOM Attribute_0_N SUP content INF SLASH NOM SUP { std::cout << "element - composite : " << "" << std::endl; }
   ;
 
 content

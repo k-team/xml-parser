@@ -42,8 +42,8 @@ nl		(\r\n|\r|\n)
 esp		[ \t\r\n]+
 inf		{esp}?"<"
 sup		">"{nl}?
-debutnom	[A-Za-z\200-\377_]
-caracnom	[A-Za-z\200-\377_0-9.-]
+debutnom	[:A-Za-z\200-\377_]
+caracnom	[:A-Za-z\200-\377_0-9.-]
 esc		"&#"[0-9]+";"|"&#x"[0-9a-fA-F]+";"
 nom		{debutnom}{caracnom}*
 colon		":"
@@ -75,7 +75,6 @@ endcdata   "]]>"
 <INITIAL>{sup}	{dbg; BEGIN(CONTENU); return SUP;}
 <INITIAL>{supspecial}	{ dbg; return SUPSPECIAL;}
 <INITIAL>{nom}		{dbg; xmllval.s = strdup(xmltext); return NOM;}
-<INITIAL>{colon}  {dbg; return COLON;}
 <INITIAL>{chaine}	{dbg; xmllval.s = strdup(enleveGuillemets(xmltext)); return VALEUR;}
 <CONTENU>{cdata}           {dbg; BEGIN(CDATASECTION); buffer = (char*) malloc(1); buffer[0]='\0'; return CDATABEGIN;  }
 <CDATASECTION>{endcdata}     {dbg; BEGIN(CONTENU); xmllval.s = strdup(buffer); free(buffer); return CDATAEND; }
