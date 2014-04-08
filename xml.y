@@ -64,8 +64,10 @@ document
     std::cout << "document" << std::endl;
     $$ = new Document(new Prolog(*$1, $2->first, *$2->second), $3, *$4);
     delete $1;
+    delete $2->second;
     delete $2;
     delete $4;
+    $$ = nullptr;
   }
   ;
 
@@ -117,7 +119,8 @@ doctypedecl_Misc_0_N_0_1
   | /* empty */
   {
     std::cout << "doctypedecl_Misc_0_N_0_1 empty" << std::endl;
-    $$ = new std::pair<Doctype *, std::vector<PI *> *>(nullptr, nullptr);
+    $$ = new std::pair<Doctype *, std::vector<PI *> *>(nullptr,
+      new std::vector<PI *>());
   }
   ;
 
