@@ -9,6 +9,8 @@ class CDSect : public Content {
     CDSect(std::string const &);
     virtual ~CDSect();
 
+    virtual std::string str() const;
+
     std::string const & sect() const;
 
   protected:

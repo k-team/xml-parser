@@ -20,6 +20,21 @@ Prolog::~Prolog() {
     delete *it;
 }
 
+std::string Prolog::str() const
+{
+  std::string s = "";
+  for (std::vector<PI *>::iterator it(_firstPIs.begin());
+      it != _firstPIs.end(); it++) {
+    s += it->str() + "\n";
+  }
+  s += _doctype.str() + "\n";
+  for (std::vector<PI *>::iterator it(_lastPIs.begin());
+      it != _lastPIs.end(); it++) {
+    s += it->str() + "\n";
+  }
+  return s;
+}
+
 std::vector<PI *> const & Prolog::firstPIs() const {
   return _firstPIs;
 }

@@ -14,6 +14,8 @@ class Prolog: public Base {
         std::vector<PI *> const &);
     virtual ~Prolog();
 
+    virtual std::string str() const;
+
     std::vector<PI *> const & firstPIs() const;
     Doctype * doctype() const;
     std::vector<PI *> const & lastPIs() const;

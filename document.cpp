@@ -17,6 +17,16 @@ Document::~Document() {
   }
 }
 
+std::string Document::str() const
+{
+  std::string s = _prolog.str() + "\n" + _root.str() + "\n";
+  for (std::vector<PI *>::iterator it(_endPIs.begin());
+      it != _endPIs.end(); it++) {
+    s += it->str() + "\n";
+  }
+  return s;
+}
+
 Prolog * Document::prolog() const {
   return _prolog;
 }

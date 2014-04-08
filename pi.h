@@ -14,6 +14,8 @@ class PI : public Content {
     PI(std::string const &, data_list const &);
     virtual ~PI();
 
+    virtual std::string str() const;
+
     std::string const & target() const;
     data_list const & data() const;
 
