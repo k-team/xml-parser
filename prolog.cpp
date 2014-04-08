@@ -24,7 +24,8 @@ std::string Prolog::str() const
   for (auto a : _firstPIs) {
     s += a->str() + "\n";
   }
-  s += _doctype->str() + "\n";
+  if (_doctype != nullptr)
+    s += _doctype->str() + "\n";
   for (auto a : _lastPIs) {
     s += a->str() + "\n";
   }
