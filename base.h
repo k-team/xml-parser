@@ -7,7 +7,7 @@ class Base {
     Base();
     virtual ~Base();
 
-    virtual void to_be_or_not_to_be()=0;
+    virtual void to_be_or_not_to_be() {return;};
     
 };
 
