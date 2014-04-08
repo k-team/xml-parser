@@ -25,6 +25,7 @@ $(GRAMMAR): xml.l xml.y
 	@touch $(GRAMMAR)
 
 %.o: %.cpp %.h
+	@chmod 644 $< $^
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # TODO dépendances supplémentaires
