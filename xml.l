@@ -8,16 +8,9 @@
 #include <stdlib.h>
 
 #include "content.h"
-#include "element.h"
-#include "composite_element.h"
-#include "char_data.h"
-#include "cd_sect.h"
 #include "doctype.h"
 #include "attribute.h"
-#include "doctype.h"
 #include "document.h"
-#include "prolog.h"
-#include "pi.h"
 
 #include "xml.tab.h"
 

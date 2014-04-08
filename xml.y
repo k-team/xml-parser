@@ -1,21 +1,17 @@
 %{
 
 #include <iostream>
-#include <string>
-#include <vector>
-#include <utility>
 
-#include "content.h"
-#include "element.h"
-#include "composite_element.h"
-#include "char_data.h"
-#include "cd_sect.h"
-#include "doctype.h"
 #include "attribute.h"
+#include "cd_sect.h"
+#include "char_data.h"
+#include "composite_element.h"
+#include "content.h"
 #include "doctype.h"
 #include "document.h"
-#include "prolog.h"
+#include "element.h"
 #include "pi.h"
+#include "prolog.h"
 
 extern char xmltext[];
 
