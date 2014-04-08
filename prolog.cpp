@@ -3,14 +3,11 @@
 #include "pi.h"
 #include "doctype.h"
 
-Prolog::Prolog(XMLDecl * d,
-    std::vector<PI *> const & firsts,
-    Doctype * t,
+Prolog::Prolog(XMLDecl * d, std::vector<PI *> const & firsts, Doctype * t,
     std::vector<PI *> const & lasts):
-  _xmlDecl(d),
-  _firstPIs(firsts),
-  _doctype(t),
-  _lastPIs(lasts)
+  Base(),
+  _xmlDecl(d), _firstPIs(firsts),
+  _doctype(t), _lastPIs(lasts)
 {
 }
 
@@ -39,3 +36,5 @@ Doctype * doctype() const {
 std::vector<PI *> const & lastPIs() const {
   return _lastPIs;
 }
+
+// vim:ft=cpp et sw=2 sts=2:

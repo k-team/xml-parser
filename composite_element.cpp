@@ -17,3 +17,5 @@ CompositeElement::~CompositeElement() {
 std::vector<Content *> const & CompositeElement::content() const {
   return _content;
 }
+
+// vim:ft=cpp et sw=2 sts=2:

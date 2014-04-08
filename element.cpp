@@ -15,3 +15,5 @@ Element::~Element() {
 std::vector<Attribute *> const & Element::attributes() const {
   return _attributes;
 }
+
+// vim:ft=cpp et sw=2 sts=2:

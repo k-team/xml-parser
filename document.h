@@ -21,3 +21,5 @@ class Document {
 };
 
 #endif
+
+// vim:ft=cpp et sw=2 sts=2:

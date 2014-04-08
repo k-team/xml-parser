@@ -11,3 +11,5 @@ CDSect::~CDSect() {
 std::string const & CDSect::sect() const {
   return _sect;
 }
+
+// vim:ft=cpp et sw=2 sts=2:

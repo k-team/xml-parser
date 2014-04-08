@@ -8,3 +8,5 @@ EmptyElement::EmptyElement(std::vector<Attribute *> const & a):
 
 EmptyElement::~EmptyElement() {
 }
+
+// vim:ft=cpp et sw=2 sts=2:

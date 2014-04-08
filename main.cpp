@@ -19,3 +19,5 @@ int main(void)
    }
    return 1;
 }
+
+// vim:ft=cpp et sw=2 sts=2:

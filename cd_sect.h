@@ -16,3 +16,4 @@ class CDSect : public Content {
 
 #endif
 
+// vim:ft=cpp et sw=2 sts=2:

@@ -1,13 +1,14 @@
 #ifndef PROLOG_H
 #define PROLOG_H
 
+#include "base.h"
 #include <vector>
 
 class XMLDecl;
 class PI;
 class Doctype;
 
-class Prolog {
+class Prolog: public Base {
   public:
     Prolog(XMLDecl *,
         std::vector<PI *> const &,
@@ -28,3 +29,5 @@ class Prolog {
 };
 
 #endif
+
+// vim:ft=cpp et sw=2 sts=2:

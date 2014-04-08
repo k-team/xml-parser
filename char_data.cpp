@@ -11,3 +11,5 @@ CharData::~CharData() {
 std::string const & CharData::data() const {
   return _data;
 }
+
+// vim:ft=cpp et sw=2 sts=2:

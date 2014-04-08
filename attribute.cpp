@@ -15,3 +15,5 @@ name_type const & Attribute::name() const {
 value_type const & Attribute::value() const {
   return _value;
 }
+
+// vim:ft=cpp et sw=2 sts=2:

@@ -25,3 +25,5 @@ Element * Document::root() const {
 PI * Document::endPI() const{
   return _endPI;
 }
+
+// vim:ft=cpp et sw=2 sts=2:
