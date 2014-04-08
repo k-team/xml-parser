@@ -2,7 +2,9 @@ CXX = g++
 WARNFLAGS = -W -Wall
 CXXFLAGS = -std=c++0x $(WARNFLAGS)
 
-SOURCES = $(wildcard *.cpp)
+SOURCES = attribute.cpp base.cpp cd_sect.cpp char_data.cpp \
+		  composite_element.cpp content.cpp doctype.cpp document.cpp \
+		  element.cpp main.cpp pi.cpp prolog.cpp xml_exception.cpp
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 
 GRAMMAR = commun
@@ -20,7 +22,7 @@ $(GRAMMAR): xml.l xml.y
 	bison -o xml.tab.cpp -p xml --debug --verbose --defines=xml.tab.h xml.y
 	$(CXX) $(CXXFLAGS) -c xml.tab.cpp -o xml.tab.o
 	$(CXX) $(CXXFLAGS) -c lex.xml.cpp -o lex.xml.o
-	touch $(GRAMMAR)
+	@touch $(GRAMMAR)
 
 %.o: %.cpp %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
