@@ -1,6 +1,6 @@
 CXX = g++
 WARNFLAGS = -W -Wall
-CXXFLAGS = -std=c++0x $(WARNFLAGS)
+CXXFLAGS = -std=c++0x -g $(WARNFLAGS)
 
 SOURCES = attribute.cpp base.cpp cd_sect.cpp char_data.cpp \
 		  composite_element.cpp content.cpp doctype.cpp document.cpp \
@@ -15,7 +15,7 @@ EXE = xmltool
 all: $(EXE)
 	
 $(EXE): $(GRAMMAR) $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -g -DYYDEBUG -o $(EXE) $(OBJECTS) xml.tab.o lex.xml.o
+	$(CXX) $(CXXFLAGS) -DYYDEBUG -o $(EXE) $(OBJECTS) xml.tab.o lex.xml.o
 
 $(GRAMMAR): xml.l xml.y
 	flex -o lex.xml.cpp -P xml xml.l
