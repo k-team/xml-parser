@@ -8,12 +8,11 @@ Base::~Base()
 {
 }
 
-void to_be_or_not_to_be()
+void Base::to_be_or_not_to_be()
 {
 }
 
-
-std::string str()
+std::string Base::str() const
 {
     return "";
 }
