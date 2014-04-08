@@ -54,6 +54,8 @@ void xmlerror(const char * msg)
 %type<attribute_list> Attribute_0_N
 %type<content_list> content
 
+%parse-param {Document**}
+
 %%
 
 document

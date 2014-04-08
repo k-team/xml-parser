@@ -4,7 +4,6 @@
 #include <fstream>
 #include <cstdio>
 #include "document.h"
-#include "xml.tab.h"
 
 extern FILE * xmlin;
 extern int xmlparse(Document **);
