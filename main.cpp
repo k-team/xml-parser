@@ -16,8 +16,8 @@ Usage:                                                                        \n
                                                                               \n\
 Options:                                                                      \n\
    -h                      Display this help                                  \n\
-   -v file.xml             Validate XML file's syntax.                        \n\
    -p file.xml             Process XML file and display on standard output.   \n\
+   -v file.xml file.xsd    Validate XML file's syntax with a XSD.             \n\
    -t file.xml file.xsl    Apply stylesheet to XML file.                      \n\
 ";
 
@@ -81,34 +81,11 @@ static Document * read_document(const char * fname)
 
   // Construct document
   Document * doc = nullptr;
-  int re = xmlparse(&doc); // who gives a f**k about the return code ?
-  if (doc != nullptr)
-  {
-    std::cout << "Entrée standard reconnue" << std::endl;
-  }
-  else
-    std::cout << "Entrée standard non reconnue" << std::endl;
+  xmlparse(&doc); // who gives a f**k about the return code ?
+
+  // TODO semantic analysis
+
   return doc;
-}
-
-int handle_validate(int argc, const char ** argv)
-{
-  if (argc < 1)
-  {
-    std::cerr << "Filename argument required" << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  // Open and handle errors
-  Document * doc = read_document(argv[0]);
-  if (doc == nullptr)
-  {
-    // TODO error message ?
-    return EXIT_FAILURE;
-  }
-  delete doc;
-
-  return EXIT_FAILURE;
 }
 
 int handle_process(int argc, const char ** argv)
@@ -119,18 +96,38 @@ int handle_process(int argc, const char ** argv)
     return EXIT_FAILURE;
   }
 
-  // Open and handle errors
+  // XML
   Document * doc = read_document(argv[0]);
-  if (doc == nullptr)
-  {
-    // TODO error message ?
-    return EXIT_FAILURE;
-  }
-
+  if (doc == nullptr) { return EXIT_FAILURE; }
   std::cout << doc->str() << std::endl;
   delete doc;
 
-  return EXIT_FAILURE;
+  return EXIT_SUCCESS;
+}
+
+int handle_validate(int argc, const char ** argv)
+{
+  if (argc < 1)
+  {
+    std::cerr << "XML filename argument required" << std::endl;
+    return EXIT_FAILURE;
+  }
+  else if (argc < 2)
+  {
+    std::cerr << "XSD filename argument required" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // XML/XSD
+  Document * xml_doc = read_document(argv[0]);
+  Document * xsd_doc = read_document(argv[1]);
+
+  // TODO
+
+  delete xml_doc;
+  delete xsd_doc;
+
+  return EXIT_SUCCESS;
 }
 
 int handle_transform(int argc, const char ** argv)
@@ -146,15 +143,14 @@ int handle_transform(int argc, const char ** argv)
     return EXIT_FAILURE;
   }
 
-  // Open and handle errors
+  // XML/XSL
   Document * xml_doc = read_document(argv[0]);
-  // TODO
-  delete xml_doc;
-
-  // Open and handle errors
   Document * xsl_doc = read_document(argv[1]);
+
   // TODO
+
   delete xsl_doc;
+  delete xml_doc;
 
   return EXIT_FAILURE;
 }
