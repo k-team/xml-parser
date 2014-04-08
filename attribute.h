@@ -12,6 +12,8 @@ class Attribute: public Base {
     Attribute(name_type const &, value_type const &);
     virtual ~Attribute();
 
+    virtual std::string str() const;
+
     name_type const & name() const;
     value_type const & value() const;
 

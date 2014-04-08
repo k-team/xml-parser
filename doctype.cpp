@@ -12,3 +12,8 @@ Doctype::Doctype(std::string const & n1,
 Doctype::~Doctype()
 {
 }
+
+std::string Doctype::str() const
+{
+  return "<!DOCTYPE " + _n1 + " " + _n2 + " \"" + _n3 + "\">";
+}

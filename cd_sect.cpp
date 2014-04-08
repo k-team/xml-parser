@@ -9,6 +9,11 @@ CDSect::~CDSect()
 {
 }
 
+std::string CDSect::str() const
+{
+  return "<![CDATA[" + _sect + "]]>";
+}
+
 std::string const & CDSect::sect() const
 {
   return _sect;
