@@ -1,5 +1,4 @@
 #include "prolog.h"
-#include "xml_decl.h"
 #include "pi.h"
 #include "doctype.h"
 
