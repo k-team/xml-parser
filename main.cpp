@@ -4,7 +4,6 @@
 #include <fstream>
 #include <cstdio>
 #include "document.h"
-#include "xml.tab.h"
 
 extern FILE * xmlin;
 extern int xmlparse(Document **);
@@ -83,7 +82,13 @@ static Document * read_document(const char * fname)
 
   // Construct document
   Document * doc = nullptr;
-  xmlparse(&doc); // who gives a f**k about the return code ?
+  int re = xmlparse(&doc); // who gives a f**k about the return code ?
+  if (!re)
+  {
+    std::cout << "Entrée standard reconnue" << std::endl;
+  }
+  else
+    std::cout << "Entrée standard non reconnue" << std::endl;
   return doc;
 }
 
