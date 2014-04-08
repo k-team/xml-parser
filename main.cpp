@@ -5,6 +5,9 @@
 #include <cstdio>
 #include "document.h"
 
+#define GOOD_RETCODE 0
+#define BAD_RETCODE 1
+
 extern FILE * xmlin;
 extern int xmlparse(Document **);
 
@@ -56,7 +59,7 @@ int main(int argc, const char ** argv)
 int handle_help(int, const char **)
 {
   std::cerr << help_message;
-  return 1;
+  return BAD_RETCODE;
 }
 
 static Document * read_document(const char * fname)
@@ -65,7 +68,7 @@ static Document * read_document(const char * fname)
   FILE * fp = fopen(fname, "r");
   if (fp == nullptr)
   {
-    std::cerr << "Unable to open does_not_exist.xml" << std::endl;
+    std::cerr << "Unable to open file " << fname << std::endl;
     return nullptr;
   }
   xmlin = fp;
@@ -84,16 +87,16 @@ int handle_parse(int argc, const char ** argv)
   if (argc < 1)
   {
     std::cerr << "You must provide an argument to the command -p" << std::endl;
-    return 1;
+    return BAD_RETCODE;
   }
 
   // XML
   Document * doc = read_document(argv[0]);
-  if (doc == nullptr) { return 1; }
+  if (doc == nullptr) { return BAD_RETCODE; }
   std::cout << doc->str() << std::endl;
   delete doc;
 
-  return 0;
+  return GOOD_RETCODE;
 }
 
 int handle_validate(int argc, const char ** argv)
@@ -101,24 +104,34 @@ int handle_validate(int argc, const char ** argv)
   if (argc < 1)
   {
     std::cerr << "You must provide two arguments to the command -v: an xml file and an xsd file" << std::endl;
-    return 1;
+    return BAD_RETCODE;
   }
   else if (argc < 2)
   {
     std::cerr << "You must provide two arguments to the command -v: an xml file and an xsd file" << std::endl;
-    return 1;
+    return BAD_RETCODE;
   }
 
   // XML/XSD
   Document * xml_doc = read_document(argv[0]);
+  if (xml_doc == nullptr)
+  {
+    return BAD_RETCODE;
+  }
+
   Document * xsd_doc = read_document(argv[1]);
+  if (xsd_doc == nullptr)
+  {
+    delete xml_doc;
+    return BAD_RETCODE;
+  }
 
   // TODO
 
   delete xml_doc;
   delete xsd_doc;
 
-  return 0;
+  return GOOD_RETCODE;
 }
 
 int handle_transform(int argc, const char ** argv)
@@ -126,24 +139,35 @@ int handle_transform(int argc, const char ** argv)
   if (argc < 1)
   {
     std::cerr << "You must provide two arguments to the command -t: an xml file and an xsl file" << std::endl;
-    return 1;
+    return BAD_RETCODE;
   }
   else if (argc < 2)
   {
     std::cerr << "You must provide two arguments to the command -t: an xml file and an xsl file" << std::endl;
-    return 1;
+    return BAD_RETCODE;
   }
 
-  // XML/XSL
+  // XML
   Document * xml_doc = read_document(argv[0]);
+  if (xml_doc == nullptr)
+  {
+    return BAD_RETCODE;
+  }
+
+  // XML
   Document * xsl_doc = read_document(argv[1]);
+  if (xsl_doc == nullptr)
+  {
+    delete xml_doc;
+    return BAD_RETCODE;
+  }
 
   // TODO
 
   delete xsl_doc;
   delete xml_doc;
 
-  return 1;
+  return GOOD_RETCODE;
 }
 
 // vim:ft=cpp et sw=2 sts=2:
