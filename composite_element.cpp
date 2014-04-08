@@ -2,18 +2,24 @@
 #include "content.h"
 #include "attribute.h"
 
-CompositeElement::CompositeElement(std::vector<Content *> const & c,
-    std::vector<Attribute *> const & a):
-  Element(a),
-  _content(c)
+CompositeElement::CompositeElement(std::string const & name,
+    Element::attribute_list const & attrs,
+    CompositeElement::content_list const & content):
+  Element(name, attrs),
+  _content(content)
 {
 }
 
-CompositeElement::~CompositeElement() {
-  for (auto c: _content) { delete c; }
+CompositeElement::~CompositeElement()
+{
+  for (auto c: _content)
+  {
+    delete c;
+  }
 }
 
-std::vector<Content *> const & CompositeElement::content() const {
+CompositeElement::content_list const & CompositeElement::content() const
+{
   return _content;
 }
 
