@@ -1,7 +1,7 @@
 #ifndef EMPTYELEMENT_H
 #define EMPTYELEMENT_H
 
-#include "Element.h"
+#include "element.h"
 
 class EmptyElement : public Element {
   public:

@@ -1,7 +1,7 @@
 #ifndef COMPOSITEELEMENT_H
 #define COMPOSITEELEMENT_H
 
-#include "Element.h"
+#include "element.h"
 
 class CompositeElement : public Element {
   public:

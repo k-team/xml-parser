@@ -1,5 +1,5 @@
-#include "CompositeElement.h"
-#include "Attribute.h"
+#include "composite_element.h"
+#include "attribute.h"
 
 CompositeElement::CompositeElement(std::vector<Content *> const & c,
     std::vector<Attribute *> const & a):

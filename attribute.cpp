@@ -1,4 +1,4 @@
-#include "Attribute.h"
+#include "attribute.h"
 
 Attribute::Attribute(name_type const & n, value_type const & v):
   _name(n), _value(v)

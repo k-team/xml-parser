@@ -1,7 +1,7 @@
 #ifndef XMLDECL_H
 #define XMLDECL_H
 
-#include <PI.h>
+#include "pi.h"
 
 class XMLDecl : public PI {
   public:

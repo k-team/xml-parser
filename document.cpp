@@ -1,7 +1,7 @@
-#include "Document.h"
-#include "Prolog.h"
-#include "Element.h"
-#include "PI.h"
+#include "document.h"
+#include "prolog.h"
+#include "element.h"
+#include "pi.h"
 
 Document::Document(Prolog * p, Element * r, PI * pi):
   _prolog(p), _root(r), _endPI(pi)

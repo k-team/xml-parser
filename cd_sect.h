@@ -1,7 +1,7 @@
 #ifndef CDSECT_H
 #define CDSECT_H
 
-#include "Content.h"
+#include "content.h"
 
 class CDSect : public Content {
   public:

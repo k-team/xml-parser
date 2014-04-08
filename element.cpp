@@ -1,5 +1,5 @@
-#include "Element.h"
-#include "Attribute.h"
+#include "element.h"
+#include "attribute.h"
 
 Element::Element(std::vector<Attribute *> const & a):
   _attributes(a)

@@ -1,4 +1,4 @@
-#include "CDSect.h"
+#include "cd_sect.h"
 
 CDSect::CDSect(std::string const & s):
   _sect(s)

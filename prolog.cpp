@@ -1,7 +1,7 @@
-#include "Prolog.h"
-#include "XMLDecl.h"
-#include "PI.h"
-#include "Doctype.h"
+#include "prolog.h"
+#include "xml_decl.h"
+#include "pi.h"
+#include "doctype.h"
 
 Prolog::Prolog(XMLDecl * d,
     std::vector<PI *> const & firsts,
