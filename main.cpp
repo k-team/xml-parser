@@ -65,6 +65,7 @@ static Document * read_document(const char * fname)
   FILE * fp = fopen(fname, "r");
   if (fp == nullptr)
   {
+    std::cerr << "Unable to open does_not_exist.xml" << std::endl;
     return nullptr;
   }
   xmlin = fp;
@@ -83,16 +84,16 @@ int handle_parse(int argc, const char ** argv)
   if (argc < 1)
   {
     std::cerr << "You must provide an argument to the command -p" << std::endl;
-    return EXIT_FAILURE;
+    return 1;
   }
 
   // XML
   Document * doc = read_document(argv[0]);
-  if (doc == nullptr) { return EXIT_FAILURE; }
+  if (doc == nullptr) { return 1; }
   std::cout << doc->str() << std::endl;
   delete doc;
 
-  return EXIT_SUCCESS;
+  return 0;
 }
 
 int handle_validate(int argc, const char ** argv)
@@ -100,12 +101,12 @@ int handle_validate(int argc, const char ** argv)
   if (argc < 1)
   {
     std::cerr << "You must provide two arguments to the command -v: an xml file and an xsd file" << std::endl;
-    return EXIT_FAILURE;
+    return 1;
   }
   else if (argc < 2)
   {
     std::cerr << "You must provide two arguments to the command -v: an xml file and an xsd file" << std::endl;
-    return EXIT_FAILURE;
+    return 1;
   }
 
   // XML/XSD
@@ -117,7 +118,7 @@ int handle_validate(int argc, const char ** argv)
   delete xml_doc;
   delete xsd_doc;
 
-  return EXIT_SUCCESS;
+  return 0;
 }
 
 int handle_transform(int argc, const char ** argv)
@@ -125,12 +126,12 @@ int handle_transform(int argc, const char ** argv)
   if (argc < 1)
   {
     std::cerr << "You must provide two arguments to the command -t: an xml file and an xsl file" << std::endl;
-    return EXIT_FAILURE;
+    return 1;
   }
   else if (argc < 2)
   {
     std::cerr << "You must provide two arguments to the command -t: an xml file and an xsl file" << std::endl;
-    return EXIT_FAILURE;
+    return 1;
   }
 
   // XML/XSL
@@ -142,7 +143,7 @@ int handle_transform(int argc, const char ** argv)
   delete xsl_doc;
   delete xml_doc;
 
-  return EXIT_FAILURE;
+  return 1;
 }
 
 // vim:ft=cpp et sw=2 sts=2:
