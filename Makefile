@@ -1,5 +1,7 @@
 CXX = g++
-WARNFLAGS = -W -Wall
+WARNFLAGS = -W -Wall -Wextra -Wfloat-equal -Wundef -Wpointer-arith \
+			-Wcast-align -Wstrict-overflow=5 -Wwrite-strings -Wcast-qual \
+			-Wswitch-default -Wswitch-enum -Wconversion -Wunreachable-code
 CXXFLAGS = -pedantic -std=c++0x -g $(WARNFLAGS)
 
 LD = g++
@@ -16,7 +18,7 @@ EXE = xmltool
 .PHONY: all clean test
 
 all: $(EXE)
-	
+
 $(EXE): $(OBJECTS)
 	$(LD) $(LDFLAGS) $(OBJECTS) -DYYDEBUG -o $(EXE)
 
