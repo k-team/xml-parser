@@ -3,6 +3,9 @@
 
 #include "element.h"
 
+class Attribute;
+class Content;
+
 class CompositeElement : public Element {
   public:
     CompositeElement(std::vector<Content *> const &,
@@ -15,6 +18,4 @@ class CompositeElement : public Element {
     std::vector<Content *> _content;
 };
 
-#endif
-
-// vim:ft=cpp et sw=2 sts=2:
+#endif // vim:ft=cpp et sw=2 sts=2:

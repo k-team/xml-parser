@@ -14,6 +14,4 @@ class CharData : public Content {
     std::string _data;
 };
 
-#endif
-
-// vim:ft=cpp et sw=2 sts=2:
+#endif // vim:ft=cpp et sw=2 sts=2:
