@@ -7,8 +7,8 @@ class Base {
     Base();
     virtual ~Base();
 
-    virtual void to_be_or_not_to_be() {return;};
-    
+    virtual void to_be_or_not_to_be() {};
+    virtual void print() {};
 };
 
 #endif// vim:ft=cpp et sw=2 sts=2:
