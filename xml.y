@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 using namespace std;
 #include "commun.h"
 
@@ -29,97 +30,52 @@ void xmlerror(const char * msg)
 %%
 
 document
-  : prolog element Misc_0_N
-  ;
-
-prolog
-  : XMLDecl_0_1 Misc_0_N doctypedecl_0_N
-  ;
-
-XMLDecl_0_1
-  : XMLDecl
-  | /* empty */
-  ;
-
-XMLDecl
-  : PI
+  : Misc_0_N doctypedecl_0_N element Misc_0_N           { std::cout << "document" << std::endl; }
   ;
 
 doctypedecl_0_N
-  : doctypedecl Misc_0_N
+  : DOCTYPE Misc_0_N                                    { std::cout << "doctypedecl_0_N" << std::endl; }
   | /* empty */
   ;
 
-doctypedecl
-  : DOCTYPE
-  ;
-
 Misc_0_N
-  : Misc_0_N Misc
+  : Misc_0_N Misc                                       { std::cout << "Misc_0_N" << std::endl; }
   | /* empty */
   ;
 
 Misc
-  : COMMENT
-  | PI
+  : COMMENT                                             { std::cout << "Misc - Comment" << std::endl; }
+  | PI                                                  { std::cout << "Misc - PI" << std::endl; }
   ;
 
 PI
-  : INFSPECIAL NOM Attribute_0_N SUPSPECIAL /* FIXME check */
+  : INFSPECIAL NOM DONNEES SUPSPECIAL                   { std::cout << "PI" << std::endl; }
   ;
 
+
 Attribute_0_N
-  : Attribute_0_N | Attribute
+  : Attribute_0_N NOM EGAL VALEUR                       { std::cout << "Attribute_0_N" << std::endl; }
   | /* empty */
   ;
 
-Attribute
-  : NOM EGAL VALEUR
-  ;
+/*Attribute*/
+/*  : NOM EGAL VALEUR                                     { std::cout << "Attribute" << std::endl; }*/
+/*  ;*/
 
 element
-  : EmptyElementTag
-  | STag content ETag
-  ;
-
-EmptyElementTag
-  : INF NOM Attribute_0_N SLASH SUP
-  ;
-
-STag
-  : INF NOM Attribute_0_N SUP
-  ;
-
-ETag
-  : INF SLASH NOM SUP
+  : INF NOM Attribute_0_N SLASH SUP                     { std::cout << "element - empty" << std::endl; }
+  | INF NOM Attribute_0_N SUP content INF SLASH NOM SUP { std::cout << "element - composite" << std::endl; }
   ;
 
 content
-  : CharData_0_1 sub_element_0_N
-  ;
-
-CharData_0_1
-  : CharData
-  | /* empty */
-  ;
-
-CharData
-  : DONNEES
-  ;
-
-sub_element_0_N
-  : sub_element_0_N sub_element
+  : content sub_element                                 { std::cout << "content" << std::endl; }
   | /* empty */
   ;
 
 sub_element
-  : sub_sub_element CharData_0_1
-  ;
-
-sub_sub_element
-  : element | CDSect | PI | COMMENT
+  : DONNEES | element | CDSect | PI | COMMENT           { std::cout << "sub_element" << std::endl; }
   ;
 
 CDSect
-  : CDATABEGIN CDATAEND
+  : CDATABEGIN CDATAEND                                 { std::cout << "CDSect" << std::endl; }
   ;

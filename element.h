@@ -4,11 +4,11 @@
 #include <vector>
 #include <string>
 
-#include "base.h"
+#include "content.h"
 
 class Attribute;
 
-class Element: public Base {
+class Element: public Content {
   public:
     typedef std::vector<Attribute *> attribute_list;
 
