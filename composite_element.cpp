@@ -37,7 +37,7 @@ std::string CompositeElement::str() const
   oss << ">";
   for (auto c: _content)
   {
-    oss << c;
+    oss << c->str();
   }
   oss << "</" << name() << ">";
   return oss.str();
