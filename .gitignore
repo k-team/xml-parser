@@ -22,9 +22,9 @@
 xmltool
 commun
 xml.output
-xml.tab.c
+xml.tab.cpp
 xml.tab.h
-lex.xml.c
+lex.xml.cpp
 
 # Test result files
 Tests/results.csv
