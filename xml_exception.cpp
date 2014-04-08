@@ -1,34 +1,33 @@
 #include "xml_exception.h"
 
-
 std::ostringstream XmlException::xml_exception_oss;
 
-
-XmlException::XmlException(const std::string & u_standard, const std::string & u_extra)
-    : runtime_error( "XmlException" ), _standard( u_standard ), _extra( u_extra )
-{}
+XmlException::XmlException(const std::string & standard,
+    const std::string & extra):
+  std::runtime_error("XmlException"),
+  _standard(standard), _extra(extra)
+{
+}
 
 XmlException::~XmlException() throw()
 {
-
 }
 
-
-
-const std::string& XmlException::standard()
+std::string const & XmlException::standard() const
 {
-    return _standard;
+  return _standard;
 }
 
-const std::string& XmlException::extra()
+std::string const & XmlException::extra() const
 {
-    return _extra;
+  return _extra;
 }
 
-const char* XmlException::what() const throw()
+const char * XmlException::what() const throw()
 {
-    xml_exception_oss.str("");
-    xml_exception_oss<<_standard<<": "<<_extra<<std::endl;
-
-    return xml_exception_oss.str().c_str();
+  xml_exception_oss.str("");
+  xml_exception_oss << _standard << ": " << _extra << std::endl;
+  return xml_exception_oss.str().c_str();
 }
+
+// vim:ft=cpp et sw=2 sts=2:

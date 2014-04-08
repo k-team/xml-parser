@@ -4,7 +4,6 @@
 #include "base.h"
 #include <vector>
 
-class XMLDecl;
 class PI;
 class Doctype;
 

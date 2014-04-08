@@ -14,6 +14,10 @@ class CompositeElement: public Element {
     virtual ~CompositeElement();
 
     content_list const & content() const;
+    std::string const & begin_tag() const;
+    std::string const & end_tag() const;
+
+    std::string str() const;
 
   private:
     std::string _end;

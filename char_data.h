@@ -4,12 +4,13 @@
 #include <string>
 #include "content.h"
 
-class CharData : public Content {
+class CharData: public Content {
   public:
     CharData(std::string const &);
     virtual ~CharData();
 
     std::string const & data() const;
+    std::string str() const;
 
   private:
     std::string _data;

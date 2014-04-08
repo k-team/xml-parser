@@ -1,6 +1,7 @@
 #include "composite_element.h"
 #include "content.h"
 #include "attribute.h"
+#include <sstream>
 
 CompositeElement::CompositeElement(std::string const & name,
     std::string const & end,
@@ -23,6 +24,23 @@ CompositeElement::~CompositeElement()
 CompositeElement::content_list const & CompositeElement::content() const
 {
   return _content;
+}
+
+std::string CompositeElement::str() const
+{
+  std::ostringstream oss;
+  oss << "<" << name() << " ";
+  for (auto attr: attributes())
+  {
+    oss << attr->str() << " ";
+  }
+  oss << ">";
+  for (auto c: _content)
+  {
+    oss << c;
+  }
+  oss << "</" << name() << ">";
+  return oss.str();
 }
 
 // vim:ft=cpp et sw=2 sts=2:
