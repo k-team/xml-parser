@@ -2,20 +2,27 @@
 #define ELEMENT_H
 
 #include <vector>
+#include <string>
 
-#include "base.h"
+#include "content.h"
 
 class Attribute;
 
-class Element: public Base {
+class Element: public Content {
   public:
-    Element(std::vector<Attribute *> const &);
+    typedef std::vector<Attribute *> attribute_list;
+
+    // Construct an element, taking its tag name and the begin/end iterators
+    // for its attributes. These must dereference to Attribute*.
+    Element(std::string const &, Element::attribute_list const &);
     virtual ~Element();
 
-    std::vector<Attribute *> const & attributes() const;
+    std::string const & name() const;
+    attribute_list const & attributes() const;
 
   protected:
-    std::vector<Attribute *> _attributes;
+    std::string _name;
+    attribute_list _attributes;
 };
 
 #endif // vim:ft=cpp et sw=2 sts=2:

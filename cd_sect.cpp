@@ -5,10 +5,12 @@ CDSect::CDSect(std::string const & s):
 {
 }
 
-CDSect::~CDSect() {
+CDSect::~CDSect()
+{
 }
 
-std::string const & CDSect::sect() const {
+std::string const & CDSect::sect() const
+{
   return _sect;
 }
 

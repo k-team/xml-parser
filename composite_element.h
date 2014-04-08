@@ -6,16 +6,17 @@
 class Attribute;
 class Content;
 
-class CompositeElement : public Element {
+class CompositeElement: public Element {
   public:
-    CompositeElement(std::vector<Content *> const &,
-        std::vector<Attribute *> const &);
+    typedef std::vector<Content *> content_list;
+    CompositeElement(std::string const &, Element::attribute_list const &,
+        content_list const &);
     virtual ~CompositeElement();
 
-    std::vector<Content *> const & content() const;
+    content_list const & content() const;
 
   protected:
-    std::vector<Content *> _content;
+    content_list _content;
 };
 
 #endif // vim:ft=cpp et sw=2 sts=2:
