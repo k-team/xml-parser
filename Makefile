@@ -8,16 +8,20 @@ SOURCES = attribute.cpp base.cpp cd_sect.cpp char_data.cpp \
 		composite_element.cpp content.cpp document.cpp element.cpp \
 		empty_element.cpp main.cpp prolog.cpp
 OBJECTS = $(subst .cpp,.o,$(SOURCES))
+GRAMMAR = commun
 EXE = xmltool
+
+.PHONY: all objects clean test
 
 all: $(EXE)
 	
-$(EXE): grammar objects
+$(EXE): objects $(GRAMMAR)
 	g++ -std=c++11 -g -DYYDEBUG -o $(EXE) $(OBJECTS) xml.tab.c lex.xml.c
 
-grammar: xml.l xml.y
+$(GRAMMAR): xml.l xml.y
 	flex -P xml xml.l
 	bison -p xml --debug --verbose --defines=xml.tab.h xml.y
+	touch $(GRAMMAR)
 
 objects: $(OBJECTS)
 
@@ -27,8 +31,8 @@ objects: $(OBJECTS)
 # TODO dépendances supplémentaires
 
 clean:
-	@rm -f $(OBJECTS)
-	@rm -rf xml.tab.c lex.xml.c xml.tab.h xml.output $(EXE)
+	@rm -f $(OBJECTS) $(GRAMMAR) $(EXE)
+	@rm -rf xml.tab.c lex.xml.c xml.tab.h xml.output
 
 test:
 	cd Tests; ./mktest.sh
