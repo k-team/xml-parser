@@ -1,10 +1,14 @@
 CXX = g++
 WARNFLAGS = -W -Wall
-CXXFLAGS = -std=c++0x -g $(WARNFLAGS)
+CXXFLAGS = -pedantic -std=c++0x -g $(WARNFLAGS)
+
+LD = g++
+LDFLAGS =
 
 SOURCES = attribute.cpp base.cpp cd_sect.cpp char_data.cpp \
 		  composite_element.cpp content.cpp doctype.cpp document.cpp \
-		  element.cpp main.cpp pi.cpp prolog.cpp xml_exception.cpp
+		  element.cpp main.cpp pi.cpp prolog.cpp xml_exception.cpp \
+		  xml.tab.cpp lex.xml.cpp
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 
 GRAMMAR = commun
@@ -14,19 +18,19 @@ EXE = xmltool
 
 all: $(EXE)
 	
-$(EXE): $(GRAMMAR) $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -DYYDEBUG -o $(EXE) $(OBJECTS) xml.tab.o lex.xml.o
+$(EXE): $(OBJECTS)
+	$(LD) $(LDFLAGS) $(OBJECTS) -DYYDEBUG -o $(EXE)
 
-$(GRAMMAR): xml.l xml.y
+lex.xml.cpp: xml.l
 	flex -o lex.xml.cpp -P xml xml.l
-	bison -o xml.tab.cpp -p xml --debug --verbose --defines=xml.tab.h xml.y
-	$(CXX) $(CXXFLAGS) -c xml.tab.cpp -o xml.tab.o
-	$(CXX) $(CXXFLAGS) -c lex.xml.cpp -o lex.xml.o
-	@touch $(GRAMMAR)
 
-%.o: %.cpp %.h
-	@chmod 644 $< $^
+xml.tab.cpp: xml.y
+	bison -o xml.tab.cpp -p xml --debug --verbose --defines=xml.tab.h xml.y
+
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.cpp: %.h
 
 # TODO dépendances supplémentaires
 
@@ -35,6 +39,7 @@ test: all
 
 clean:
 	@rm -f $(OBJECTS) $(GRAMMAR) $(EXE)
-	@rm -rf xml.tab.cpp lex.xml.cpp xml.tab.h xml.output
+	@rm -f xml.tab.cpp xml.tab.h
+	@rm -f lex.xml.cpp xml.output
 
 # vim:ft=make noet sw=4 ts=4:
