@@ -19,7 +19,11 @@ Document::~Document() {
 
 std::string Document::str() const
 {
-  std::string s = _prolog->str() + "\n" + _root->str() + "\n";
+  std::string s = "";
+  if (_prolog != nullptr)
+    s += _prolog->str() + "\n";
+  if (_root != nullptr)
+    s += _root->str() + "\n";
   for(auto pi : _endPIs)
   {
     s += pi->str() + "\n";
