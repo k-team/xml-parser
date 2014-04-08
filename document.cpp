@@ -19,10 +19,10 @@ Document::~Document() {
 
 std::string Document::str() const
 {
-  std::string s = _prolog.str() + "\n" + _root.str() + "\n";
-  for (std::vector<PI *>::iterator it(_endPIs.begin());
-      it != _endPIs.end(); it++) {
-    s += it->str() + "\n";
+  std::string s = _prolog->str() + "\n" + _root->str() + "\n";
+  for(auto pi : _endPIs)
+  {
+    s += pi->str() + "\n";
   }
   return s;
 }

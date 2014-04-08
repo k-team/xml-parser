@@ -13,10 +13,9 @@ PI::~PI()
 
 std::string PI::str() const
 {
-  std::string s = "<?" + _target.str() + " ";
-  for (std::vector<Attribute *>::iterator it(_data.begin());
-      it != _data.end(); it++) {
-    s += it->str() + " ";
+  std::string s = "<?" + _target + " ";
+  for (auto a : _data) {
+    s += a->str() + " ";
   }
   return s + "?>";
 }

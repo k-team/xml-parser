@@ -12,26 +12,22 @@ Prolog::Prolog(std::vector<PI *> const & firsts, Doctype * t,
 }
 
 Prolog::~Prolog() {
-  for (std::vector<PI *>::iterator it = _firstPIs.begin();
-      it != _firstPIs.end(); it++)
-    delete *it;
+  for (auto a : _firstPIs)
+    delete a;
   delete _doctype;
-  for (std::vector<PI *>::iterator it = _lastPIs.begin();
-      it != _lastPIs.end(); it++)
-    delete *it;
+  for (auto a : _lastPIs)
+    delete a;
 }
 
 std::string Prolog::str() const
 {
   std::string s = "";
-  for (std::vector<PI *>::iterator it(_firstPIs.begin());
-      it != _firstPIs.end(); it++) {
-    s += it->str() + "\n";
+  for (auto a : _firstPIs) {
+    s += a->str() + "\n";
   }
-  s += _doctype.str() + "\n";
-  for (std::vector<PI *>::iterator it(_lastPIs.begin());
-      it != _lastPIs.end(); it++) {
-    s += it->str() + "\n";
+  s += _doctype->str() + "\n";
+  for (auto a : _lastPIs) {
+    s += a->str() + "\n";
   }
   return s;
 }

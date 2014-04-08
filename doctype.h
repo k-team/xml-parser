@@ -10,6 +10,8 @@ class Doctype : public Base {
     Doctype(std::string const &, std::string const &, std::string const &);
     virtual ~Doctype();
 
+    virtual std::string str() const;
+
   private:
     std::string _n1;
     std::string _n2;

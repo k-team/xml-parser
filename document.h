@@ -14,6 +14,8 @@ class Document: public Base {
     Document(Prolog *, Element *, std::vector<PI *> const &);
     virtual ~Document();
 
+    virtual std::string str() const;
+
     Prolog * prolog() const;
     Element * root() const;
     std::vector<PI *> const & endPIs() const;
