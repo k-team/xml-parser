@@ -5,7 +5,7 @@
 
 class Doctype : public Base {
   public:
-    Doctype();
+    Doctype(std::string const &, std::string const &, std::string const &);
     virtual ~Doctype();
 
   private:
