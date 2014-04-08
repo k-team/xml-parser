@@ -60,7 +60,6 @@ int main(int argc, const char ** argv)
   int nb_ignored = 2;
   argc -= nb_ignored;
   argv += nb_ignored;
-  std::cout << argc << std::endl;
   return it->second(argc, argv);
 }
 
