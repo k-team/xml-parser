@@ -16,7 +16,7 @@ static std::string help_message = "Available commands are:\n\
 
 static int handle_help(int, const char **);
 static int handle_validate(int, const char **);
-static int handle_process(int, const char **);
+static int handle_parse(int, const char **);
 static int handle_transform(int, const char **);
 
 // Valid commands (no dash character)
@@ -24,7 +24,7 @@ typedef int (*command_handler)(int, const char **) ;
 static std::map<std::string, command_handler> command_map = {
   { "h", handle_help},
   { "v", handle_validate },
-  { "p", handle_process },
+  { "p", handle_parse },
   { "t", handle_transform }
 };
 
@@ -42,6 +42,7 @@ int main(int argc, const char ** argv)
   std::map<std::string, command_handler>::const_iterator it;
   if ((it = command_map.find(cmd)) == command_map.end())
   {
+    std::cerr << "Bad argument given" << std::endl;
     return handle_help(argc, argv);
   }
 
@@ -77,11 +78,11 @@ static Document * read_document(const char * fname)
   return doc;
 }
 
-int handle_process(int argc, const char ** argv)
+int handle_parse(int argc, const char ** argv)
 {
   if (argc < 1)
   {
-    std::cerr << "Filename argument required" << std::endl;
+    std::cerr << "You must provide an argument to the command -p" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -98,12 +99,12 @@ int handle_validate(int argc, const char ** argv)
 {
   if (argc < 1)
   {
-    std::cerr << "XML filename argument required" << std::endl;
+    std::cerr << "You must provide two arguments to the command -v: an xml file and an xsd file" << std::endl;
     return EXIT_FAILURE;
   }
   else if (argc < 2)
   {
-    std::cerr << "XSD filename argument required" << std::endl;
+    std::cerr << "You must provide two arguments to the command -v: an xml file and an xsd file" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -123,12 +124,12 @@ int handle_transform(int argc, const char ** argv)
 {
   if (argc < 1)
   {
-    std::cerr << "XML filename argument required" << std::endl;
+    std::cerr << "You must provide two arguments to the command -t: an xml file and an xsl file" << std::endl;
     return EXIT_FAILURE;
   }
   else if (argc < 2)
   {
-    std::cerr << "XSL filename argument required" << std::endl;
+    std::cerr << "You must provide two arguments to the command -t: an xml file and an xsl file" << std::endl;
     return EXIT_FAILURE;
   }
 

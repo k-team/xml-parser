@@ -30,11 +30,11 @@ $(GRAMMAR): xml.l xml.y
 
 # TODO dépendances supplémentaires
 
+test: all
+	cd Tests; ./mktest.sh
+
 clean:
 	@rm -f $(OBJECTS) $(GRAMMAR) $(EXE)
 	@rm -rf xml.tab.cpp lex.xml.cpp xml.tab.h xml.output
-
-test:
-	cd Tests; ./mktest.sh
 
 # vim:ft=make noet sw=4 ts=4:

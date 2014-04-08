@@ -1,0 +1,6 @@
+No argument given
+Available commands are:
+../xmltool -p file.xml : parse and display the xml file
+../xmltool -v file.xml file.xsd : parse both xml and xsd files and display the validation result
+../xmltool -t file.xml file.xsl : parse both xml and xsl files and display de transformation result of file.xml by the stylesheet file.xsl
+../xmltool -h : displays this help

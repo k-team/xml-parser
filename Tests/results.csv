@@ -1,0 +1,35 @@
+Test ID;Return code validation;Out result;StdErr result;File creation result;Global result
+TestCLIHelp;Ok;Ok;Ok;Non testé;Ok
+TestCLINoArgument;Ok;Ok;Ok;Non testé;Ok
+TestCLIParseNoFile;Ok;Ok;Ok;Non testé;Ok
+TestCLITransformNoFile;Ok;Ok;Ok;Non testé;Ok
+TestCLITransformOneFile;Ok;Ok;Ok;Non testé;Ok
+TestCLIValidationNoFile;Ok;Ok;Ok;Non testé;Ok
+TestCLIValidationOneFile;Ok;Ok;Ok;Non testé;Ok
+TestParsingBadMarkup1;Ok;Echec;Echec;Non testé;Echec
+TestParsingBadMarkup2;Ok;Echec;Echec;Non testé;Echec
+TestParsingBadMarkup3;Ok;Echec;Echec;Non testé;Echec
+TestParsingBadMarkup4;Ok;Echec;Echec;Non testé;Echec
+TestParsingCannotOpen;Ok;Ok;Echec;Non testé;Echec
+TestParsingLexicalError;Ok;Ok;Echec;Non testé;Echec
+TestParsingMissingMarkup;Ok;Ok;Echec;Non testé;Echec
+TestParsingSimple1;Ok;Echec;Non testé;Non testé;Echec
+TestParsingSimple2;Ok;Echec;Non testé;Non testé;Echec
+TestParsingSimple3;Ok;Echec;Non testé;Non testé;Echec
+TestParsingSimple4;Ok;Echec;Non testé;Non testé;Echec
+TestParsingSimple5;Ok;Echec;Non testé;Non testé;Echec
+TestParsingSyntaxError;Ok;Ok;Echec;Non testé;Echec
+TestTransformApplyTemplates1;Echec;Echec;Non testé;Non testé;Echec
+TestTransformApplyTemplates2;Echec;Echec;Non testé;Non testé;Echec
+TestTransformCannotOpen1;Ok;Ok;Echec;Non testé;Echec
+TestTransformCannotOpen2;Ok;Ok;Echec;Non testé;Echec
+TestTransformForeach;Echec;Echec;Non testé;Non testé;Echec
+TestValidationCannotOpen1;Echec;Ok;Echec;Non testé;Echec
+TestValidationCannotOpen2;Echec;Ok;Echec;Non testé;Echec
+TestValidationChoiceBad;Ok;Echec;Non testé;Non testé;Echec
+TestValidationChoiceGood;Ok;Echec;Non testé;Non testé;Echec
+TestValidationMaxOccursBad;Ok;Echec;Non testé;Non testé;Echec
+TestValidationMaxOccursGood;Ok;Echec;Non testé;Non testé;Echec
+TestValidationSequenceBadOrder;Ok;Echec;Non testé;Non testé;Echec
+TestValidationSequenceGood;Ok;Echec;Non testé;Non testé;Echec
+TestValidationSequenceMissingItem;Ok;Echec;Non testé;Non testé;Echec
