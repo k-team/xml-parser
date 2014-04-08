@@ -9,11 +9,16 @@ CompositeElement::CompositeElement(std::vector<Content *> const & c,
 {
 }
 
-CompositeElement::~CompositeElement() {
-  for (auto c: _content) { delete c; }
+CompositeElement::~CompositeElement()
+{
+  for (auto c: _content)
+  {
+    delete c;
+  }
 }
 
-std::vector<Content *> const & CompositeElement::content() const {
+std::vector<Content *> const & CompositeElement::content() const
+{
   return _content;
 }
 

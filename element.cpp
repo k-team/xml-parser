@@ -1,8 +1,8 @@
 #include "element.h"
 #include "attribute.h"
 
-Element::Element(std::vector<Attribute *> const & a):
-  Base(), _attributes(a)
+Element::Element(std::string const & name, Element::attribute_list const & attrs):
+  _name(name), _attributes(attrs)
 {
 }
 
@@ -14,7 +14,13 @@ Element::~Element()
   }
 }
 
-std::vector<Attribute *> const & Element::attributes() const {
+std::string const & Element::name() const
+{
+  return _name;
+}
+
+Element::attribute_list const & Element::attributes() const
+{
   return _attributes;
 }
 

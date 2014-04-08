@@ -6,7 +6,7 @@
 class Attribute;
 class Content;
 
-class CompositeElement : public Element {
+class CompositeElement: public Element {
   public:
     CompositeElement(std::vector<Content *> const &,
         std::vector<Attribute *> const &);
