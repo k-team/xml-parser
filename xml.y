@@ -1,20 +1,15 @@
 %{
 
-#include <stack>
-#include <list>
-#include <cstring>
-#include <cstdio>
-#include <cstdlib>
+#include <string>
 #include <iostream>
-using namespace std;
 
 extern char xmltext[];
 
-int xmllex(void);  
+int xmllex(void);
 
 void xmlerror(const char * msg)
 {
-   fprintf(stderr,"%s\n",msg);
+   std::cerr << msg << std::endl;
 }
 
 %}

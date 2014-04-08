@@ -97,7 +97,11 @@ int handle_validate(int argc, const char ** argv)
 
   // Open and handle errors
   Document * doc = read_document(argv[0]);
-  // TODO
+  if (doc == nullptr)
+  {
+    // TODO error message ?
+    return EXIT_FAILURE;
+  }
   delete doc;
 
   return EXIT_FAILURE;
