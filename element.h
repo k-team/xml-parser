@@ -19,7 +19,7 @@ class Element: public Content {
     attribute_list const & attributes() const;
 
     virtual std::string str() const;
-    virtual void to_be_or_not_to_be() const;
+    virtual void to_be_or_not_to_be(std::ostream &) const;
 
   private:
     std::string _name;

@@ -9,7 +9,7 @@ LDFLAGS =
 
 SOURCES = attribute.cpp base.cpp cd_sect.cpp char_data.cpp \
 		  composite_element.cpp content.cpp doctype.cpp document.cpp \
-		  element.cpp main.cpp pi.cpp prolog.cpp xml_exception.cpp \
+		  element.cpp main.cpp pi.cpp prolog.cpp \
 		  xml.tab.cpp lex.xml.cpp
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 
@@ -35,25 +35,20 @@ xml.tab.cpp: xml.y
 	bison -o xml.tab.cpp -p xml --debug --verbose --defines=xml.tab.h xml.y
 
 # Specified dependencies
-xml.l: content.h doctype.h attribute.h document.h
-xml.y: attribute.h cd_sect.h char_data.h composite_element.h content.h \
+lex.xml.o: content.h doctype.h attribute.h document.h
+xml.tab.o: attribute.h cd_sect.h char_data.h composite_element.h content.h \
 	doctype.h document.h element.h pi.h prolog.h
-attribute.h: base.h
-cd_sect.h: content.h
-char_data.h: content.h
-composite_element.h: element.h
-composite_element.cpp: content.h attribute.h
-content.h: base.h
-doctype.h: base.h
-document.h: base.h
-document.cpp: prolog.h element.h pi.h
-element.h: content.h
-element.cpp: attribute.h
-main.cpp: document.h
-pi.h: content.h
-pi.cpp: attribute.h
-prolog.h: base.h
-prolog.cpp: doctype.h pi.h
+attribute.o: base.h
+cd_sect.o: base.h content.h
+char_data.o: content.h
+composite_element.o: element.h attribute.h
+content.o: base.h
+doctype.o: base.h
+document.o: base.h prolog.h element.h pi.h
+element.o: content.h attribute.h
+main.o: document.h
+pi.o: content.h attribute.h
+prolog.o: base.h doctype.h pi.h
 
 test: all
 	cd Tests; ./mktest.sh

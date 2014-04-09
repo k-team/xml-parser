@@ -20,7 +20,7 @@ class Prolog: public Base {
     Doctype * doctype() const;
     std::vector<PI *> const & lastPIs() const;
 
-    void to_be_or_not_to_be() const;
+    void to_be_or_not_to_be(std::ostream &) const;
 
   private:
     std::vector<PI *> _firstPIs;

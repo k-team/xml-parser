@@ -8,7 +8,7 @@ Base::~Base()
 {
 }
 
-void Base::to_be_or_not_to_be() const
+void Base::to_be_or_not_to_be(std::ostream &) const
 {
 }
 

@@ -1,6 +1,5 @@
 #include "element.h"
 #include "attribute.h"
-#include "xml_exception.h"
 #include <set>
 #include <sstream>
 
@@ -39,16 +38,16 @@ std::string Element::str() const
   return oss.str();
 }
 
-void Element::to_be_or_not_to_be() const
+void Element::to_be_or_not_to_be(std::ostream & os) const
 {
   std::set<std::string> attr_names;
   for (auto attr : _attributes)
   {
-    attr->to_be_or_not_to_be();
+    attr->to_be_or_not_to_be(os);
     if (!attr_names.insert(attr->name()).second)
     {
-      throw XmlException("Attribute names must be unique",
-          "duplicate name " + attr->name());
+      os << "Attribute names must be unique"
+        << "duplicate name " << attr->name() << std::endl;
     }
   }
 }

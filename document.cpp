@@ -51,11 +51,11 @@ std::vector<PI *> const & Document::endPIs() const
   return _endPIs;
 }
 
-void Document::to_be_or_not_to_be() const
+void Document::to_be_or_not_to_be(std::ostream & os) const
 {
   if (_root != nullptr)
   {
-    _root->to_be_or_not_to_be();
+    _root->to_be_or_not_to_be(os);
   }
   else
   {
@@ -63,11 +63,11 @@ void Document::to_be_or_not_to_be() const
   }
   if (_prolog != nullptr)
   {
-    _prolog->to_be_or_not_to_be();
+    _prolog->to_be_or_not_to_be(os);
   }
   for (auto pi : _endPIs)
   {
-    pi->to_be_or_not_to_be();
+    pi->to_be_or_not_to_be(os);
   }
 }
 
