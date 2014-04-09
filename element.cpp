@@ -46,8 +46,7 @@ void Element::to_be_or_not_to_be(std::ostream & os) const
     attr->to_be_or_not_to_be(os);
     if (!attr_names.insert(attr->name()).second)
     {
-      os << "Attribute names must be unique"
-        << "duplicate name " << attr->name() << std::endl;
+      os << "Non unique attribute name " << attr->name() << std::endl;
     }
   }
 }
