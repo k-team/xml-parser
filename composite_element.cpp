@@ -107,10 +107,22 @@ void CompositeElement::to_be_or_not_to_be() const
   }
 
   // Namespace, if specified, must be the same
-  if (begin_ns_split.size() > 1 && (end_ns_split.size() == 1 || (begin_ns_split[0] != end_ns_split[0])))
+  if (begin_ns_split.size() > 1)
   {
-    throw XmlException("Non matching element namespaces",
-        begin_ns_split[0] + " and " + end_ns_split[0]);
+    if (end_ns_split.size() == 1)
+    {
+      throw XmlException("Missing closing namespace", begin_ns_split[0]);
+    }
+    else if (begin_ns_split[0] != end_ns_split[0])
+    {
+      throw XmlException("Non matching element namespaces",
+          begin_ns_split[0] + " and " + end_ns_split[0]);
+    }
+    else if (begin_ns_split[1] != end_ns_split[1])
+    {
+      throw XmlException("Non matching element names",
+          begin_ns_split[1] + " and " + end_ns_split[1]);
+    }
   }
 
   // Begin/End must be the same
