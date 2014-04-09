@@ -372,7 +372,7 @@ sub_element
   {
     #ifdef YYERROR_VERBOSE
     #if YYERROR_VERBOSE == 1
-    std::cout << "----- : sub_element - element : " << "" << std::endl;
+    std::cout << "----- : sub_element - element" << std::endl;
     #endif
     #endif
     $$ = $1;
@@ -381,7 +381,7 @@ sub_element
   {
     #ifdef YYERROR_VERBOSE
     #if YYERROR_VERBOSE == 1
-    std::cout << "----- : sub_element - CDSect : " << "" << std::endl;
+    std::cout << "----- : sub_element - CDSect : " << $2 << std::endl;
     #endif
     #endif
     $$ = new CDSect($2);
@@ -399,7 +399,7 @@ sub_element
   {
     #ifdef YYERROR_VERBOSE
     #if YYERROR_VERBOSE == 1
-    std::cout << "----- : sub_element - PI : " << "" << std::endl;
+    std::cout << "----- : sub_element - PI" << std::endl;
     #endif
     #endif
     $$ = $1;
