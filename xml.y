@@ -1,4 +1,5 @@
 %{
+// #define YYERROR_VERBOSE
 
 #include <iostream>
 
@@ -52,12 +53,51 @@ void xmlerror(Document **, const char * msg)
 
 %parse-param {Document ** doc_ptr}
 
+// %destructor { printf ("free at %d %s\n",@$.first_line, $$); /*free($$);*/ } <s>
+// %destructor { printf ("free at %d Document\n",@$.first_line); /*free($$);*/ } <document>
+// %destructor { printf ("free at %d Element\n",@$.first_line); /*free($$);*/ } <element>
+// %destructor { printf ("free at %d PI\n",@$.first_line); /*free($$);*/ } <pi>
+// %destructor { printf ("free at %d Doctype\n",@$.first_line); /*free($$);*/ } <doctype>
+// %destructor { printf ("free at %d PI_List\n",@$.first_line); /*free($$);*/ } <pi_list>
+// %destructor { printf ("free at %d Doctype_PIs\n",@$.first_line); /*free($$);*/ } <doctype_pis>
+// %destructor { printf ("free at %d Attribute_List\n",@$.first_line); /*free($$);*/ } <attribute_list>
+// %destructor { printf ("free at %d Content_List\n",@$.first_line); /*free($$);*/ } <content_list>
+// %destructor { printf ("free at %d Content\n",@$.first_line); /*free($$);*/ } <content>
+
 %%
 
 document
   : Misc_0_N doctypedecl_Misc_0_N_0_1 element Misc_0_N
   {
-    /*std::cout << "document" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : document" << std::endl;
+    #endif
+    #endif
+    $$ = new Document(new Prolog(*$1, $2->first, *$2->second), $3, *$4);
+    delete $1;
+    delete $2->second;
+    delete $2;
+    delete $4;
+    *doc_ptr = $$;
+  }
+  | Misc_0_N error
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : document" << std::endl;
+    #endif
+    #endif
+    $$ = nullptr;
+    delete $1;
+  }
+  | Misc_0_N doctypedecl_Misc_0_N_0_1 element Misc_0_N error
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : document" << std::endl;
+    #endif
+    #endif
     $$ = new Document(new Prolog(*$1, $2->first, *$2->second), $3, *$4);
     delete $1;
     delete $2->second;
@@ -70,14 +110,33 @@ document
 Misc_0_N
   : Misc_0_N Misc
   {
-    /*std::cout << "Misc_0_N" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : Misc_0_N" << std::endl;
+    #endif
+    #endif
     if ($2 != nullptr)
       $1->push_back($2);
     $$ = $1;
   }
+  | Misc_0_N error Misc
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : Misc_0_N" << std::endl;
+    #endif
+    #endif
+    if ($3 != nullptr)
+      $1->push_back($3);
+    $$ = $1;
+  }
   | /* empty */
   {
-    /*std::cout << "Misc_0_N empty" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : Misc_0_N empty" << std::endl;
+    #endif
+    #endif
     $$ = new std::vector<PI *>();
   }
   ;
@@ -85,13 +144,21 @@ Misc_0_N
 Misc
   : COMMENT
   {
-    /*std::cout << "Misc - Comment" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : Misc - Comment" << std::endl;
+    #endif
+    #endif
     $$ = nullptr;
     free($1);
   }
   | PI
   {
-    /*std::cout << "Misc - PI" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : Misc - PI" << std::endl;
+    #endif
+    #endif
     $$ = $1;
   }
   ;
@@ -99,22 +166,43 @@ Misc
 PI
   : INFSPECIAL NOM Attribute_0_N SUPSPECIAL
   {
-    /*std::cout << "PI" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : PI - " << $2 << std::endl;
+    #endif
+    #endif
     $$ = new PI($2, *$3);
-    delete $3;
     free($2);
+    delete $3;
+  }
+  | INFSPECIAL error SUPSPECIAL
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : PI" << std::endl;
+    #endif
+    #endif
+    $$ = nullptr;
   }
   ;
 
 doctypedecl_Misc_0_N_0_1
   : doctypedecl Misc_0_N
   {
-    /*std::cout << "doctypedecl_Misc_0_N_0_1" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : doctypedecl_Misc_0_N_0_1" << std::endl;
+    #endif
+    #endif
     $$ = new std::pair<Doctype *, std::vector<PI *> *>($1, $2);
   }
   | /* empty */
   {
-    /*std::cout << "doctypedecl_Misc_0_N_0_1 empty" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : doctypedecl_Misc_0_N_0_1 empty" << std::endl;
+    #endif
+    #endif
     $$ = new std::pair<Doctype *, std::vector<PI *> *>(nullptr,
       new std::vector<PI *>());
   }
@@ -123,31 +211,56 @@ doctypedecl_Misc_0_N_0_1
 doctypedecl
   : DOCTYPE NOM SUP
   {
-    /*std::cout << "doctypedecl_0_N - 1" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : doctypedecl_0_N - 1 : " << $2 << std::endl;
+    #endif
+    #endif
     $$ = new Doctype($2, std::string(), std::string());
     free($2);
   }
   | DOCTYPE NOM NOM SUP
   {
-    /*std::cout << "doctypedecl_0_N - 2" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : doctypedecl_0_N - 2 : " << $2 << " " << $3 << std::endl;
+    #endif
+    #endif
     $$ = new Doctype($2, $3, "");
     free($2);
     free($3);
   }
   | DOCTYPE NOM NOM VALEUR SUP
   {
-    /*std::cout << "doctypedecl_0_N - 3" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : doctypedecl_0_N - 3 : " << $2 << " " << $3 << " " << $4 << std::endl;
+    #endif
+    #endif
     $$ = new Doctype($2, $3, $4);
     free($2);
     free($3);
     free($4);
+  }
+  | DOCTYPE error SUP
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : doctypedecl" << std::endl;
+    #endif
+    #endif
+    $$ = nullptr;
   }
   ;
 
 Attribute_0_N
   : Attribute_0_N NOM EGAL VALEUR
   {
-    /*std::cout << "Attribute_0_N" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : Attribute_0_N - " << $2 << " " << $4 << std::endl;
+    #endif
+    #endif
     $1->push_back(new Attribute($2, $4));
     $$ = $1;
     free($2);
@@ -155,68 +268,145 @@ Attribute_0_N
   }
   | /* empty */
   {
-    /*std::cout << "Attribute_0_N empty" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : Attribute_0_N empty" << std::endl;
+    #endif
+    #endif
     $$ = new std::vector<Attribute *>();
+  }
+  | Attribute_0_N error NOM EGAL VALEUR
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : attribute" << std::endl;
+    #endif
+    #endif
+    $$ = $1;
+    free($3);
+    free($5);
   }
   ;
 
 element
   : INF NOM Attribute_0_N SLASH SUP
   {
-    /*std::cout << "element - empty" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : element - empty : " << $2 << std::endl;
+    #endif
+    #endif
     $$ = new Element($2, *$3);
     free($2);
     delete $3;
   }
   | INF NOM Attribute_0_N SUP content INF SLASH NOM SUP
   {
-    /*std::cout << "element - composite : " << "" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : element - composite : " << $2 << " - " << $8 << std::endl;
+    #endif
+    #endif
     $$ = new CompositeElement($2, $8, *$3, *$5);
     free($2);
     delete $3;
     delete $5;
     free($8);
   }
+  | INF error SUP
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : element" << std::endl;
+    #endif
+    #endif
+    $$ = nullptr;
+  }
   ;
 
 content
   : content sub_element
   {
-    /*std::cout << "content" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : content" << std::endl;
+    #endif
+    #endif
     if($2 != nullptr)
       $1->push_back($2);
     $$ = $1;
   }
   | /* empty */
   {
-    /*std::cout << "content empty" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : content empty" << std::endl;
+    #endif
+    #endif
     $$ = new std::vector<Content *>();
+  }
+  | content error sub_element
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : content" << std::endl;
+    #endif
+    #endif
+    if($3 != nullptr)
+      $1->push_back($3);
+    $$ = $1;
   }
   ;
 
 sub_element
   : DONNEES
   {
-    /*std::cout << "sub_element - DONNEES : " << $1 << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : sub_element - DONNEES : " << $1 << std::endl;
+    #endif
+    #endif
     $$ = new CharData($1);
   }
   | element
   {
-    /*std::cout << "sub_element - element : " << "" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : sub_element - element : " << "" << std::endl;
+    #endif
+    #endif
     $$ = $1;
   }
   | CDATABEGIN CDATAEND
   {
-    /*std::cout << "sub_element - CDSect : " << "" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : sub_element - CDSect : " << "" << std::endl;
+    #endif
+    #endif
     $$ = new CDSect($2);
+  }
+  | CDATABEGIN error CDATAEND
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : CDSect" << std::endl;
+    #endif
+    #endif
+    $$ = new CDSect($3);
   }
   | PI
   {
-    /*std::cout << "sub_element - PI : " << "" << std::endl;*/
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "----- : sub_element - PI : " << "" << std::endl;
+    #endif
+    #endif
     $$ = $1;
   }
   | COMMENT
   {
     $$ = nullptr;
+    free($1);
   }
   ;
