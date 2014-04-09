@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <map>
 
 #include "document.h"
 #include "prolog.h"
@@ -12,12 +13,12 @@
 #include "composite_element.h"
 #include "content.h"
 
-static std::string schema_to_regex(CompositeElement *);
-static std::string element_to_regex(Element *);
-static std::string simple_element_to_regex(Element *);
-static std::string complexe_type_to_regex(CompositeElement *);
-static std::string choice_to_regex(CompositeElement *);
-static std::string sequence_to_regex(CompositeElement *, bool mixed=false);
+static std::string schema_to_regex(CompositeElement *, std::map<std::string, std::string> &);
+static std::string element_to_regex(Element *, std::map<std::string, std::string> &);
+static std::string simple_element_to_regex(Element *, std::map<std::string, std::string> &);
+static std::string complexe_type_to_regex(CompositeElement *, std::map<std::string, std::string> &);
+static std::string choice_to_regex(CompositeElement *, std::map<std::string, std::string> &);
+static std::string sequence_to_regex(CompositeElement *, std::map<std::string, std::string> &, bool mixed=false);
 
 static const std::string re_string("[^<]*");
 static const std::string re_date("[0-9]{4}-[0-9]{2}-[0-9]{2}(((\\+|-)[0-2][0-9]:[0-5][0-9])|Z)?");
@@ -53,31 +54,46 @@ std::string xsd_to_regex(Document * doc)
     return "^$";
   if (root->begin_tag() == "xsd:schema")
   {
-    std::string re("^" + re_prolog + schema_to_regex(root) + re_Misc + "*$");
-    // std::cout << re << std::endl; // Mais oui c'est clair
+    std::map<std::string, std::string> refs;
+    std::string re("^" + re_prolog + schema_to_regex(root, refs) + re_Misc + "*$");
+    std::cout << re << std::endl; // Mais oui c'est clair
     return re;
   }
   return "^$";
 }
 
-std::string schema_to_regex(CompositeElement * s)
+std::string schema_to_regex(CompositeElement * s,
+    std::map<std::string, std::string> & refs)
 {
   std::string r;
   for (auto c : s->content())
   {
     auto e = dynamic_cast<Element *>(c);
     if (e != nullptr && e->name() == "xsd:element")
-      r += element_to_regex(e);
+      r += element_to_regex(e, refs) + "|";
   }
-  return r;
+  r = r.substr(0, r.length() - 1);
+  return "(" + r + ")";
 }
 
-std::string element_to_regex(Element * e)
+std::string element_to_regex(Element * e,
+    std::map<std::string, std::string> & refs)
 {
   auto it_name = std::find_if(e->attributes().begin(), e->attributes().end(),
       [](Attribute * a) { return a->name() == "name"; });
   if (it_name == e->attributes().end())
-    return "";
+  {
+    auto it_ref = std::find_if(e->attributes().begin(), e->attributes().end(),
+        [](Attribute * a) { return a->name() == "ref"; });
+    if (it_ref == e->attributes().end())
+      return "";
+
+    auto ref = (*it_ref)->value();
+    auto r = refs.find(ref);
+    if (r == refs.end())
+      return "";
+    return r->second;
+  }
 
   auto name = (*it_name)->value();
   const std::string begin("<" + name + "(" + re_S + re_Attr + ")*" + re_blank + ">");
@@ -91,17 +107,22 @@ std::string element_to_regex(Element * e)
         && (cce = dynamic_cast<CompositeElement *>(ce->content().front())) != nullptr
         && cce->begin_tag() == "xsd:complexType")
     {
-      return begin + complexe_type_to_regex(cce) + end;
+      std::string r(begin + complexe_type_to_regex(cce, refs) + end);
+      refs[name] = r;
+      return r;
     }
   }
   else
   {
-    return begin + simple_element_to_regex(e) + end;
+    std::string r( begin + simple_element_to_regex(e, refs) + end);
+    refs[name] = r;
+    return r;
   }
   return "";
 }
 
-std::string simple_element_to_regex(Element * e)
+std::string simple_element_to_regex(Element * e,
+    std::map<std::string, std::string> &)
 {
   auto it_type = std::find_if(e->attributes().begin(), e->attributes().end(),
       [](Attribute * a) { return a->name() == "type"; });
@@ -116,7 +137,8 @@ std::string simple_element_to_regex(Element * e)
   return "";
 }
 
-std::string complexe_type_to_regex(CompositeElement * e)
+std::string complexe_type_to_regex(CompositeElement * e,
+    std::map<std::string, std::string> & refs)
 {
   if (e->content().size() < 1)
     return "";
@@ -137,18 +159,19 @@ std::string complexe_type_to_regex(CompositeElement * e)
   {
     if (mixed)
       s += re_mixed;
-    s += choice_to_regex(ce);
+    s += choice_to_regex(ce, refs);
     if (mixed)
       s += re_mixed;
   }
   else if (ce->begin_tag() == "xsd:sequence")
   {
-    s += sequence_to_regex(ce, mixed);
+    s += sequence_to_regex(ce, refs, mixed);
   }
   return s;
 }
 
-std::string choice_to_regex(CompositeElement * e)
+std::string choice_to_regex(CompositeElement * e,
+    std::map<std::string, std::string> & refs)
 {
   std::string s;
   for (auto c : e->content())
@@ -156,7 +179,7 @@ std::string choice_to_regex(CompositeElement * e)
     auto ce = dynamic_cast<Element *>(c);
     if (ce)
     {
-      s += element_to_regex(ce);
+      s += element_to_regex(ce, refs);
       if (c != e->content().back())
         s += "|";
     }
@@ -164,7 +187,8 @@ std::string choice_to_regex(CompositeElement * e)
   return re_blank + "(" + s + ")" + re_blank;
 }
 
-std::string sequence_to_regex(CompositeElement * e, bool mixed)
+std::string sequence_to_regex(CompositeElement * e,
+    std::map<std::string, std::string> & refs, bool mixed)
 {
   std::string s;
   std::string space = mixed ? re_mixed : re_blank;
@@ -173,7 +197,13 @@ std::string sequence_to_regex(CompositeElement * e, bool mixed)
     auto ce = dynamic_cast<Element *>(c);
     if (ce)
     {
-      s += element_to_regex(ce) + space;
+      auto it_maxOccurs = std::find_if(ce->attributes().begin(),
+          ce->attributes().end(),
+          [](Attribute * a) { return a->name() == "maxOccurs"; });
+      std::string maxOccurs("1");
+      if (it_maxOccurs != ce->attributes().end())
+        maxOccurs = (*it_maxOccurs)->value();
+      s += "(" + element_to_regex(ce, refs) + "){1," + maxOccurs + "}" + space;
     }
   }
   return space + s;
