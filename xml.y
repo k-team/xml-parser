@@ -18,9 +18,13 @@ extern char xmltext[];
 
 int xmllex(void);
 
-void xmlerror(Document **, std::ostream &, const char *)
+void xmlerror(Document **, std::ostream & err, const char *)
 {
-   // std::cerr << msg << std::endl;
+  static bool set = false;
+  if (!set)
+    err << "No root markup" << std::endl;
+  set = true;
+  // std::cerr << msg << std::endl;
 }
 
 %}
@@ -312,7 +316,8 @@ element
     std::cout << "ERROR : element" << $2 << std::endl;
     #endif
     #endif
-    err << "No root markup" << std::endl;
+    /*err << "No root markup" << std::endl;*/
+    xmlerror(nullptr, err, nullptr);
     $$ = new CompositeElement($2, "", *$3, *$5);
     free($2);
     delete $3;
@@ -325,7 +330,8 @@ element
     std::cout << "ERROR : element" << $2 << std::endl;
     #endif
     #endif
-    err << "No root markup" << std::endl;
+    /*err << "No root markup" << std::endl;*/
+    xmlerror(nullptr, err, nullptr);
     $$ = new CompositeElement($2, $9, *$3, *$6);
     free($2);
     delete $3;
