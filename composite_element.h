@@ -18,6 +18,7 @@ class CompositeElement: public Element {
     std::string const & end_tag() const;
 
     std::string str() const;
+    void to_be_or_not_to_be() const;
 
   private:
     std::string _end;

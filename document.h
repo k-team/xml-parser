@@ -9,16 +9,18 @@ class Prolog;
 class Element;
 class PI;
 
-class Document: public Base {
+class Document: public Base
+{
   public:
     Document(Prolog *, Element *, std::vector<PI *> const &);
     virtual ~Document();
 
-    virtual std::string str() const;
-
     Prolog * prolog() const;
     Element * root() const;
     std::vector<PI *> const & endPIs() const;
+
+    std::string str() const;
+    void to_be_or_not_to_be() const;
 
   private:
     Prolog * _prolog;

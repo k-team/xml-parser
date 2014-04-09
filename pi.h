@@ -19,6 +19,8 @@ class PI : public Content {
     std::string const & target() const;
     data_list const & data() const;
 
+    void to_be_or_not_to_be() const;
+
   private:
     std::string _target;
     data_list _data;

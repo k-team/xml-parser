@@ -26,7 +26,7 @@ std::string const & XmlException::extra() const
 const char * XmlException::what() const throw()
 {
   xml_exception_oss.str("");
-  xml_exception_oss << _standard << ": " << _extra << std::endl;
+  xml_exception_oss << _standard << " " << _extra;
   return xml_exception_oss.str().c_str();
 }
 
