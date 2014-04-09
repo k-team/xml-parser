@@ -18,10 +18,22 @@ static std::string simple_element_to_regex(Element *);
 static std::string complexe_type_to_regex(CompositeElement *);
 static std::string choice_to_regex(CompositeElement *);
 static std::string sequence_to_regex(CompositeElement *, bool mixed=false);
-static std::string string_to_regex();
-static std::string date_to_regex();
-static std::string mixed_to_regex();
-static std::string blank_to_regex();
+
+static const std::string re_string("[^<]*");
+static const std::string re_date("[0-9]{4}-[0-9]{2}-[0-9]{2}(((\\+|-)[0-2][0-9]:[0-5][0-9])|Z)?");
+static const std::string re_mixed("[^<]*");
+static const std::string re_blank("\\s*");
+static const std::string re_S("\\s+");
+static const std::string re_Eq(re_S + "?=" + re_S + "?");
+static const std::string re_version_info(re_S + "version" + re_Eq + "(\\\"1\\.[0-9]+\\\"|\\'1\\.[0-9]+\\')");
+static const std::string re_encoding_decl(re_S + "encoding" + re_Eq + "(\"[a-zA-Z0-9_-]+\"|'[a-zA-Z0-9_-]+')");
+static const std::string re_sd_decl(re_S + "[:A-Za-z\\200-\\377_][:A-Za-z\\200-\\377_0-9.-]*" + re_Eq + "(\"[a-zA-Z0-9_-]+\"|'[a-zA-Z0-9_-]+')");
+static const std::string re_xml_decl("<\\?xml" +
+    re_version_info + "?" +
+    re_encoding_decl + "?" +
+    re_sd_decl + "? ?\\?>");
+// static const std::string re_misc("(" + re_comment + "|" + re_PI + "|" + re_S + ")");
+static const std::string re_prolog(re_xml_decl + "?");
 
 std::string xsl_to_regex(Document * doc)
 {
@@ -29,7 +41,7 @@ std::string xsl_to_regex(Document * doc)
   if (root == nullptr)
     return "^$";
   if (root->begin_tag() == "xsd:schema")
-    return "^" + schema_to_regex(root) + "$";
+    return "^" + re_prolog + schema_to_regex(root) + "$";
   return "^$";
 }
 
@@ -81,9 +93,9 @@ std::string simple_element_to_regex(Element * e)
 
   auto type = (*it_type)->value();
   if (type == "xsd:string")
-    return string_to_regex();
+    return re_string;
   else if (type == "xsd:date")
-    return date_to_regex();
+    return re_date;
   return "";
 }
 
@@ -107,10 +119,10 @@ std::string complexe_type_to_regex(CompositeElement * e)
   if (ce->begin_tag() == "xsd:choice")
   {
     if (mixed)
-      s += mixed_to_regex();
+      s += re_mixed;
     s += choice_to_regex(ce);
     if (mixed)
-      s += mixed_to_regex();
+      s += re_mixed;
   }
   else if (ce->begin_tag() == "xsd:sequence")
   {
@@ -132,13 +144,13 @@ std::string choice_to_regex(CompositeElement * e)
         s += "|";
     }
   }
-  return blank_to_regex() + "(" + s + ")" + blank_to_regex();
+  return re_blank + "(" + s + ")" + re_blank;
 }
 
 std::string sequence_to_regex(CompositeElement * e, bool mixed)
 {
   std::string s;
-  std::string space = mixed ? mixed_to_regex() : blank_to_regex();
+  std::string space = mixed ? re_mixed : re_blank;
   for (auto c : e->content())
   {
     auto ce = dynamic_cast<Element *>(c);
@@ -150,22 +162,3 @@ std::string sequence_to_regex(CompositeElement * e, bool mixed)
   return space + s;
 }
 
-std::string string_to_regex()
-{
-  return "[^<]*";
-}
-
-std::string date_to_regex()
-{
-  return "[0-9]{4}-[0-9]{2}-[0-9]{2}(((\\+|-)[0-2][0-9]:[0-5][0-9])|Z)?";
-}
-
-std::string mixed_to_regex()
-{
-  return "[^<]*";
-}
-
-std::string blank_to_regex()
-{
-  return "\\s*";
-}
