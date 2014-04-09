@@ -1,5 +1,5 @@
 %{
-// #define YYERROR_VERBOSE
+#define YYERROR_VERBOSE
 
 #include <iostream>
 
@@ -81,15 +81,18 @@ document
     delete $4;
     *doc_ptr = $$;
   }
-  | Misc_0_N error
+  | Misc_0_N doctypedecl_Misc_0_N_0_1 error
   {
     #ifdef YYERROR_VERBOSE
     #if YYERROR_VERBOSE == 1
     std::cout << "ERROR : document" << std::endl;
     #endif
     #endif
-    $$ = nullptr;
+    $$ = new Document(new Prolog(*$1, $2->first, *$2->second), nullptr, std::vector<PI *>());
     delete $1;
+    delete $2->second;
+    delete $2;
+    *doc_ptr = $$;
   }
   | Misc_0_N doctypedecl_Misc_0_N_0_1 element Misc_0_N error
   {
@@ -117,17 +120,6 @@ Misc_0_N
     #endif
     if ($2 != nullptr)
       $1->push_back($2);
-    $$ = $1;
-  }
-  | Misc_0_N error Misc
-  {
-    #ifdef YYERROR_VERBOSE
-    #if YYERROR_VERBOSE == 1
-    std::cout << "ERROR : Misc_0_N" << std::endl;
-    #endif
-    #endif
-    if ($3 != nullptr)
-      $1->push_back($3);
     $$ = $1;
   }
   | /* empty */
@@ -313,6 +305,15 @@ element
     delete $5;
     free($8);
   }
+  | INF NOM Attribute_0_N SUP content error
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : element" << std::endl;
+    #endif
+    #endif
+    $$ = nullptr;
+  }
   | INF error SUP
   {
     #ifdef YYERROR_VERBOSE
@@ -344,17 +345,6 @@ content
     #endif
     #endif
     $$ = new std::vector<Content *>();
-  }
-  | content error sub_element
-  {
-    #ifdef YYERROR_VERBOSE
-    #if YYERROR_VERBOSE == 1
-    std::cout << "ERROR : content" << std::endl;
-    #endif
-    #endif
-    if($3 != nullptr)
-      $1->push_back($3);
-    $$ = $1;
   }
   ;
 
