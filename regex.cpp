@@ -23,7 +23,7 @@ static const std::string re_string("[^<]*");
 static const std::string re_date("[0-9]{4}-[0-9]{2}-[0-9]{2}(((\\+|-)[0-2][0-9]:[0-5][0-9])|Z)?");
 static const std::string re_mixed("[^<]*");
 static const std::string re_blank("\\s*");
-static const std::string re_S("\\s+");
+static const std::string re_S("(\\s+)");
 static const std::string re_Eq(re_S + "?=" + re_S + "?");
 static const std::string re_Name("[:A-Za-z\\200-\\377_][:A-Za-z\\200-\\377_0-9.-]*");
 static const std::string re_AttValue("(\"[^<&\"]*\"|\'[^<&\"]*\')");
@@ -38,7 +38,7 @@ static const std::string re_xml_decl("<\\?xml(" +
 static const std::string re_comment("<!--([^-]|\"-\"[^-])*-->");
 static const std::string re_PI("<\\?" + re_Name + "(" + re_S + re_Attr + ")*\\?>");
 static const std::string re_Misc("(" + re_comment + "|" + re_PI + "|" + re_S + ")");
-static const std::string re_doctype_decl("");
+static const std::string re_doctype_decl("<!DOCTYPE" + re_S + re_Name + "(" + re_S + re_Name + ")?(" + re_S + re_AttValue + ")?" + re_S + "?>");
 static const std::string re_prolog("(" + re_xml_decl + ")?" + re_Misc + "*(" + re_doctype_decl + re_Misc + "*)?");
 
 std::string xsl_to_regex(Document * doc)
