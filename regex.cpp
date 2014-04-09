@@ -25,15 +25,21 @@ static const std::string re_mixed("[^<]*");
 static const std::string re_blank("\\s*");
 static const std::string re_S("\\s+");
 static const std::string re_Eq(re_S + "?=" + re_S + "?");
-static const std::string re_version_info(re_S + "version" + re_Eq + "(\\\"1\\.[0-9]+\\\"|\\'1\\.[0-9]+\\')");
-static const std::string re_encoding_decl(re_S + "encoding" + re_Eq + "(\"[a-zA-Z0-9_-]+\"|'[a-zA-Z0-9_-]+')");
-static const std::string re_sd_decl(re_S + "[:A-Za-z\\200-\\377_][:A-Za-z\\200-\\377_0-9.-]*" + re_Eq + "(\"[a-zA-Z0-9_-]+\"|'[a-zA-Z0-9_-]+')");
-static const std::string re_xml_decl("<\\?xml" +
-    re_version_info + "?" +
-    re_encoding_decl + "?" +
-    re_sd_decl + "? ?\\?>");
-// static const std::string re_misc("(" + re_comment + "|" + re_PI + "|" + re_S + ")");
-static const std::string re_prolog(re_xml_decl + "?");
+static const std::string re_Name("[:A-Za-z\\200-\\377_][:A-Za-z\\200-\\377_0-9.-]*");
+static const std::string re_AttValue("(\"[^<&\"]*\"|\'[^<&\"]*\')");
+static const std::string re_Attr(re_Name + re_Eq + re_AttValue);
+static const std::string re_version_info(re_S + "version" + re_Eq + "(\"1\\.[0-9]+\"|'1\\.[0-9]+')");
+static const std::string re_encoding_decl(re_S + "encoding" + re_Eq + re_AttValue);
+static const std::string re_sd_decl(re_S + re_Attr);
+static const std::string re_xml_decl("<\\?xml(" +
+    re_version_info + ")?(" +
+    re_encoding_decl + ")?(" +
+    re_sd_decl + ")? ?\\?>");
+static const std::string re_comment("<!--([^-]|\"-\"[^-])*-->");
+static const std::string re_PI("<\\?" + re_Name + "(" + re_S + re_Attr + ")*\\?>");
+static const std::string re_Misc("(" + re_comment + "|" + re_PI + "|" + re_S + ")");
+static const std::string re_doctype_decl("");
+static const std::string re_prolog("(" + re_xml_decl + ")?" + re_Misc + "*(" + re_doctype_decl + re_Misc + "*)?");
 
 std::string xsl_to_regex(Document * doc)
 {
@@ -41,7 +47,7 @@ std::string xsl_to_regex(Document * doc)
   if (root == nullptr)
     return "^$";
   if (root->begin_tag() == "xsd:schema")
-    return "^" + re_prolog + schema_to_regex(root) + "$";
+    return "^" + re_prolog + schema_to_regex(root) + re_Misc + "*$";
   return "^$";
 }
 
