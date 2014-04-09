@@ -55,19 +55,19 @@ std::vector<PI *> const & Prolog::lastPIs() const
   return _lastPIs;
 }
 
-void Prolog::to_be_or_not_to_be() const
+void Prolog::to_be_or_not_to_be(std::ostream & os) const
 {
   for (auto pi : _firstPIs)
   {
-    pi->to_be_or_not_to_be();
+    pi->to_be_or_not_to_be(os);
   }
   if (_doctype != nullptr)
   {
-    _doctype->to_be_or_not_to_be();
+    _doctype->to_be_or_not_to_be(os);
   }
   for (auto pi : _lastPIs)
   {
-    pi->to_be_or_not_to_be();
+    pi->to_be_or_not_to_be(os);
   }
 }
 

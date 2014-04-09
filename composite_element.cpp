@@ -1,7 +1,6 @@
 #include "composite_element.h"
 #include "content.h"
 #include "attribute.h"
-#include "xml_exception.h"
 #include <sstream>
 
 CompositeElement::CompositeElement(std::string const & name,
@@ -82,42 +81,55 @@ std::vector<std::string> split(const std::string & s, char delim)
   return elems;
 }
 
-void CompositeElement::to_be_or_not_to_be() const
+void CompositeElement::to_be_or_not_to_be(std::ostream & os) const
 {
-  Element::to_be_or_not_to_be();
+  Element::to_be_or_not_to_be(os);
   for (auto c : _content)
   {
-    c->to_be_or_not_to_be();
+    c->to_be_or_not_to_be(os);
   }
 
   // Begin namespace must be single
   std::vector<std::string> begin_ns_split = split(begin_tag(), ':');
   if (begin_ns_split.size() > 2)
   {
-    throw XmlException("Namespace specified more than once.",
-        "Given " + std::to_string(begin_ns_split.size()) + " times");
+    os << "Namespace specified more than once. Given "
+      << begin_ns_split.size() << " times" << std::endl;
   }
 
   // End namespace must be single
   std::vector<std::string> end_ns_split = split(end_tag(), ':');
   if (end_ns_split.size() > 2)
   {
-    throw XmlException("Namespace specified more than once",
-        "given " + std::to_string(end_ns_split.size()) + " times");
+    os << "Namespace specified more than once. Given "
+      << end_ns_split.size() << " times" << std::endl;
   }
 
   // Namespace, if specified, must be the same
-  if (begin_ns_split.size() > 1 && (end_ns_split.size() == 1 || (begin_ns_split[0] != end_ns_split[0])))
+  if (begin_ns_split.size() > 1)
   {
-    throw XmlException("Non matching element namespaces",
-        begin_ns_split[0] + " and " + end_ns_split[0]);
+    if (end_ns_split.size() == 1)
+    {
+      os << "Missing closing namespace " << begin_ns_split[0] << std::endl;
+    }
+    else
+    {
+      if (begin_ns_split[0] != end_ns_split[0])
+      {
+        os << "Non matching element namespaces "
+          << begin_ns_split[0] << " and " << end_ns_split[0] << std::endl;
+      }
+      if (begin_ns_split[1] != end_ns_split[1])
+      {
+        os << "Non matching element names "
+          << begin_ns_split[1] << " and " << end_ns_split[1] << std::endl;
+      }
+    }
   }
-
-  // Begin/End must be the same
-  if (begin_tag() != end_tag())
+  else if (begin_tag() != end_tag()) // Begin/End must be the same
   {
-    throw XmlException("Non matching element names",
-        begin_tag() + " and " + end_tag());
+    os << "Non matching element names " << begin_tag()
+      << " and " << end_tag() << std::endl;
   }
 }
 

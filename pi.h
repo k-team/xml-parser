@@ -19,7 +19,7 @@ class PI : public Content {
     std::string const & target() const;
     data_list const & data() const;
 
-    void to_be_or_not_to_be() const;
+    void to_be_or_not_to_be(std::ostream &) const;
 
   private:
     std::string _target;

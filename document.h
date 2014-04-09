@@ -20,7 +20,7 @@ class Document: public Base
     std::vector<PI *> const & endPIs() const;
 
     std::string str() const;
-    void to_be_or_not_to_be() const;
+    void to_be_or_not_to_be(std::ostream &) const;
 
   private:
     Prolog * _prolog;

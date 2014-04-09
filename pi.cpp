@@ -30,10 +30,10 @@ PI::data_list const & PI::data() const
     return _data;
 }
 
-void PI::to_be_or_not_to_be() const
+void PI::to_be_or_not_to_be(std::ostream & os) const
 {
     for (auto a : _data)
     {
-        a->to_be_or_not_to_be();
+        a->to_be_or_not_to_be(os);
     }
 }
