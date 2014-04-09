@@ -146,7 +146,7 @@ int handle_validate(int argc, const char ** argv)
   std::string str_regex(xsd_to_regex(xsd_doc));
   regex_t regex;
 
-  if (regcomp(&regex, str_regex.c_str(), 0) != 0)
+  if (regcomp(&regex, str_regex.c_str(), REG_EXTENDED | REG_NOSUB) != 0)
   {
     delete xml_doc;
     delete xsd_doc;
