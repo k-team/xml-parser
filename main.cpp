@@ -79,7 +79,14 @@ static Document * read_document(const char * fname)
 
   if (doc != nullptr)
   {
-    doc->to_be_or_not_to_be(std::cerr);
+    std::ostringstream oss117;
+    doc->to_be_or_not_to_be(oss117);
+    if (!oss117.str().empty())
+    {
+      std::cerr << oss117.str();
+      // delete doc;
+      // doc = nullptr;
+    }
   }
 
   return doc;
