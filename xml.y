@@ -318,6 +318,20 @@ element
     delete $3;
     delete $5;
   }
+  | INF NOM Attribute_0_N error SUP content INF SLASH NOM SUP
+  {
+    #ifdef YYERROR_VERBOSE
+    #if YYERROR_VERBOSE == 1
+    std::cout << "ERROR : element" << $2 << std::endl;
+    #endif
+    #endif
+    err << "No root markup" << std::endl;
+    $$ = new CompositeElement($2, $9, *$3, *$6);
+    free($2);
+    delete $3;
+    delete $6;
+    free($9);
+  }
   // | INF error SUP
   // {
   //   #ifdef YYERROR_VERBOSE
