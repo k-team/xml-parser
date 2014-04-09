@@ -35,7 +35,7 @@ static const std::string re_xml_decl("<\\?xml(" +
     re_version_info + ")?(" +
     re_encoding_decl + ")?(" +
     re_sd_decl + ")? ?\\?>");
-static const std::string re_comment("<!--([^-]|\"-\"[^-])*-->");
+static const std::string re_comment("<!--([^-]|-[^-])*-->");
 static const std::string re_PI("<\\?" + re_Name + "(" + re_S + re_Attr + ")*\\?>");
 static const std::string re_Misc("(" + re_comment + "|" + re_PI + "|" + re_S + ")");
 static const std::string re_doctype_decl("<!DOCTYPE" + re_S + re_Name + "(" + re_S + re_Name + ")?(" + re_S + re_AttValue + ")?" + re_S + "?>");
@@ -43,6 +43,11 @@ static const std::string re_prolog("(" + re_xml_decl + ")?" + re_Misc + "*(" + r
 
 std::string xsl_to_regex(Document * doc)
 {
+  // std::cout << "xml : " << re_xml_decl << std::endl;
+  // std::cout << "doc : " << re_doctype_decl << std::endl;
+  // std::cout << "com : " << re_comment << std::endl;
+  // std::cout << "pi  : " << re_PI << std::endl;
+  // std::cout << "pro : " << re_prolog << std::endl;
   CompositeElement * root = dynamic_cast<CompositeElement *>(doc->root());
   if (root == nullptr)
     return "^$";
