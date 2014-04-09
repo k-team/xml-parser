@@ -17,7 +17,7 @@ static std::string element_to_regex(Element *);
 static std::string simple_element_to_regex(Element *);
 static std::string complexe_type_to_regex(CompositeElement *);
 static std::string choice_to_regex(CompositeElement *);
-static std::string sequence_to_regex(CompositeElement *);
+static std::string sequence_to_regex(CompositeElement *, bool mixed=false);
 static std::string string_to_regex();
 static std::string date_to_regex();
 static std::string mixed_to_regex();
@@ -96,14 +96,25 @@ std::string complexe_type_to_regex(CompositeElement * e)
   if (ce == nullptr)
     return "";
 
+  bool mixed = false;
+  auto it_mixed = std::find_if(e->attributes().begin(), e->attributes().end(),
+      [](Attribute * a) { return a->name() == "mixed"; });
+  if (it_mixed != e->attributes().end()
+      && (*it_mixed)->value() == "true")
+    mixed = true;
+
   std::string s;
   if (ce->begin_tag() == "xsd:choice")
   {
+    if (mixed)
+      s += mixed_to_regex();
     s += choice_to_regex(ce);
+    if (mixed)
+      s += mixed_to_regex();
   }
   else if (ce->begin_tag() == "xsd:sequence")
   {
-    s += sequence_to_regex(ce);
+    s += sequence_to_regex(ce, mixed);
   }
   return s;
 }
@@ -124,18 +135,19 @@ std::string choice_to_regex(CompositeElement * e)
   return blank_to_regex() + "(" + s + ")" + blank_to_regex();
 }
 
-std::string sequence_to_regex(CompositeElement * e)
+std::string sequence_to_regex(CompositeElement * e, bool mixed)
 {
   std::string s;
+  std::string space = mixed ? mixed_to_regex() : blank_to_regex();
   for (auto c : e->content())
   {
     auto ce = dynamic_cast<Element *>(c);
     if (ce)
     {
-      s += element_to_regex(ce) + blank_to_regex();
+      s += element_to_regex(ce) + space;
     }
   }
-  return blank_to_regex() + s;
+  return space + s;
 }
 
 std::string string_to_regex()
