@@ -38,14 +38,16 @@ std::string CompositeElement::str() const
   for (auto c: _content)
   {
     std::string s = c->str();
-    size_t from = 0;
-    size_t pos;
-    while ((pos = s.find("\n", from)) != std::string::npos)
-    {
-      s.replace(pos, 1, "\n  ");
-      from = pos + 3;
-    }
-    oss << "  " << s << "\n";
+    // Add space just after every \n
+    // size_t from = 0;
+    // size_t pos;
+    // while ((pos = s.find("\n", from)) != std::string::npos)
+    // {
+    //   s.replace(pos, 1, "\n  ");
+    //   from = pos + 3;
+    // }
+    // oss << "  " << s << "\n";
+    oss << s << "\n";
   }
   oss << "</" << name() << ">";
   return oss.str();
