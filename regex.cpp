@@ -79,6 +79,8 @@ std::string element_to_regex(Element * e)
     return "";
 
   auto name = (*it_name)->value();
+  const std::string begin("<" + name + "(" + re_S + re_Attr + ")*" + re_blank + ">");
+  const std::string end("</" + name + re_blank + ">");
 
   auto ce = dynamic_cast<CompositeElement *>(e);
   if (ce != nullptr)
@@ -88,12 +90,12 @@ std::string element_to_regex(Element * e)
         && (cce = dynamic_cast<CompositeElement *>(ce->content().front())) != nullptr
         && cce->begin_tag() == "xsd:complexType")
     {
-      return "<" + name + re_blank + ">" + complexe_type_to_regex(cce) + "</" + name + re_blank + ">";
+      return begin + complexe_type_to_regex(cce) + end;
     }
   }
   else
   {
-    return "<" + name + re_blank + ">" + simple_element_to_regex(e) + "</" + name + re_blank + ">";
+    return begin + simple_element_to_regex(e) + end;
   }
   return "";
 }
