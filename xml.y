@@ -1,5 +1,5 @@
 %{
-#define YYERROR_VERBOSE
+// #define YYERROR_VERBOSE
 
 #include <iostream>
 
@@ -18,9 +18,9 @@ extern char xmltext[];
 
 int xmllex(void);
 
-void xmlerror(Document **, const char * msg)
+void xmlerror(Document **, const char *)
 {
-   std::cerr << msg << std::endl;
+   // std::cerr << msg << std::endl;
 }
 
 %}
@@ -309,20 +309,23 @@ element
   {
     #ifdef YYERROR_VERBOSE
     #if YYERROR_VERBOSE == 1
-    std::cout << "ERROR : element" << std::endl;
+    std::cout << "ERROR : element" << $2 << std::endl;
     #endif
     #endif
-    $$ = nullptr;
+    $$ = new CompositeElement($2, "", *$3, *$5);
+    free($2);
+    delete $3;
+    delete $5;
   }
-  | INF error SUP
-  {
-    #ifdef YYERROR_VERBOSE
-    #if YYERROR_VERBOSE == 1
-    std::cout << "ERROR : element" << std::endl;
-    #endif
-    #endif
-    $$ = nullptr;
-  }
+  // | INF error SUP
+  // {
+  //   #ifdef YYERROR_VERBOSE
+  //   #if YYERROR_VERBOSE == 1
+  //   std::cout << "ERROR : element" << std::endl;
+  //   #endif
+  //   #endif
+  //   $$ = nullptr;
+  // }
   ;
 
 content
