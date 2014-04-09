@@ -91,18 +91,18 @@ void CompositeElement::to_be_or_not_to_be(std::ostream & os) const
 
   // Begin namespace must be single
   std::vector<std::string> begin_ns_split = split(begin_tag(), ':');
-  if (begin_ns_split.size() > 2)
-  {
-    os << "Namespace specified more than once. Given "
-      << begin_ns_split.size() << " times" << std::endl;
-  }
 
   // End namespace must be single
   std::vector<std::string> end_ns_split = split(end_tag(), ':');
-  if (end_ns_split.size() > 2)
+  if (begin_ns_split.size() > 2)
   {
     os << "Namespace specified more than once. Given "
-      << end_ns_split.size() << " times" << std::endl;
+      << begin_ns_split.size() - 1 << " times" << std::endl;
+  }
+  else if (end_ns_split.size() > 2)
+  {
+    os << "Namespace specified more than once. Given "
+      << end_ns_split.size() - 1 << " times" << std::endl;
   }
 
   // Namespace, if specified, must be the same
