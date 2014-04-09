@@ -112,15 +112,18 @@ void CompositeElement::to_be_or_not_to_be(std::ostream & os) const
     {
       os << "Missing closing namespace " << begin_ns_split[0] << std::endl;
     }
-    else if (begin_ns_split[0] != end_ns_split[0])
+    else
     {
-      os << "Non matching element namespaces "
-        << begin_ns_split[0] << " and " << end_ns_split[0] << std::endl;
-    }
-    else if (begin_ns_split[1] != end_ns_split[1])
-    {
-      os << "Non matching element names "
-        << begin_ns_split[1] << " and " << end_ns_split[1] << std::endl;
+      if (begin_ns_split[0] != end_ns_split[0])
+      {
+        os << "Non matching element namespaces "
+          << begin_ns_split[0] << " and " << end_ns_split[0] << std::endl;
+      }
+      if (begin_ns_split[1] != end_ns_split[1])
+      {
+        os << "Non matching element names "
+          << begin_ns_split[1] << " and " << end_ns_split[1] << std::endl;
+      }
     }
   }
   else if (begin_tag() != end_tag()) // Begin/End must be the same
