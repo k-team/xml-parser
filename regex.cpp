@@ -53,8 +53,9 @@ std::string xsd_to_regex(Document * doc)
     return "^$";
   if (root->begin_tag() == "xsd:schema")
   {
-    return "^" + re_prolog + schema_to_regex(root) + re_Misc + "*$";
-    // return schema_to_regex(root);
+    std::string re("^" + re_prolog + schema_to_regex(root) + re_Misc + "*$");
+    // std::cout << re << std::endl; // Mais oui c'est clair
+    return re;
   }
   return "^$";
 }
