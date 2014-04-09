@@ -1,7 +1,7 @@
 CXX = g++
 WARNFLAGS = -W -Wall -Wextra -Wfloat-equal -Wundef -Wpointer-arith \
 			-Wcast-align -Wstrict-overflow=5 -Wwrite-strings -Wcast-qual \
-			-Wswitch-default -Wswitch-enum -Wconversion -Wunreachable-code
+			-Wswitch-enum -Wunreachable-code
 CXXFLAGS = -pedantic -std=c++0x -g $(WARNFLAGS)
 
 LD = g++
