@@ -121,27 +121,15 @@ void CompositeElement::to_be_or_not_to_be(std::ostream & os) const
       }
       if (begin_ns_split[1] != end_ns_split[1])
       {
-        if (end_ns_split[1] == "") {
-          os << "syntax error" << std::endl << "No root markup" << std::endl;
-        }
-        else
-        {
-          os << "Non matching element names "
-            << begin_ns_split[1] << " and " << end_ns_split[1] << std::endl;
-        }
+        os << "Non matching element names "
+          << begin_ns_split[1] << " and " << end_ns_split[1] << std::endl;
       }
     }
   }
-  else if (begin_tag() != end_tag()) // Begin/End must be the same
+  else if (begin_tag() != end_tag() && !end_tag().empty()) // Begin/End must be the same
   {
-    if (end_tag() == "") {
-      os << "syntax error" << std::endl << "No root markup" << std::endl;
-    }
-    else
-    {
-      os << "Non matching element names " << begin_tag()
-        << " and " << end_tag() << std::endl;
-    }
+    os << "Non matching element names " << begin_tag()
+      << " and " << end_tag() << std::endl;
   }
 }
 

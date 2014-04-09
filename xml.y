@@ -18,7 +18,7 @@ extern char xmltext[];
 
 int xmllex(void);
 
-void xmlerror(Document **, const char *)
+void xmlerror(Document **, std::ostream &, const char *)
 {
    // std::cerr << msg << std::endl;
 }
@@ -51,7 +51,7 @@ void xmlerror(Document **, const char *)
 %type<attribute_list> Attribute_0_N
 %type<content_list> content
 
-%parse-param {Document ** doc_ptr}
+%parse-param {Document ** doc_ptr} {std::ostream & err}
 
 // %destructor { printf ("free at %d %s\n",@$.first_line, $$); /*free($$);*/ } <s>
 // %destructor { printf ("free at %d Document\n",@$.first_line); /*free($$);*/ } <document>
@@ -312,6 +312,7 @@ element
     std::cout << "ERROR : element" << $2 << std::endl;
     #endif
     #endif
+    err << "No root markup" << std::endl;
     $$ = new CompositeElement($2, "", *$3, *$5);
     free($2);
     delete $3;

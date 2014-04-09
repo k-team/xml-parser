@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ostream>
 
 #include "content.h"
 #include "doctype.h"

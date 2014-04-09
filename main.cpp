@@ -9,7 +9,7 @@
 #define BAD_RETCODE 1
 
 extern FILE * xmlin;
-extern int xmlparse(Document **);
+extern int xmlparse(Document **, std::ostream &);
 
 static std::string help_message = "Available commands are:\n\
 ../xmltool -p file.xml : parse and display the xml file\n\
@@ -75,17 +75,17 @@ static Document * read_document(const char * fname)
 
   // Construct document
   Document * doc = nullptr;
-  xmlparse(&doc); // who gives a f**k about the return code ?
+  std::ostringstream oss117;
+  xmlparse(&doc, oss117); // who gives a f**k about the return code ?
 
   if (doc != nullptr)
   {
-    std::ostringstream oss117;
-    doc->to_be_or_not_to_be(oss117);
+    doc->to_be_or_not_to_be(std::cerr);
     if (!oss117.str().empty())
     {
-      std::cerr << oss117.str();
-      // delete doc;
-      // doc = nullptr;
+      std::cerr << "syntax error" << std::endl << oss117.str();
+      delete doc;
+      doc = nullptr;
     }
   }
 
