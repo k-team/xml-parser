@@ -8,39 +8,67 @@ Document::Document(Prolog * p, Element * r, std::vector<PI *> const & pis):
 {
 }
 
-Document::~Document() {
+Document::~Document()
+{
   delete _prolog;
   delete _root;
-  for (std::vector<PI *>::iterator it(_endPIs.begin());
-      it != _endPIs.end(); it++) {
-    delete *it;
+  for (auto pi : _endPIs)
+  {
+    delete pi;
   }
 }
 
 std::string Document::str() const
 {
-  std::string s = "";
+  std::string s;
   if (_prolog != nullptr)
+  {
     s += _prolog->str();
+  }
   if (_root != nullptr)
+  {
     s += _root->str();
-  for(auto pi : _endPIs)
+  }
+  for (auto pi : _endPIs)
   {
     s += pi->str();
   }
   return s;
 }
 
-Prolog * Document::prolog() const {
+Prolog * Document::prolog() const
+{
   return _prolog;
 }
 
-Element * Document::root() const {
+Element * Document::root() const
+{
   return _root;
 }
 
-std::vector<PI *> const & Document::endPIs() const {
+std::vector<PI *> const & Document::endPIs() const
+{
   return _endPIs;
+}
+
+void Document::to_be_or_not_to_be() const
+{
+  if (_root != nullptr)
+  {
+    _root->to_be_or_not_to_be();
+  }
+  else
+  {
+    // TODO error here ?
+  }
+  if (_prolog != nullptr)
+  {
+    _prolog->to_be_or_not_to_be();
+  }
+  for (auto pi : _endPIs)
+  {
+    pi->to_be_or_not_to_be();
+  }
 }
 
 // vim:ft=cpp et sw=2 sts=2:

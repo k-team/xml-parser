@@ -1,0 +1,3 @@
+Non matching element names %s and %s
+Non matching element namespaces %s and %s
+Non unique attribute names %s

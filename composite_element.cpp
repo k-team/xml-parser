@@ -1,6 +1,7 @@
 #include "composite_element.h"
 #include "content.h"
 #include "attribute.h"
+#include "xml_exception.h"
 #include <sstream>
 
 CompositeElement::CompositeElement(std::string const & name,
@@ -29,7 +30,7 @@ CompositeElement::content_list const & CompositeElement::content() const
 std::string CompositeElement::str() const
 {
   std::ostringstream oss;
-  oss << "<" << name();
+  oss << "<" << begin_tag();
   for (auto attr: attributes())
   {
     oss << " " << attr->str();
@@ -47,8 +48,28 @@ std::string CompositeElement::str() const
     }
     oss << "  " << s << "\n";
   }
-  oss << "</" << name() << ">";
+  oss << "</" << end_tag() << ">";
   return oss.str();
+}
+
+std::string const & CompositeElement::begin_tag() const
+{
+  return name();
+}
+
+std::string const & CompositeElement::end_tag() const
+{
+  return _end;
+}
+
+void CompositeElement::to_be_or_not_to_be() const
+{
+  Element::to_be_or_not_to_be();
+  if (begin_tag() != end_tag())
+  {
+    throw XmlException("Non matching element names",
+        begin_tag() + " and " + end_tag());
+  }
 }
 
 // vim:ft=cpp et sw=2 sts=2:
