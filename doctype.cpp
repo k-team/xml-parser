@@ -15,5 +15,12 @@ Doctype::~Doctype()
 
 std::string Doctype::str() const
 {
-  return "<!DOCTYPE " + _n1 + " " + _n2 + " \"" + _n3 + "\">";
+  std::string s("<!DOCTYPE");
+  if (!_n1.empty())
+    s += " " + _n1;
+  if (!_n2.empty())
+    s += " " + _n2;
+  if (!_n3.empty())
+    s += " \"" + _n3 + "\"";
+  return s + ">";
 }

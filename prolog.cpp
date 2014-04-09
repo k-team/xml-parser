@@ -25,17 +25,17 @@ Prolog::~Prolog() {
 std::string Prolog::str() const
 {
   std::string s;
-  for (auto pi : _firstPIs)
+  for (auto a : _firstPIs)
   {
-    s += pi->str();
+    s += a->str() + "\n";
   }
   if (_doctype != nullptr)
   {
-    s += _doctype->str();
+    s += _doctype->str() + "\n";
   }
-  for (auto pi : _lastPIs)
+  for (auto a : _lastPIs)
   {
-    s += pi->str();
+    s += a->str() + "\n";
   }
   return s;
 }

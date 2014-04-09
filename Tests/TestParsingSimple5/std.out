@@ -17,7 +17,6 @@
     </x>
   </a>
   <a>
-<!-- un commentaire -->
 
     <x>
       blabla
@@ -31,5 +30,6 @@
     <x>
       blabla
     </x>
-<![CDATA[Du CDATA qui peut contenir une balise comme ca <balise> !]]>  </a>
+    <![CDATA[Du CDATA qui peut contenir une balise comme ca <balise> !]]>
+  </a>
 </doc>
