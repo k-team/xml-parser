@@ -30,7 +30,7 @@ CompositeElement::content_list const & CompositeElement::content() const
 std::string CompositeElement::str() const
 {
   std::ostringstream oss;
-  oss << "<" << begin_tag();
+  oss << "<" << name();
   for (auto attr : attributes())
   {
     oss << " " << attr->str();
@@ -50,7 +50,7 @@ std::string CompositeElement::str() const
     // oss << "  " << s << "\n";
     oss << s << "\n";
   }
-  oss << "</" << end_tag() << ">";
+  oss << "</" << name() << ">";
   return oss.str();
 }
 
@@ -64,17 +64,60 @@ std::string const & CompositeElement::end_tag() const
   return _end;
 }
 
+std::vector<std::string> &split(const std::string & s, char delim, std::vector<std::string> & elems)
+{
+  std::stringstream ss(s);
+  std::string item;
+  while (std::getline(ss, item, delim))
+  {
+    elems.push_back(item);
+  }
+  return elems;
+}
+
+std::vector<std::string> split(const std::string & s, char delim)
+{
+  std::vector<std::string> elems;
+  split(s, delim, elems);
+  return elems;
+}
+
 void CompositeElement::to_be_or_not_to_be() const
 {
   Element::to_be_or_not_to_be();
+  for (auto c : _content)
+  {
+    c->to_be_or_not_to_be();
+  }
+
+  // Begin namespace must be single
+  std::vector<std::string> begin_ns_split = split(begin_tag(), ':');
+  if (begin_ns_split.size() > 2)
+  {
+    throw XmlException("Namespace specified more than once.",
+        "Given " + std::to_string(begin_ns_split.size()) + " times");
+  }
+
+  // End namespace must be single
+  std::vector<std::string> end_ns_split = split(end_tag(), ':');
+  if (end_ns_split.size() > 2)
+  {
+    throw XmlException("Namespace specified more than once",
+        "given " + std::to_string(end_ns_split.size()) + " times");
+  }
+
+  // Namespace, if specified, must be the same
+  if (begin_ns_split.size() > 1 && (end_ns_split.size() == 1 || (begin_ns_split[0] != end_ns_split[0])))
+  {
+    throw XmlException("Non matching element namespaces",
+        begin_ns_split[0] + " and " + end_ns_split[0]);
+  }
+
+  // Begin/End must be the same
   if (begin_tag() != end_tag())
   {
     throw XmlException("Non matching element names",
         begin_tag() + " and " + end_tag());
-  }
-  for (auto c : _content)
-  {
-    c->to_be_or_not_to_be();
   }
 }
 

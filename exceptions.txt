@@ -1,3 +1,4 @@
 Non matching element names %s and %s
 Non matching element namespaces %s and %s
+Namespace specified more than once. Given %s times
 Non unique attribute names %s
