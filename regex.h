@@ -5,6 +5,6 @@
 
 #include "document.h"
 
-std::string xsl_to_regex(Document * doc);
+std::string xsd_to_regex(Document * doc);
 
 #endif // REGEX_H

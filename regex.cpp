@@ -41,7 +41,7 @@ static const std::string re_Misc("(" + re_comment + "|" + re_PI + "|" + re_S + "
 static const std::string re_doctype_decl("<!DOCTYPE" + re_S + re_Name + "(" + re_S + re_Name + ")?(" + re_S + re_AttValue + ")?" + re_S + "?>");
 static const std::string re_prolog("(" + re_xml_decl + ")?" + re_Misc + "*(" + re_doctype_decl + re_Misc + "*)?");
 
-std::string xsl_to_regex(Document * doc)
+std::string xsd_to_regex(Document * doc)
 {
   // std::cout << "xml : " << re_xml_decl << std::endl;
   // std::cout << "doc : " << re_doctype_decl << std::endl;
@@ -53,8 +53,8 @@ std::string xsl_to_regex(Document * doc)
     return "^$";
   if (root->begin_tag() == "xsd:schema")
   {
-    // return "^" + re_prolog + schema_to_regex(root) + re_Misc + "*$";
-    return schema_to_regex(root);
+    return "^" + re_prolog + schema_to_regex(root) + re_Misc + "*$";
+    // return schema_to_regex(root);
   }
   return "^$";
 }

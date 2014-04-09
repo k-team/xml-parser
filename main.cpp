@@ -108,7 +108,6 @@ int handle_parse(int argc, const char ** argv)
   Document * doc = read_document(argv[0]);
   if (doc == nullptr) { return BAD_RETCODE; }
   std::cout << doc->str() << std::endl;
-  std::cout << xsl_to_regex(doc) << std::endl;
   delete doc;
 
   return GOOD_RETCODE;
@@ -142,6 +141,7 @@ int handle_validate(int argc, const char ** argv)
   }
 
   // TODO
+  std::cout << xsd_to_regex(xsd_doc) << std::endl;
 
   delete xml_doc;
   delete xsd_doc;
