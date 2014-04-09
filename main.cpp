@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstdio>
 #include "document.h"
+#include "regex.h"
 
 #define GOOD_RETCODE 0
 #define BAD_RETCODE 1
@@ -107,6 +108,7 @@ int handle_parse(int argc, const char ** argv)
   Document * doc = read_document(argv[0]);
   if (doc == nullptr) { return BAD_RETCODE; }
   std::cout << doc->str() << std::endl;
+  std::cout << xsl_to_regex(doc) << std::endl;
   delete doc;
 
   return GOOD_RETCODE;

@@ -9,7 +9,7 @@ LDFLAGS =
 
 SOURCES = attribute.cpp base.cpp cd_sect.cpp char_data.cpp \
 		  composite_element.cpp content.cpp doctype.cpp document.cpp \
-		  element.cpp main.cpp pi.cpp prolog.cpp \
+		  element.cpp main.cpp pi.cpp prolog.cpp regex.cpp \
 		  xml.tab.cpp lex.xml.cpp
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 
