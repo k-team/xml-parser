@@ -56,7 +56,7 @@ std::string xsd_to_regex(Document * doc)
   {
     std::map<std::string, std::string> refs;
     std::string re("^" + re_prolog + schema_to_regex(root, refs) + re_Misc + "*$");
-    std::cout << re << std::endl; // Mais oui c'est clair
+    // std::cout << re << std::endl; // Mais oui c'est clair
     return re;
   }
   return "^$";
@@ -200,10 +200,18 @@ std::string sequence_to_regex(CompositeElement * e,
       auto it_maxOccurs = std::find_if(ce->attributes().begin(),
           ce->attributes().end(),
           [](Attribute * a) { return a->name() == "maxOccurs"; });
-      std::string maxOccurs("1");
+      std::string reg = element_to_regex(ce, refs) + space;
       if (it_maxOccurs != ce->attributes().end())
-        maxOccurs = (*it_maxOccurs)->value();
-      s += "(" + element_to_regex(ce, refs) + "){1," + maxOccurs + "}" + space;
+      {
+        int maxOccurs = atoi((*it_maxOccurs)->value().c_str());
+        for (int i(0); i < maxOccurs; i++) {
+          s += reg;
+        }
+      }
+      else
+      {
+        s += reg;
+      }
     }
   }
   return space + s;
