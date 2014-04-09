@@ -52,7 +52,10 @@ std::string xsl_to_regex(Document * doc)
   if (root == nullptr)
     return "^$";
   if (root->begin_tag() == "xsd:schema")
-    return "^" + re_prolog + schema_to_regex(root) + re_Misc + "*$";
+  {
+    // return "^" + re_prolog + schema_to_regex(root) + re_Misc + "*$";
+    return schema_to_regex(root);
+  }
   return "^$";
 }
 
@@ -85,12 +88,12 @@ std::string element_to_regex(Element * e)
         && (cce = dynamic_cast<CompositeElement *>(ce->content().front())) != nullptr
         && cce->begin_tag() == "xsd:complexType")
     {
-      return "<" + name + ">\\s?" + complexe_type_to_regex(cce) + "</" + name + ">\\s?";
+      return "<" + name + re_blank + ">" + complexe_type_to_regex(cce) + "</" + name + re_blank + ">";
     }
   }
   else
   {
-    return "<" + name + "\\s?>" + simple_element_to_regex(e) + "</" + name + "\\s?>";
+    return "<" + name + re_blank + ">" + simple_element_to_regex(e) + "</" + name + re_blank + ">";
   }
   return "";
 }
