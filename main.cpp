@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstdio>
 #include "document.h"
+#include "xml_exception.h"
 
 #define GOOD_RETCODE 0
 #define BAD_RETCODE 1
@@ -77,7 +78,17 @@ static Document * read_document(const char * fname)
   Document * doc = nullptr;
   xmlparse(&doc); // who gives a f**k about the return code ?
 
-  // TODO semantic analysis
+  if (doc != nullptr)
+  {
+    try
+    {
+      doc->to_be_or_not_to_be();
+    }
+    catch (XmlException err)
+    {
+      std::cerr << err.what() << std::endl;
+    }
+  }
 
   return doc;
 }

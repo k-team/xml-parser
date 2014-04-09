@@ -16,7 +16,7 @@ CompositeElement::CompositeElement(std::string const & name,
 
 CompositeElement::~CompositeElement()
 {
-  for (auto c: _content)
+  for (auto c : _content)
   {
     delete c;
   }
@@ -31,12 +31,12 @@ std::string CompositeElement::str() const
 {
   std::ostringstream oss;
   oss << "<" << begin_tag();
-  for (auto attr: attributes())
+  for (auto attr : attributes())
   {
     oss << " " << attr->str();
   }
   oss << ">\n";
-  for (auto c: _content)
+  for (auto c : _content)
   {
     std::string s = c->str();
     size_t from = 0;
@@ -69,6 +69,10 @@ void CompositeElement::to_be_or_not_to_be() const
   {
     throw XmlException("Non matching element names",
         begin_tag() + " and " + end_tag());
+  }
+  for (auto c : _content)
+  {
+    c->to_be_or_not_to_be();
   }
 }
 
