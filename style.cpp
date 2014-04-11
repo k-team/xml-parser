@@ -35,8 +35,8 @@ namespace Xsl
       void handle_ce(CompositeElement const &, Element const &, std::ostream &) const;
       void handle_xsl(Element const &, Element const &, std::ostream &) const;
 
-      std::multimap<std::string, Element const *> _absolute_path_templates;
-      std::multimap<std::string, Element const *> _relative_path_templates;
+      std::map<std::string, Element const *> _absolute_path_templates;
+      std::map<std::string, Element const *> _relative_path_templates;
   };
 
   // Implementation
@@ -71,7 +71,7 @@ namespace Xsl
             ((Helpers::trim(Helpers::split(attr->value(), '/')[0]).empty())
               ? _absolute_path_templates
               : _relative_path_templates
-            ).insert({ attr->value(), { element } });
+            )[attr->value()] = { element };
 
             break; // because f**k you that's why !
           }
@@ -82,18 +82,15 @@ namespace Xsl
 
   void Document::apply_style_to(XMLDocument const & xml, std::ostream & os) const
   {
-    auto range = _absolute_path_templates.equal_range("/");
-    for (auto it = range.first; it != range.second; it++)
+    auto it = _absolute_path_templates.find("/");
+    if (it != _absolute_path_templates.end())
     {
-      if (it != _absolute_path_templates.end())
-      {
-        auto ce = dynamic_cast<CompositeElement const *>(it->second);
-        handle_ce(*ce, *xml.root(), os);
-      }
-      else
-      {
-        // TODO handle when to "/" template is given
-      }
+      auto ce = dynamic_cast<CompositeElement const *>(it->second);
+      handle_ce(*ce, *xml.root(), os);
+    }
+    else
+    {
+      // TODO handle when no "/" template is given
     }
   }
 
