@@ -31,8 +31,8 @@ namespace Xsl {
       void apply_style_to(XMLDocument const &, std::ostream &);
 
     private:
-      std::map<std::string, Template> _absolute_path_templates;
-      std::map<std::string, Template> _relative_path_templates;
+      std::multimap<std::string, Template> _absolute_path_templates;
+      std::multimap<std::string, Template> _relative_path_templates;
   };
 
   class Template
@@ -77,12 +77,12 @@ namespace Xsl {
         {
           if (attr->name() == XSL_MATCH && !attr->value().empty())
           {
-            // FIXME this overwrites older templates
             ((Helpers::trim(Helpers::split(attr->value(), '/')[0]).empty())
               ? _absolute_path_templates
               : _relative_path_templates
-            )[attr->value()] = { element };
-            break;
+            ).insert({ attr->value(), { element } });
+
+            break; // because f**k you that's why !
           }
         }
       }
