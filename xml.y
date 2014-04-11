@@ -55,7 +55,8 @@ void xmlerror(Document **, std::ostream & err, const char *)
 %type<attribute_list> Attribute_0_N
 %type<content_list> content
 
-%parse-param {Document ** doc_ptr} {std::ostream & err}
+%parse-param {Document ** doc_ptr}
+%parse-param {std::ostream & err}
 
 // %destructor { printf ("free at %d %s\n",@$.first_line, $$); /*free($$);*/ } <s>
 // %destructor { printf ("free at %d Document\n",@$.first_line); /*free($$);*/ } <document>
