@@ -7,6 +7,7 @@
 #include <regex.h>
 #include "document.h"
 #include "regex.h"
+#include "style.h"
 
 #define GOOD_RETCODE 0
 #define BAD_RETCODE 1
@@ -142,7 +143,7 @@ int handle_validate(int argc, const char ** argv)
     return BAD_RETCODE;
   }
 
-  // TODO
+  // Done
   std::string str_regex(xsd_to_regex(xsd_doc));
   regex_t regex;
 
@@ -202,7 +203,7 @@ int handle_transform(int argc, const char ** argv)
     return BAD_RETCODE;
   }
 
-  // TODO
+  xml_apply_style(*xml_doc, *xsl_doc);
 
   delete xsl_doc;
   delete xml_doc;
