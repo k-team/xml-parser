@@ -176,7 +176,15 @@ namespace Xsl
       if (it != _templates.end())
       {
         auto ce = dynamic_cast<CompositeElement const *>(it->second);
-        handle_ce(*ce, root_element, os);
+        for (auto c : root_element.children())
+        {
+          auto cec = dynamic_cast<CompositeElement const *>(c);
+          if (cec != nullptr && cec->name() == select_attr->value())
+          {
+            handle_ce(*ce, *cec, os);
+            break;
+          }
+        }
       }
     }
     else // Output ALL the templates!
@@ -223,20 +231,17 @@ namespace Xsl
       Element const & root_element, std::ostream & os) const
   {
     Attribute const & select_attr = *template_element.find_attribute(XSL_SELECT);
-    auto apply = [&](CompositeElement const & ce)
-    {
-      for (auto child : ce.children())
-      {
-        os << child->str() << std::endl;
-      }
-    };
 
     if (select_attr.value() == ".")
     {
       auto ce = dynamic_cast<CompositeElement const *>(&root_element);
       if (ce != nullptr)
       {
-        apply(*ce);
+        //os << ce->str() << std::endl;
+        for (auto child : ce->children())
+        {
+          os << child->str() << std::endl;
+        }
       }
     }
     else
@@ -246,7 +251,10 @@ namespace Xsl
         auto ce = dynamic_cast<CompositeElement const *>(c);
         if (ce != nullptr && ce->name() == select_attr.value())
         {
-          apply(*ce);
+          for (auto child : ce->children())
+          {
+            os << child->str() << std::endl;
+          }
           break; // TODO only first one is written
         }
       }
