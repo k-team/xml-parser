@@ -8,9 +8,11 @@
 
 class Attribute;
 
-class Element: public Content {
+class Element: public Content
+{
   public:
     typedef std::vector<Attribute *> attribute_list;
+    typedef std::vector<Content *> child_list;
 
     Element(std::string const &, Element::attribute_list const &);
     virtual ~Element();
@@ -18,8 +20,11 @@ class Element: public Content {
     std::string const & name() const;
     attribute_list const & attributes() const;
 
+    std::pair<std::string, std::string> ns_split() const;
+
     virtual std::string str() const;
     virtual void to_be_or_not_to_be(std::ostream &) const;
+    virtual child_list children() const;
 
   private:
     std::string _name;

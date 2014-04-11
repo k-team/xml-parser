@@ -203,7 +203,7 @@ int handle_transform(int argc, const char ** argv)
     return BAD_RETCODE;
   }
 
-  xml_apply_style(*xml_doc, *xsl_doc);
+  xml_apply_style(*xml_doc, *xsl_doc, std::cout);
 
   delete xsl_doc;
   delete xml_doc;

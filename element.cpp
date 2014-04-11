@@ -1,5 +1,6 @@
 #include "element.h"
 #include "attribute.h"
+#include "helpers.h"
 #include <set>
 #include <sstream>
 
@@ -26,6 +27,16 @@ Element::attribute_list const & Element::attributes() const
   return _attributes;
 }
 
+std::pair<std::string, std::string> Element::ns_split() const
+{
+  auto split_name = Helpers::split(_name, ':');
+  if (split_name.size() < 2)
+  {
+    return { "", split_name[0] };
+  }
+  return { split_name[0], split_name[1] };
+}
+
 std::string Element::str() const
 {
   std::ostringstream oss;
@@ -49,6 +60,11 @@ void Element::to_be_or_not_to_be(std::ostream & os) const
       os << "Non unique attribute name " << attr->name() << std::endl;
     }
   }
+}
+
+Element::child_list Element::children() const
+{
+  return {};
 }
 
 // vim:ft=cpp et sw=2 sts=2:
