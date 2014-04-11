@@ -321,6 +321,10 @@ int check_xsl(const Element & root)
     if (count_apply_all>1){
         std::cout<<"multiples apply all templates"<<count_apply_all<<std::endl;
     }
+
+    check_xsl_apply_template_select(root,std::cout);
+
+
     return 0;
 }
 
@@ -330,8 +334,10 @@ int check_xsl(const Element & root)
 
 void check_xsl_tags_level(const Element &root, std::ostream & os)
 {
+
+    std::string xsl_operation_root = root.ns_split().second;
     //test presence of stylesheet on level 1
-    if (root.name()!="xsl:stylesheet")
+    if (xsl_operation_root!=XSL_STYLESHEET)
     {
         os<<"xsl level 1 tag incorrect"<<std::endl;
     }
@@ -342,8 +348,10 @@ void check_xsl_tags_level(const Element &root, std::ostream & os)
         CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
         if (ce!=nullptr)
         {
+
+            std::string xsl_operation = ce->ns_split().second;
             //test presence of things different from a template on level 2
-            if (ce->name()!="xsl:template"){
+            if (xsl_operation!=XSL_TEMPLATES){
                 os<<"xsl level 2 tag incorrect"<<std::endl;
             }else{
                 check_xsl_lowers_tags_level(*ce,os);
@@ -366,8 +374,10 @@ void check_xsl_lowers_tags_level(const Element &root, std::ostream &os)
         if (ce!=nullptr)
         {
 
+            std::string xsl_operation = ce->ns_split().second;
+
             //test presence of things different from a template on level 2
-            if ((ce->name()==XSL_TEMPLATES)||(ce->name()==XSL_STYLESHEET)){
+            if ((xsl_operation==XSL_TEMPLATES)||(xsl_operation==XSL_STYLESHEET)){
                 os<<"xsl lower level tag incorrect"<<std::endl;
             }else{
                 check_xsl_lowers_tags_level(*ce,os);
@@ -390,9 +400,60 @@ void check_xsl_multiples_apply_all(const Element &root, std::ostream &os, int &c
         }else{
             Element * e = dynamic_cast<Element *>(it);
             if (e!=nullptr){
-                if ((e->name()==XSL_APPLY_TEMPLATES)&&(!std::any_of(e->attributes().begin(), e->attributes().end(),
-                                [](Attribute* attr){return (attr->name()=="select");}))){
+                std::string xsl_operation = e->ns_split().second;
+                if ((xsl_operation==XSL_APPLY_TEMPLATES)&&(!std::any_of(e->attributes().begin(), e->attributes().end(),
+                                [](Attribute* attr){return (attr->name()==XSL_SELECT);}))){
                     count++;
+                }
+            }
+        }
+    }
+}
+
+
+void check_xsl_apply_template_select(const Element &root, std::ostream &os)
+{
+
+    std::vector<std::string> vect_select;
+    get_all_apply_template_select(root,vect_select);
+
+    for (int i=0; i<vect_select.size(); ++i){
+        os<<vect_select[i]<<std::endl;
+        for (auto it: root.children())
+        {
+            CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
+            if (ce!=nullptr)
+            {
+                for (auto it: ce->attributes()){
+                    if (it->name()==XSL_MATCH){
+
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+
+void get_all_apply_template_select(const Element &root, std::vector<std::string> &vect_select)
+{
+    for (auto it: root.children())
+    {
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
+        if (ce!=nullptr)
+        {
+            get_all_apply_template_select(*ce,vect_select);
+        }else{
+            Element * e = dynamic_cast<Element *>(it);
+            if (e!=nullptr){
+                std::string xsl_operation = e->ns_split().second;
+                if (xsl_operation==XSL_APPLY_TEMPLATES){
+                    for (auto it: e->attributes()){
+                        if (it->name()==XSL_SELECT){
+                            vect_select.push_back(it->value());
+                        }
+                    }
                 }
             }
         }
