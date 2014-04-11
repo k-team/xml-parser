@@ -21,7 +21,6 @@ namespace Xsl {
 
   bool is_element(Element const & element, std::string const & tag);
 
-  class Path;
   class Template;
 
   class Document
@@ -30,11 +29,10 @@ namespace Xsl {
       Document(XMLDocument const &);
 
       void apply_style_to(XMLDocument const &, std::ostream &);
-      void apply_style_to(Element const &, Path, std::ostream &);
 
     private:
-      std::map<Path, Template> _absolute_path_templates;
-      std::map<Path, Template> _relative_path_templates;
+      std::map<std::string, Template> _absolute_path_templates;
+      std::map<std::string, Template> _relative_path_templates;
   };
 
   class Template
@@ -48,25 +46,6 @@ namespace Xsl {
 
     private:
       Element const * _root_ptr;
-  };
-
-  class Path
-  {
-    public:
-      Path(std::string const &);
-      std::string str() const;
-
-      void append(std::string const &);
-
-      bool is_absolute() const;
-      bool is_relative() const;
-
-      static char Delimiter;
-
-      bool operator<(const Path &) const;
-
-    private:
-      std::vector<std::string> _split_path;
   };
 
   // Implementation
@@ -98,13 +77,11 @@ namespace Xsl {
         {
           if (attr->name() == XSL_MATCH && !attr->value().empty())
           {
-            Path path(attr->value());
-
             // FIXME this overwrites older templates
-            ((path.is_absolute())
+            ((Helpers::trim(Helpers::split(attr->value(), '/')[0]).empty())
               ? _absolute_path_templates
               : _relative_path_templates
-            )[path] = { element };
+            )[attr->value()] = { element };
             break;
           }
         }
@@ -115,102 +92,27 @@ namespace Xsl {
   void Document::apply_style_to(XMLDocument const & xml, std::ostream & os)
   {
     Element const & root = *xml.root();
-    Path path("/");
-    auto it = _absolute_path_templates.find(path);
+    auto it = _absolute_path_templates.find("/");
     if (it != _absolute_path_templates.end())
     {
       it->second.apply_to(root, os);
     }
     else
     {
-      apply_style_to(root, path, os);
-    }
-  }
-
-  void Document::apply_style_to(Element const & root, Path path, std::ostream & os)
-  {
-    path.append(root.name());
-    for (auto child : root.children())
-    {
-      Element const *  child_element = dynamic_cast<Element *>(child);
-      if (child_element == nullptr)
-      {
-        //os << path.str() << "-> [content]" << std::endl;
-        //os << child->str();
-      }
-      else
-      {
-        apply_style_to(*child_element, path, os);
-      }
+      // TODO handle when to "/" template is given
     }
   }
 
   void Template::apply_to(Element const & element, std::ostream & os) const
   {
-    //os << "Applying template to " << element.name() << std::endl;
-  }
-
-  char Path::Delimiter = '/';
-
-  Path::Path(std::string const & str):
-    _split_path(Helpers::split(str, Path::Delimiter))
-  {
-    // Strip first and last from spaces
-    Helpers::ltrim(_split_path[0]);
-    Helpers::rtrim(_split_path[_split_path.size() - 1]);
-
-    // Enforce trailing slash
-    if (_split_path.back() != "")
+    os << "applying template to " << element.name() << std::endl;
+    if (false)
     {
-      _split_path.push_back("");
     }
-  }
-
-  bool Path::operator<(const Path & other) const
-  {
-    if (_split_path.size() != other._split_path.size())
+    else
     {
-      return _split_path.size() < other._split_path.size();
+      //os << element.str();
     }
-
-    for (size_t i = 0; i < _split_path.size(); i++)
-    {
-      if (_split_path[i] != other._split_path[i])
-      {
-        return _split_path[i] < other._split_path[i];
-      }
-    }
-    return false;
-  }
-
-  void Path::append(std::string const & str)
-  {
-    _split_path.insert(_split_path.end() - 1, str);
-  }
-
-  std::string Path::str() const
-  {
-    std::ostringstream oss;
-    oss << Delimiter;
-    for (size_t i = 0; i < _split_path.size(); ++i)
-    {
-      oss << _split_path[i];
-      if (i < _split_path.size() - 1)
-      {
-        oss << Delimiter;
-      }
-    }
-    return oss.str();
-  }
-
-  bool Path::is_absolute() const
-  {
-    return _split_path[0].empty();
-  }
-
-  bool Path::is_relative() const
-  {
-    return !is_absolute();
   }
 }
 
