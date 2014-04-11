@@ -93,6 +93,12 @@ std::string schema_to_regex(CompositeElement * s,
     auto e = dynamic_cast<Element *>(c);
     if (e != nullptr && e->name() == xs_ns + ":element")
       r += element_to_regex(e, xs_ns, refs, types) + "|";
+
+    auto ce = dynamic_cast<CompositeElement *>(c);
+    if (ce != nullptr && ce->begin_tag() == xs_ns + ":complexType")
+    {
+      complexe_type_to_regex(ce, xs_ns, refs, types);
+    }
   }
   r = r.substr(0, r.length() - 1);
   return "(" + r + ")";
