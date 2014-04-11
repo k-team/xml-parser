@@ -11,12 +11,15 @@
 #include <algorithm>
 
 #define XSL_NS "xsl"
+#define XSL_TEMPLATES "template"
 #define XSL_APPLY_TEMPLATES "apply-templates"
 #define XSL_MATCH "match"
 #define XSL_ROOT_MATCH "/"
 
 namespace Xsl {
   typedef ::Document XMLDocument;
+
+  bool is_element(Element const & element, std::string const & tag);
 
   class Path;
   class Template;
@@ -28,10 +31,10 @@ namespace Xsl {
 
       void apply_style_to(XMLDocument const &, std::ostream &);
       void apply_style_to(Element const &, Path, std::ostream &);
-      void apply_children_style_to(Element const &, Path, std::ostream &);
 
     private:
-      std::map<Path, Template> _templates;
+      std::map<Path, Template> _absolute_path_templates;
+      std::map<Path, Template> _relative_path_templates;
   };
 
   class Template
@@ -51,47 +54,57 @@ namespace Xsl {
   {
     public:
       Path(std::string const &);
+      std::string str() const;
 
       void append(std::string const &);
-      bool operator<(const Path &) const;
+
+      bool is_absolute() const;
+      bool is_relative() const;
 
       static char Delimiter;
 
-      std::string str() const;
+      bool operator<(const Path &) const;
 
     private:
       std::vector<std::string> _split_path;
   };
 
+  // Implementation
+
+  bool is_element(Element const & element, std::string const & tag)
+  {
+    auto ns_split = element.ns_split();
+
+    // F**king lower() method
+    std::transform(ns_split.first.begin(), ns_split.first.end(),
+        ns_split.first.begin(), ::tolower);
+    std::transform(ns_split.second.begin(), ns_split.second.end(),
+        ns_split.second.begin(), ::tolower);
+
+    // Only xsl namespace
+    return ns_split.first == XSL_NS && ns_split.second == tag;
+  }
+
   Document::Document(XMLDocument const & doc):
-    _templates()
+    _absolute_path_templates(),
+    _relative_path_templates()
   {
     for (auto child : doc.root()->children())
     {
       Element * element = dynamic_cast<Element *>(child);
-      if (element == nullptr) { continue; }
-
-      auto ns_split = element->ns_split();
-
-      // F**king lower() method
-      std::transform(ns_split.first.begin(), ns_split.first.end(),
-          ns_split.first.begin(), ::tolower);
-      std::transform(ns_split.second.begin(), ns_split.second.end(),
-          ns_split.second.begin(), ::tolower);
-
-      // Only xsl namespace
-      if (ns_split.first == XSL_NS && ns_split.second == XSL_APPLY_TEMPLATES)
+      if (element != nullptr && is_element(*element, XSL_TEMPLATES))
       {
         for (auto attr : element->attributes())
         {
-          if (attr->name() == XSL_MATCH)
+          if (attr->name() == XSL_MATCH && !attr->value().empty())
           {
-            if (attr->value().empty())
-            {
-              continue;
-            }
+            Path path(attr->value());
 
-            _templates[Path(attr->value())] = { element }; // FIXME this overwrites older templates
+            // FIXME this overwrites older templates
+            ((path.is_absolute())
+              ? _absolute_path_templates
+              : _relative_path_templates
+            )[path] = { element };
             break;
           }
         }
@@ -103,8 +116,8 @@ namespace Xsl {
   {
     Element const & root = *xml.root();
     Path path("/");
-    auto it = _templates.find(path);
-    if (it != _templates.end())
+    auto it = _absolute_path_templates.find(path);
+    if (it != _absolute_path_templates.end())
     {
       it->second.apply_to(root, os);
     }
@@ -116,27 +129,13 @@ namespace Xsl {
 
   void Document::apply_style_to(Element const & root, Path path, std::ostream & os)
   {
-    auto it = _templates.find(path);
     path.append(root.name());
-    if (it != _templates.end())
-    {
-      it->second.apply_to(root, os);
-    }
-    else
-    {
-      os << "template for " << path.str() << "not found" << std::endl;
-      apply_children_style_to(root, path, os);
-    }
-  }
-
-  void Document::apply_children_style_to(Element const & root, Path path, std::ostream & os)
-  {
     for (auto child : root.children())
     {
       Element const *  child_element = dynamic_cast<Element *>(child);
       if (child_element == nullptr)
       {
-        os << path.str() << "-> [content]" << std::endl;
+        //os << path.str() << "-> [content]" << std::endl;
         //os << child->str();
       }
       else
@@ -148,7 +147,7 @@ namespace Xsl {
 
   void Template::apply_to(Element const & element, std::ostream & os) const
   {
-    os << "Applying template to " << element.name() << std::endl;
+    //os << "Applying template to " << element.name() << std::endl;
   }
 
   char Path::Delimiter = '/';
@@ -156,6 +155,10 @@ namespace Xsl {
   Path::Path(std::string const & str):
     _split_path(Helpers::split(str, Path::Delimiter))
   {
+    // Strip first and last from spaces
+    Helpers::ltrim(_split_path[0]);
+    Helpers::rtrim(_split_path[_split_path.size() - 1]);
+
     // Enforce trailing slash
     if (_split_path.back() != "")
     {
@@ -189,17 +192,31 @@ namespace Xsl {
   {
     std::ostringstream oss;
     oss << Delimiter;
-    for (auto path_part : _split_path)
+    for (size_t i = 0; i < _split_path.size(); ++i)
     {
-      oss << path_part << Delimiter;
+      oss << _split_path[i];
+      if (i < _split_path.size() - 1)
+      {
+        oss << Delimiter;
+      }
     }
     return oss.str();
+  }
+
+  bool Path::is_absolute() const
+  {
+    return _split_path[0].empty();
+  }
+
+  bool Path::is_relative() const
+  {
+    return !is_absolute();
   }
 }
 
 void xml_apply_style(Document const & xml, Document const & xsl, std::ostream & os)
 {
-  Xsl::Document xsl_doc(xsl);
+  Xsl::Document xsl_doc(xsl); // FIXME check for xsl:stylesheet root element
   xsl_doc.apply_style_to(xml, os);
 }
 
