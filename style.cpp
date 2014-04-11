@@ -124,6 +124,7 @@ namespace Xsl {
     }
     else
     {
+      os << "template for " << path.str() << "not found" << std::endl;
       apply_children_style_to(root, path, os);
     }
   }
@@ -135,7 +136,8 @@ namespace Xsl {
       Element const *  child_element = dynamic_cast<Element *>(child);
       if (child_element == nullptr)
       {
-        os << child->str();
+        os << path.str() << "-> [content]" << std::endl;
+        //os << child->str();
       }
       else
       {
@@ -146,7 +148,7 @@ namespace Xsl {
 
   void Template::apply_to(Element const & element, std::ostream & os) const
   {
-    os << "Applying template to " << element.str() << std::endl;
+    os << "Applying template to " << element.name() << std::endl;
   }
 
   char Path::Delimiter = '/';
