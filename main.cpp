@@ -206,7 +206,7 @@ int handle_transform(int argc, const char ** argv)
   check_xsl(*(xsl_doc->root()));
 
 
-  //xml_apply_style(*xml_doc, *xsl_doc, std::cout);
+  xml_apply_style(*xml_doc, *xsl_doc, std::cout);
 
   delete xsl_doc;
   delete xml_doc;

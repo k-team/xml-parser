@@ -271,57 +271,6 @@ void xml_apply_style(Document const & xml, Document const & xsl, std::ostream & 
 
 int check_xsl(const Element & root)
 {
- /*   //test presence of stylesheet on level 1
-    if (root.name()!="xsl:stylesheet")
-    {
-        return 1;
-    }
-
-    bool root_template_exist=false;
-
-    for (auto it: root.children())
-    {
-        CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
-        if (ce!=nullptr)
-        {
-            //test presence of things different from a template on level 2
-            if (ce->name()!="xsl:template"){
-                return 2;
-            } else {
-                //test root presence and multiples roots
-                if (std::any_of(ce->attributes().begin(), ce->attributes().end(),
-                            [](Attribute* attr){return (attr->name()=="match")&&(attr->value()=="/");}))
-                {
-                    if (!root_template_exist){
-                        root_template_exist = true;
-                    }else{
-                        return 4;
-                    }
-                }
-                else
-                {
-                    //test chemin absolu
-                    if(std::any_of(ce->attributes().begin(), ce->attributes().end(),
-                            [](Attribute* attr){return (attr->name()=="match")&&(attr->value()!="/")
-                                &&(attr->value()[0]=='/');})){
-                        return 5;
-                    }
-                }
-            }
-        }else{
-            //this would indicate that the is smth that differs from composite element so it can not be a template
-            return 2;
-        }
-    }
-
-    if (!root_template_exist){
-        //root does not exist
-        return 3;
-    }
-
-    //passed all tests
-    return 0;*/
-
     check_xsl_tags_level(root,std::cout);
 
     int count_apply_all=0;
@@ -331,6 +280,8 @@ int check_xsl(const Element & root)
     }
 
     check_xsl_apply_template_select(root,std::cout);
+
+    //TODO ckeck si des for_each et les value of ont des selects
 
 
     return 0;
@@ -425,22 +376,29 @@ void check_xsl_apply_template_select(const Element &root, std::ostream &os)
     std::vector<std::string> vect_select;
     get_all_apply_template_select(root,vect_select);
 
-    for (int i=0; i<vect_select.size(); ++i){
-        os<<vect_select[i]<<std::endl;
-        for (auto it: root.children())
-        {
-            CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
-            if (ce!=nullptr)
-            {
-                for (auto it: ce->attributes()){
-                    if (it->name()==XSL_MATCH){
 
-                    }
+
+    for (auto it: root.children())
+    {
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
+        if (ce!=nullptr)
+        {
+            for (auto it: ce->attributes()){
+                if (it->name()==XSL_MATCH){
+                     for (unsigned int i=0; i<vect_select.size(); ++i){
+                         if (vect_select[i]==it->value()){
+                             vect_select.erase(vect_select.begin()+i);
+                             --i;
+                         }
+                     }
                 }
             }
         }
     }
 
+    if (vect_select.size()>0){
+        os<<"apply-template with no template corresponding"<<std::endl;
+    }
 }
 
 
