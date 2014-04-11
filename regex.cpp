@@ -76,7 +76,7 @@ std::string xsd_to_regex(Document * doc)
     std::map<std::string, std::string> refs;
     std::map<std::string, std::string> types;
     std::string re("^" + re_prolog + schema_to_regex(root, xs_ns, refs, types) + re_Misc + "*$");
-    std::cout << re << std::endl; // Mais oui c'est clair
+    // std::cout << re << std::endl; // Mais oui c'est clair
     return re;
   }
   return "^$";
