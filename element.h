@@ -20,6 +20,7 @@ class Element: public Content {
 
     virtual std::string str() const;
     virtual void to_be_or_not_to_be(std::ostream &) const;
+    std::pair<std::string, std::string> ns_split() const;
 
   private:
     std::string _name;

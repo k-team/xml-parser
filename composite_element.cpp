@@ -1,6 +1,7 @@
 #include "composite_element.h"
 #include "content.h"
 #include "attribute.h"
+#include "helpers.h"
 #include <sstream>
 
 CompositeElement::CompositeElement(std::string const & name,
@@ -63,24 +64,6 @@ std::string const & CompositeElement::end_tag() const
   return _end;
 }
 
-std::vector<std::string> & split(const std::string & s, char delim, std::vector<std::string> & elems)
-{
-  std::stringstream ss(s);
-  std::string item;
-  while (std::getline(ss, item, delim))
-  {
-    elems.push_back(item);
-  }
-  return elems;
-}
-
-std::vector<std::string> split(const std::string & s, char delim)
-{
-  std::vector<std::string> elems;
-  split(s, delim, elems);
-  return elems;
-}
-
 void CompositeElement::to_be_or_not_to_be(std::ostream & os) const
 {
   Element::to_be_or_not_to_be(os);
@@ -88,6 +71,8 @@ void CompositeElement::to_be_or_not_to_be(std::ostream & os) const
   {
     c->to_be_or_not_to_be(os);
   }
+
+  using Helpers::split;
 
   // Begin namespace must be single
   std::vector<std::string> begin_ns_split = split(begin_tag(), ':');

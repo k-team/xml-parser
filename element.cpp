@@ -1,5 +1,6 @@
 #include "element.h"
 #include "attribute.h"
+#include "helpers.h"
 #include <set>
 #include <sstream>
 
@@ -24,6 +25,16 @@ std::string const & Element::name() const
 Element::attribute_list const & Element::attributes() const
 {
   return _attributes;
+}
+
+std::pair<std::string, std::string> Element::ns_split() const
+{
+  auto split_name = Helpers::split(_name, ':');
+  if (split_name.size() < 2)
+  {
+    return { "", split_name[0] };
+  }
+  return { split_name[0], split_name[1] };
 }
 
 std::string Element::str() const
