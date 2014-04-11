@@ -1,6 +1,7 @@
 #include "style.h"
 #include "document.h"
 #include "element.h"
+#include "composite_element.h"
 #include "helpers.h"
 #include "composite_element.h"
 #include "attribute.h"
@@ -14,195 +15,138 @@
 
 
 #define XSL_NS "xsl"
+#define XSL_TEMPLATES "template"
 #define XSL_APPLY_TEMPLATES "apply-templates"
 #define XSL_MATCH "match"
 #define XSL_ROOT_MATCH "/"
 
-namespace Xsl {
+namespace Xsl
+{
   typedef ::Document XMLDocument;
 
-  class Path;
-  class Template;
+  bool is_element(Element const &, std::string const & = "");
 
   class Document
   {
     public:
       Document(XMLDocument const &);
 
-      void apply_style_to(XMLDocument const &, std::ostream &);
-      void apply_style_to(Element const &, Path, std::ostream &);
-      void apply_children_style_to(Element const &, Path, std::ostream &);
+      void apply_style_to(XMLDocument const &, std::ostream &) const;
 
     private:
-      std::map<Path, Template> _templates;
+      void handle_e(Element const &, Element const &, std::ostream &) const;
+      void handle_ce(CompositeElement const &, Element const &, std::ostream &) const;
+      void handle_xsl(Element const &, Element const &, std::ostream &) const;
+
+      std::map<std::string, Element const *> _absolute_path_templates;
+      std::map<std::string, Element const *> _relative_path_templates;
   };
 
-  class Template
+  // Implementation
+
+  bool is_element(Element const & element, std::string const & tag)
   {
-    public:
-      Template(Element const * element): _root_ptr(element) {}
-      Template() = default;
-      ~Template() = default;
+    auto ns_split = element.ns_split();
 
-      void apply_to(Element const &, std::ostream &) const;
+    // F**king lower() method
+    std::transform(ns_split.first.begin(), ns_split.first.end(),
+        ns_split.first.begin(), ::tolower);
+    std::transform(ns_split.second.begin(), ns_split.second.end(),
+        ns_split.second.begin(), ::tolower);
 
-    private:
-      Element const * _root_ptr;
-  };
-
-  class Path
-  {
-    public:
-      Path(std::string const &);
-
-      void append(std::string const &);
-      bool operator<(const Path &) const;
-
-      static char Delimiter;
-
-      std::string str() const;
-
-    private:
-      std::vector<std::string> _split_path;
-  };
+    // Only xsl namespace
+    return ns_split.first == XSL_NS && (tag.empty() || ns_split.second == tag);
+  }
 
   Document::Document(XMLDocument const & doc):
-    _templates()
+    _absolute_path_templates(),
+    _relative_path_templates()
   {
     for (auto child : doc.root()->children())
     {
       Element * element = dynamic_cast<Element *>(child);
-      if (element == nullptr) { continue; }
-
-      auto ns_split = element->ns_split();
-
-      // F**king lower() method
-      std::transform(ns_split.first.begin(), ns_split.first.end(),
-          ns_split.first.begin(), ::tolower);
-      std::transform(ns_split.second.begin(), ns_split.second.end(),
-          ns_split.second.begin(), ::tolower);
-
-      // Only xsl namespace
-      if (ns_split.first == XSL_NS && ns_split.second == XSL_APPLY_TEMPLATES)
+      if (element != nullptr && is_element(*element, XSL_TEMPLATES))
       {
         for (auto attr : element->attributes())
         {
-          if (attr->name() == XSL_MATCH)
+          if (attr->name() == XSL_MATCH && !attr->value().empty())
           {
-            if (attr->value().empty())
-            {
-              continue;
-            }
+            ((Helpers::trim(Helpers::split(attr->value(), '/')[0]).empty())
+              ? _absolute_path_templates
+              : _relative_path_templates
+            )[attr->value()] = { element };
 
-            _templates[Path(attr->value())] = { element }; // FIXME this overwrites older templates
-            break;
+            break; // because f**k you that's why !
           }
         }
       }
     }
   }
 
-  void Document::apply_style_to(XMLDocument const & xml, std::ostream & os)
+  void Document::apply_style_to(XMLDocument const & xml, std::ostream & os) const
   {
-    Element const & root = *xml.root();
-    Path path("/");
-    auto it = _templates.find(path);
-    if (it != _templates.end())
+    auto it = _absolute_path_templates.find("/");
+    if (it != _absolute_path_templates.end())
     {
-      it->second.apply_to(root, os);
+      auto ce = dynamic_cast<CompositeElement const *>(it->second);
+      handle_ce(*ce, *xml.root(), os);
     }
     else
     {
-      apply_style_to(root, path, os);
+      // TODO handle when no "/" template is given
     }
   }
 
-  void Document::apply_style_to(Element const & root, Path path, std::ostream & os)
+  void Document::handle_e(Element const & template_element,
+      Element const & root_element, std::ostream & os) const
   {
-    auto it = _templates.find(path);
-    path.append(root.name());
-    if (it != _templates.end())
+    if (is_element(template_element))
     {
-      it->second.apply_to(root, os);
+      handle_xsl(template_element, root_element, os);
     }
     else
     {
-      os << "template for " << path.str() << "not found" << std::endl;
-      apply_children_style_to(root, path, os);
-    }
-  }
-
-  void Document::apply_children_style_to(Element const & root, Path path, std::ostream & os)
-  {
-    for (auto child : root.children())
-    {
-      Element const *  child_element = dynamic_cast<Element *>(child);
-      if (child_element == nullptr)
+      auto ce = dynamic_cast<CompositeElement const *>(&template_element);
+      if (ce == nullptr)
       {
-        os << path.str() << "-> [content]" << std::endl;
-        //os << child->str();
+        os << template_element.str() << std::endl;
       }
       else
       {
-        apply_style_to(*child_element, path, os);
+        os << ce->begin_str() << std::endl;
+        handle_ce(*ce, root_element, os);
+        os << ce->end_str() << std::endl;
       }
     }
   }
 
-  void Template::apply_to(Element const & element, std::ostream & os) const
+  void Document::handle_ce(CompositeElement const & template_element,
+      Element const & root_element, std::ostream & os) const
   {
-    os << "Applying template to " << element.name() << std::endl;
-  }
-
-  char Path::Delimiter = '/';
-
-  Path::Path(std::string const & str):
-    _split_path(Helpers::split(str, Path::Delimiter))
-  {
-    // Enforce trailing slash
-    if (_split_path.back() != "")
+    for (auto child : template_element.children())
     {
-      _split_path.push_back("");
-    }
-  }
-
-  bool Path::operator<(const Path & other) const
-  {
-    if (_split_path.size() != other._split_path.size())
-    {
-      return _split_path.size() < other._split_path.size();
-    }
-
-    for (size_t i = 0; i < _split_path.size(); i++)
-    {
-      if (_split_path[i] != other._split_path[i])
+      auto child_element = dynamic_cast<Element const *>(child);
+      if (child_element == nullptr)
       {
-        return _split_path[i] < other._split_path[i];
+        os << child->str() << std::endl;
+      }
+      else
+      {
+        handle_e(*child_element, root_element, os);
       }
     }
-    return false;
   }
 
-  void Path::append(std::string const & str)
+  void Document::handle_xsl(Element const & template_element,
+      Element const & element, std::ostream & os) const
   {
-    _split_path.insert(_split_path.end() - 1, str);
-  }
-
-  std::string Path::str() const
-  {
-    std::ostringstream oss;
-    oss << Delimiter;
-    for (auto path_part : _split_path)
-    {
-      oss << path_part << Delimiter;
-    }
-    return oss.str();
+    os << template_element.str()<< std::endl;
   }
 }
 
 void xml_apply_style(Document const & xml, Document const & xsl, std::ostream & os)
 {
-  Xsl::Document xsl_doc(xsl);
+  Xsl::Document xsl_doc(xsl); // FIXME check for xsl:stylesheet root element
   xsl_doc.apply_style_to(xml, os);
 }
 

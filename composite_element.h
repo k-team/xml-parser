@@ -18,6 +18,9 @@ class CompositeElement: public Element {
     std::string const & end_tag() const;
 
     std::string str() const;
+    std::string begin_str() const;
+    std::string end_str() const;
+
     void to_be_or_not_to_be(std::ostream &) const;
     child_list children() const;
 
