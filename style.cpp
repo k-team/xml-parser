@@ -19,6 +19,7 @@
 #define XSL_APPLY_TEMPLATES "apply-templates"
 #define XSL_MATCH "match"
 #define XSL_ROOT_MATCH "/"
+#define XSL_STYLESHEET "stylesheet"
 
 namespace Xsl
 {
@@ -151,8 +152,9 @@ void xml_apply_style(Document const & xml, Document const & xsl, std::ostream & 
 }
 
 
-int test_xsl(const Element & root)
+int check_xsl(const Element & root)
 {
+ /*   //test presence of stylesheet on level 1
     if (root.name()!="xsl:stylesheet")
     {
         return 1;
@@ -165,27 +167,125 @@ int test_xsl(const Element & root)
         CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
         if (ce!=nullptr)
         {
+            //test presence of things different from a template on level 2
             if (ce->name()!="xsl:template"){
                 return 2;
             } else {
-                if (ce->attributes()=="/"){
-                    root_template_exist=true;
-                }else if (ce->begin_tag()[0]=='/'){
-                    return 3;
+                //test root presence and multiples roots
+                if (std::any_of(ce->attributes().begin(), ce->attributes().end(),
+                            [](Attribute* attr){return (attr->name()=="match")&&(attr->value()=="/");}))
+                {
+                    if (!root_template_exist){
+                        root_template_exist = true;
+                    }else{
+                        return 4;
+                    }
+                }
+                else
+                {
+                    //test chemin absolu
+                    if(std::any_of(ce->attributes().begin(), ce->attributes().end(),
+                            [](Attribute* attr){return (attr->name()=="match")&&(attr->value()!="/")
+                                &&(attr->value()[0]=='/');})){
+                        return 5;
+                    }
                 }
             }
         }else{
+            //this would indicate that the is smth that differs from composite element so it can not be a template
             return 2;
         }
     }
 
     if (!root_template_exist){
-        return 4;
+        //root does not exist
+        return 3;
     }
 
+    //passed all tests
+    return 0;*/
 
+    check_xsl_tags_level(root,std::cout);
+
+    int count_apply_all=0;
+    check_xsl_multiples_apply_all(root,std::cout,count_apply_all);
+    if (count_apply_all>1){
+        std::cout<<"multiples apply all templates"<<count_apply_all<<std::endl;
+    }
     return 0;
 }
 
 
 // vim:ft=cpp et sw=2 sts=2:
+
+
+void check_xsl_tags_level(const Element &root, std::ostream & os)
+{
+    //test presence of stylesheet on level 1
+    if (root.name()!="xsl:stylesheet")
+    {
+        os<<"xsl level 1 tag incorrect"<<std::endl;
+    }
+
+
+    for (auto it: root.children())
+    {
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
+        if (ce!=nullptr)
+        {
+            //test presence of things different from a template on level 2
+            if (ce->name()!="xsl:template"){
+                os<<"xsl level 2 tag incorrect"<<std::endl;
+            }else{
+                check_xsl_lowers_tags_level(*ce,os);
+            }
+        }else{
+            //this would indicate that the is smth that differs from composite element so it can not be a template
+            os<<"xsl level 2 tag incorrect"<<std::endl;
+        }
+    }
+
+
+}
+
+
+void check_xsl_lowers_tags_level(const Element &root, std::ostream &os)
+{
+    for (auto it: root.children())
+    {
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
+        if (ce!=nullptr)
+        {
+
+            //test presence of things different from a template on level 2
+            if ((ce->name()==XSL_TEMPLATES)||(ce->name()==XSL_STYLESHEET)){
+                os<<"xsl lower level tag incorrect"<<std::endl;
+            }else{
+                check_xsl_lowers_tags_level(*ce,os);
+            }
+        }else{
+
+        }
+    }
+}
+
+
+void check_xsl_multiples_apply_all(const Element &root, std::ostream &os, int &count)
+{
+    for (auto it: root.children())
+    {
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
+        if (ce!=nullptr)
+        {
+            check_xsl_multiples_apply_all(*ce,os,count);
+        }else{
+            Element * e = dynamic_cast<Element *>(it);
+            if (e!=nullptr){
+                if ((e->name()==XSL_APPLY_TEMPLATES)&&(!std::any_of(e->attributes().begin(), e->attributes().end(),
+                                [](Attribute* attr){return (attr->name()=="select");}))){
+                    count++;
+                }
+            }
+        }
+    }
+}
