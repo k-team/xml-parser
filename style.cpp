@@ -2,6 +2,7 @@
 #include "document.h"
 #include "element.h"
 #include "helpers.h"
+#include "composite_element.h"
 #include "attribute.h"
 #include <iostream>
 #include <sstream>
@@ -9,6 +10,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+
+
 
 #define XSL_NS "xsl"
 #define XSL_APPLY_TEMPLATES "apply-templates"
@@ -202,5 +205,43 @@ void xml_apply_style(Document const & xml, Document const & xsl, std::ostream & 
   Xsl::Document xsl_doc(xsl);
   xsl_doc.apply_style_to(xml, os);
 }
+
+
+int test_xsl(const Element & root)
+{
+    if (root.name()!="xsl:stylesheet")
+    {
+        return 1;
+    }
+
+    bool root_template_exist=false;
+
+    for (auto it: root.children())
+    {
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
+        if (ce!=nullptr)
+        {
+            if (ce->name()!="xsl:template"){
+                return 2;
+            } else {
+                if (ce->attributes()=="/"){
+                    root_template_exist=true;
+                }else if (ce->begin_tag()[0]=='/'){
+                    return 3;
+                }
+            }
+        }else{
+            return 2;
+        }
+    }
+
+    if (!root_template_exist){
+        return 4;
+    }
+
+
+    return 0;
+}
+
 
 // vim:ft=cpp et sw=2 sts=2:

@@ -203,7 +203,22 @@ int handle_transform(int argc, const char ** argv)
     return BAD_RETCODE;
   }
 
-  xml_apply_style(*xml_doc, *xsl_doc, std::cout);
+  int xsl_test_return=0;
+  xsl_test_return=test_xsl(*(xsl_doc->root()));
+  switch (xsl_test_return){
+      case 1:{
+        std::cout << "xsl first lvl tag invalid" <<std::endl;
+        break;
+      }case 2:{
+        std::cout << "xsl second lvl tag invalid" <<std::endl;
+        break;
+      }
+    default: {
+      //nothing to do
+    }
+  }
+
+  //xml_apply_style(*xml_doc, *xsl_doc, std::cout);
 
   delete xsl_doc;
   delete xml_doc;
