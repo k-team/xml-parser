@@ -160,6 +160,13 @@ std::string simple_element_to_regex(Element * e,
     return re_string;
   else if (type == xs_ns + ":date")
     return re_date;
+
+  auto it_ptype = types.find(type);
+  if (it_ptype != types.end())
+  {
+    return "(" + it_ptype->second + ")";
+  }
+
   return "";
 }
 
