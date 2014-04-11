@@ -30,28 +30,31 @@ CompositeElement::content_list const & CompositeElement::content() const
 std::string CompositeElement::str() const
 {
   std::ostringstream oss;
+  oss << begin_str() << std::endl;
+  for (auto c : _content)
+  {
+    std::string s = c->str();
+    oss << s << std::endl;
+  }
+  oss << end_str();
+  return oss.str();
+}
+
+std::string CompositeElement::begin_str() const
+{
+  std::ostringstream oss;
   oss << "<" << name();
   for (auto attr : attributes())
   {
     oss << " " << attr->str();
   }
-  oss << ">\n";
-  for (auto c : _content)
-  {
-    std::string s = c->str();
-    // Add space just after every \n
-    // size_t from = 0;
-    // size_t pos;
-    // while ((pos = s.find("\n", from)) != std::string::npos)
-    // {
-    //   s.replace(pos, 1, "\n  ");
-    //   from = pos + 3;
-    // }
-    // oss << "  " << s << "\n";
-    oss << s << "\n";
-  }
-  oss << "</" << name() << ">";
+  oss << ">";
   return oss.str();
+}
+
+std::string CompositeElement::end_str() const
+{
+  return "</" + name() + ">";
 }
 
 std::string const & CompositeElement::begin_tag() const
