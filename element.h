@@ -8,7 +8,8 @@
 
 class Attribute;
 
-class Element: public Content {
+class Element: public Content
+{
   public:
     typedef std::vector<Attribute *> attribute_list;
 
