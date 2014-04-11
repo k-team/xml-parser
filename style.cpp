@@ -218,7 +218,35 @@ namespace Xsl
   void Document::handle_value_of(Element const & template_element,
       Element const & root_element, std::ostream & os) const
   {
-    os << XSL_VALUE_OF << std::endl;
+    Attribute const & select_attr = *template_element.find_attribute(XSL_SELECT);
+    auto apply = [&](CompositeElement const & ce)
+    {
+      for (auto child : ce.children())
+      {
+        os << child->str() << std::endl;
+      }
+    };
+
+    if (select_attr.value() == ".")
+    {
+      auto ce = dynamic_cast<CompositeElement const *>(&root_element);
+      if (ce != nullptr)
+      {
+        apply(*ce);
+      }
+    }
+    else
+    {
+      for (auto c : root_element.children())
+      {
+        auto ce = dynamic_cast<CompositeElement const *>(c);
+        if (ce != nullptr && ce->name() == select_attr.value())
+        {
+          apply(*ce);
+          break; // TODO only first one is written
+        }
+      }
+    }
   }
 }
 
