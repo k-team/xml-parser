@@ -17,6 +17,8 @@ class Element: public Content
     Element(std::string const &, Element::attribute_list const &);
     virtual ~Element();
 
+    Attribute * find_attribute(std::string const &) const;
+
     std::string const & name() const;
     attribute_list const & attributes() const;
 
