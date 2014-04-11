@@ -19,6 +19,7 @@ class CompositeElement: public Element {
 
     std::string str() const;
     void to_be_or_not_to_be(std::ostream &) const;
+    child_list children() const;
 
   private:
     std::string _end;

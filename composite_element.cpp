@@ -118,4 +118,9 @@ void CompositeElement::to_be_or_not_to_be(std::ostream & os) const
   }
 }
 
+CompositeElement::child_list CompositeElement::children() const
+{
+  return _content;
+}
+
 // vim:ft=cpp et sw=2 sts=2:

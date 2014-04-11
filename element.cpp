@@ -62,4 +62,9 @@ void Element::to_be_or_not_to_be(std::ostream & os) const
   }
 }
 
+Element::child_list Element::children() const
+{
+  return {};
+}
+
 // vim:ft=cpp et sw=2 sts=2:
