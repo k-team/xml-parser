@@ -123,13 +123,13 @@ namespace Xsl
     for (auto child : template_element.children())
     {
       auto child_element = dynamic_cast<Element const *>(child);
-      if (child_element == nullptr)
+      if (child_element != nullptr)
       {
-        os << child->str() << std::endl;
+        handle_e(*child_element, root_element, os);
       }
       else
       {
-        handle_e(*child_element, root_element, os);
+        os << child->str() << std::endl;
       }
     }
   }
@@ -168,7 +168,7 @@ namespace Xsl
     Attribute * select_attr = template_element.find_attribute(XSL_SELECT);
     if (select_attr != nullptr)
     {
-      auto it =_templates.find(select_attr->name());
+      auto it =_templates.find(select_attr->value());
       if (it != _templates.end())
       {
         auto ce = dynamic_cast<CompositeElement const *>(it->second);
@@ -200,11 +200,12 @@ namespace Xsl
       auto ce = dynamic_cast<CompositeElement const *>(it->second);
       handle_ce(*ce, *e, os);
     }
-
-    // Recursion
-    for (auto c : e->children())
+    else // Recursion otherwise
     {
-      handle_apply_all_templates(c, os);
+      for (auto c : e->children())
+      {
+        handle_apply_all_templates(c, os);
+      }
     }
   }
 
