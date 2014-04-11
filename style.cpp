@@ -16,10 +16,13 @@
 
 #define XSL_NS "xsl"
 #define XSL_TEMPLATES "template"
-#define XSL_APPLY_TEMPLATES "apply-templates"
 #define XSL_MATCH "match"
 #define XSL_ROOT_MATCH "/"
 #define XSL_STYLESHEET "stylesheet"
+#define XSL_APPLY_TEMPLATES "apply-templates"
+#define XSL_VALUE_OF "value-of"
+#define XSL_FOR_EACH "for-each"
+#define XSL_SELECT "select"
 
 namespace Xsl
 {
@@ -38,9 +41,13 @@ namespace Xsl
       void handle_e(Element const &, Element const &, std::ostream &) const;
       void handle_ce(CompositeElement const &, Element const &, std::ostream &) const;
       void handle_xsl(Element const &, Element const &, std::ostream &) const;
+      void handle_apply_templates(Element const &, Element const &, std::ostream &) const;
+      void handle_for_each(Element const &, Element const &, std::ostream &) const;
+      void handle_value_of(Element const &, Element const &, std::ostream &) const;
+      void handle_apply_all_templates(Content const *, std::ostream &) const;
 
-      std::map<std::string, Element const *> _absolute_path_templates;
-      std::map<std::string, Element const *> _relative_path_templates;
+      CompositeElement const * _root_template;
+      std::map<std::string, Element const *> _templates;
   };
 
   // Implementation
@@ -60,8 +67,7 @@ namespace Xsl
   }
 
   Document::Document(XMLDocument const & doc):
-    _absolute_path_templates(),
-    _relative_path_templates()
+    _root_template(), _templates()
   {
     for (auto child : doc.root()->children())
     {
@@ -72,11 +78,14 @@ namespace Xsl
         {
           if (attr->name() == XSL_MATCH && !attr->value().empty())
           {
-            ((Helpers::trim(Helpers::split(attr->value(), '/')[0]).empty())
-              ? _absolute_path_templates
-              : _relative_path_templates
-            )[attr->value()] = { element };
-
+            if (attr->value() == "/")
+            {
+              _root_template = dynamic_cast<CompositeElement const *>(element);
+            }
+            else
+            {
+              _templates[attr->value()] = element;
+            }
             break; // because f**k you that's why !
           }
         }
@@ -86,16 +95,7 @@ namespace Xsl
 
   void Document::apply_style_to(XMLDocument const & xml, std::ostream & os) const
   {
-    auto it = _absolute_path_templates.find("/");
-    if (it != _absolute_path_templates.end())
-    {
-      auto ce = dynamic_cast<CompositeElement const *>(it->second);
-      handle_ce(*ce, *xml.root(), os);
-    }
-    else
-    {
-      // TODO handle when no "/" template is given
-    }
+    handle_ce(*_root_template, *xml.root(), os);
   }
 
   void Document::handle_e(Element const & template_element,
@@ -127,13 +127,13 @@ namespace Xsl
     for (auto child : template_element.children())
     {
       auto child_element = dynamic_cast<Element const *>(child);
-      if (child_element == nullptr)
+      if (child_element != nullptr)
       {
-        os << child->str() << std::endl;
+        handle_e(*child_element, root_element, os);
       }
       else
       {
-        handle_e(*child_element, root_element, os);
+        os << child->str() << std::endl;
       }
     }
   }
@@ -141,7 +141,116 @@ namespace Xsl
   void Document::handle_xsl(Element const & template_element,
       Element const & element, std::ostream & os) const
   {
-    os << template_element.str()<< std::endl;
+    std::string xsl_operation = template_element.ns_split().second;
+
+    // F**king lower() method
+    std::transform(xsl_operation.begin(), xsl_operation.end(),
+        xsl_operation.begin(), ::tolower);
+
+    // Very elegant code
+    if (xsl_operation == XSL_APPLY_TEMPLATES)
+    {
+      handle_apply_templates(template_element, element, os);
+    }
+    else if (xsl_operation == XSL_FOR_EACH)
+    {
+      handle_for_each(template_element, element, os);
+    }
+    else if (xsl_operation == XSL_VALUE_OF)
+    {
+      handle_value_of(template_element, element, os);
+    }
+    else
+    {
+      os << template_element.str() << std::endl;
+    }
+  }
+
+  void Document::handle_apply_templates(Element const & template_element,
+      Element const & root_element, std::ostream & os) const
+  {
+    Attribute * select_attr = template_element.find_attribute(XSL_SELECT);
+    if (select_attr != nullptr)
+    {
+      auto it =_templates.find(select_attr->value());
+      if (it != _templates.end())
+      {
+        auto ce = dynamic_cast<CompositeElement const *>(it->second);
+        handle_ce(*ce, root_element, os);
+      }
+    }
+    else // Output ALL the templates!
+    {
+      for (auto c : root_element.children())
+      {
+        handle_apply_all_templates(c, os);
+      }
+    }
+    //os << XSL_APPLY_TEMPLATES << std::endl;
+  }
+
+  void Document::handle_apply_all_templates(Content const * c, std::ostream & os) const
+  {
+    auto e = dynamic_cast<Element const *>(c);
+    if (e == nullptr)
+    {
+      return;
+    }
+
+    // Apply applicable templates
+    auto it = _templates.find(e->name());
+    if (it !=_templates.end())
+    {
+      auto ce = dynamic_cast<CompositeElement const *>(it->second);
+      handle_ce(*ce, *e, os);
+    }
+    else // Recursion otherwise
+    {
+      for (auto c : e->children())
+      {
+        handle_apply_all_templates(c, os);
+      }
+    }
+  }
+
+  void Document::handle_for_each(Element const & template_element,
+      Element const & root_element, std::ostream & os) const
+  {
+    os << XSL_FOR_EACH << std::endl;
+  }
+
+  void Document::handle_value_of(Element const & template_element,
+      Element const & root_element, std::ostream & os) const
+  {
+    Attribute const & select_attr = *template_element.find_attribute(XSL_SELECT);
+    auto apply = [&](CompositeElement const & ce)
+    {
+      for (auto child : ce.children())
+      {
+        os << child->str() << std::endl;
+      }
+    };
+
+    if (select_attr.value() == ".")
+    {
+      auto ce = dynamic_cast<CompositeElement const *>(&root_element);
+      if (ce != nullptr)
+      {
+        apply(*ce);
+      }
+    }
+    else
+    {
+      for (auto c : root_element.children())
+      {
+        auto ce = dynamic_cast<CompositeElement const *>(c);
+        if (ce != nullptr && ce->name() == select_attr.value())
+        {
+          apply(*ce);
+          break; // TODO only first one is written
+        }
+      }
+    }
   }
 }
 

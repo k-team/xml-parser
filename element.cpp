@@ -27,6 +27,18 @@ Element::attribute_list const & Element::attributes() const
   return _attributes;
 }
 
+Attribute * Element::find_attribute(std::string const & name) const
+{
+  for (auto attr : _attributes)
+  {
+    if (attr->name() == name)
+    {
+      return attr;
+    }
+  }
+  return nullptr;
+}
+
 std::pair<std::string, std::string> Element::ns_split() const
 {
   auto split_name = Helpers::split(_name, ':');
