@@ -29,11 +29,12 @@ namespace Xsl
       Document(XMLDocument const &);
 
       void apply_style_to(XMLDocument const &, std::ostream &) const;
-      void apply_template_to(Element const &, Element const &, std::ostream &) const;
-      void apply_template_to(CompositeElement const &, Element const &, std::ostream &) const;
-      void do_something_special(Element const &, Element const &, std::ostream &) const;
 
     private:
+      void handle_e(Element const &, Element const &, std::ostream &) const;
+      void handle_ce(CompositeElement const &, Element const &, std::ostream &) const;
+      void handle_xsl(Element const &, Element const &, std::ostream &) const;
+
       std::multimap<std::string, Element const *> _absolute_path_templates;
       std::multimap<std::string, Element const *> _relative_path_templates;
   };
@@ -51,9 +52,7 @@ namespace Xsl
         ns_split.second.begin(), ::tolower);
 
     // Only xsl namespace
-    bool ret = ns_split.first == XSL_NS && (tag.empty() || ns_split.second == tag);
-    //std::cout << "is_element(" << element.str() << ")" << ret << std::endl;
-    return ret;
+    return ns_split.first == XSL_NS && (tag.empty() || ns_split.second == tag);
   }
 
   Document::Document(XMLDocument const & doc):
@@ -89,7 +88,7 @@ namespace Xsl
       if (it != _absolute_path_templates.end())
       {
         auto ce = dynamic_cast<CompositeElement const *>(it->second);
-        apply_template_to(*ce, *xml.root(), os);
+        handle_ce(*ce, *xml.root(), os);
       }
       else
       {
@@ -98,30 +97,30 @@ namespace Xsl
     }
   }
 
-  void Document::apply_template_to(Element const & template_element,
+  void Document::handle_e(Element const & template_element,
       Element const & root_element, std::ostream & os) const
   {
     if (is_element(template_element))
     {
-      do_something_special(template_element, root_element, os);
+      handle_xsl(template_element, root_element, os);
     }
     else
     {
       auto ce = dynamic_cast<CompositeElement const *>(&template_element);
-      if (ce != nullptr)
+      if (ce == nullptr)
       {
         os << template_element.str() << std::endl;
       }
       else
       {
-        os << "<" << ce->name() << ">" << std::endl;
-        apply_template_to(*ce, root_element, os);
-        os << "</" << ce->name() << ">" << std::endl;
+        os << ce->begin_str() << std::endl;
+        handle_ce(*ce, root_element, os);
+        os << ce->end_str() << std::endl;
       }
     }
   }
 
-  void Document::apply_template_to(CompositeElement const & template_element,
+  void Document::handle_ce(CompositeElement const & template_element,
       Element const & root_element, std::ostream & os) const
   {
     for (auto child : template_element.children())
@@ -133,16 +132,15 @@ namespace Xsl
       }
       else
       {
-        apply_template_to(template_element, *child_element, os);
+        handle_e(*child_element, root_element, os);
       }
     }
   }
 
-  void Document::do_something_special(Element const & template_element,
+  void Document::handle_xsl(Element const & template_element,
       Element const & element, std::ostream & os) const
   {
-    std::cout << template_element.name() << std::endl;
-    //os << template_element.str()<< std::endl;
+    os << template_element.str()<< std::endl;
   }
 }
 
