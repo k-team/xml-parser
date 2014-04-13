@@ -28,10 +28,8 @@ namespace Xsl
     auto ns_split = element.ns_split();
 
     // F**king lower() method
-    std::transform(ns_split.first.begin(), ns_split.first.end(),
-        ns_split.first.begin(), ::tolower);
-    std::transform(ns_split.second.begin(), ns_split.second.end(),
-        ns_split.second.begin(), ::tolower);
+    Helpers::lower(ns_split.first);
+    Helpers::lower(ns_split.second);
 
     // Only xsl namespace
     return ns_split.first == XSL_NS && (tag.empty() || ns_split.second == tag);
