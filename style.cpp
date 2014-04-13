@@ -29,7 +29,6 @@ namespace Xsl
 
     // F**king lower() method
     Helpers::lower(ns_split.first);
-    Helpers::lower(ns_split.second);
 
     // Only xsl namespace
     return ns_split.first == XSL_NS && (tag.empty() || ns_split.second == tag);
@@ -144,9 +143,6 @@ namespace Xsl
   void TemplateRenderer::render_xsl(Element const * tmplt)
   {
     std::string xsl_operation = tmplt->ns_split().second;
-
-    // F**king lower() method
-    Helpers::lower(xsl_operation);
 
     // Very elegant code
     if (xsl_operation == XSL_APPLY_TEMPLATES)
