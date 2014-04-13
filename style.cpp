@@ -37,6 +37,41 @@ namespace Xsl
     return ns_split.first == XSL_NS && (tag.empty() || ns_split.second == tag);
   }
 
+  class Document
+  {
+    public:
+      Document(XMLDocument const &);
+
+      void apply_style_to(XMLDocument const &, std::ostream &) const;
+
+      void apply_templates(Element const *, Element const *, std::ostream &) const;
+      void value_of(Element const *, Element const *, std::ostream &) const;
+      void for_each(Element const *, Element const *, std::ostream &) const;
+
+    private:
+      void apply_all_templates(Content const *, std::ostream &) const;
+
+      CompositeElement const * _root_template;
+      std::map<std::string, Element const *> _templates;
+  };
+
+  class TemplateRenderer
+  {
+    public:
+      TemplateRenderer(Document const & doc, Element const * root_element, std::ostream & os):
+        _doc(doc), _root_element(root_element), _os(os) {}
+      ~TemplateRenderer() = default;
+
+      void render_empty(Element const *);
+      void render_composite(CompositeElement const *);
+      void render_xsl(Element const *);
+
+    private:
+      Document const & _doc;
+      Element const * _root_element;
+      std::ostream & _os;
+  };
+
   Document::Document(XMLDocument const & doc):
     _root_template(), _templates()
   {
@@ -66,109 +101,145 @@ namespace Xsl
 
   void Document::apply_style_to(XMLDocument const & xml, std::ostream & os) const
   {
-    handle_ce(*_root_template, *xml.root(), os);
+    TemplateRenderer tr(*this, xml.root(), os);
+    tr.render_composite(_root_template);
   }
 
-  void Document::handle_e(Element const & template_element,
-      Element const & root_element, std::ostream & os) const
+  void TemplateRenderer::render_composite(CompositeElement const * tmplt)
   {
-    if (is_element(template_element))
-    {
-      handle_xsl(template_element, root_element, os);
-    }
-    else
-    {
-      auto ce = dynamic_cast<CompositeElement const *>(&template_element);
-      if (ce == nullptr)
-      {
-        os << template_element.str() << std::endl;
-      }
-      else
-      {
-        os << ce->begin_str() << std::endl;
-        handle_ce(*ce, root_element, os);
-        os << ce->end_str() << std::endl;
-      }
-    }
-  }
-
-  void Document::handle_ce(CompositeElement const & template_element,
-      Element const & root_element, std::ostream & os) const
-  {
-    for (auto child : template_element.children())
+    for (auto child : tmplt->children())
     {
       auto child_element = dynamic_cast<Element const *>(child);
       if (child_element != nullptr)
       {
-        handle_e(*child_element, root_element, os);
+        render_empty(child_element);
       }
       else
       {
-        os << child->str() << std::endl;
+        _os << child->str() << std::endl;
       }
     }
   }
 
-  void Document::handle_xsl(Element const & template_element,
-      Element const & element, std::ostream & os) const
+  void TemplateRenderer::render_empty(Element const * tmplt)
   {
-    std::string xsl_operation = template_element.ns_split().second;
+    if (is_element(*tmplt))
+    {
+      render_xsl(tmplt);
+    }
+    else
+    {
+      auto ce = dynamic_cast<CompositeElement const *>(tmplt);
+      if (ce == nullptr)
+      {
+        _os << tmplt->str() << std::endl;
+      }
+      else
+      {
+        _os << ce->begin_str() << std::endl;
+        render_composite(ce);
+        _os << ce->end_str() << std::endl;
+      }
+    }
+  }
+
+  void TemplateRenderer::render_xsl(Element const * tmplt)
+  {
+    std::string xsl_operation = tmplt->ns_split().second;
 
     // F**king lower() method
-    std::transform(xsl_operation.begin(), xsl_operation.end(),
-        xsl_operation.begin(), ::tolower);
+    Helpers::lower(xsl_operation);
 
     // Very elegant code
     if (xsl_operation == XSL_APPLY_TEMPLATES)
     {
-      handle_apply_templates(template_element, element, os);
+      _doc.apply_templates(tmplt, _root_element, _os);
     }
     else if (xsl_operation == XSL_FOR_EACH)
     {
-      handle_for_each(template_element, element, os);
+      _doc.for_each(tmplt, _root_element, _os);
     }
     else if (xsl_operation == XSL_VALUE_OF)
     {
-      handle_value_of(template_element, element, os);
+      _doc.value_of(tmplt, _root_element, _os);
     }
     else
     {
-      os << template_element.str() << std::endl;
+      _os << tmplt->str() << std::endl;
     }
   }
 
-  void Document::handle_apply_templates(Element const & template_element,
-      Element const & root_element, std::ostream & os) const
+  void Document::apply_templates(Element const * tmplt, Element const * element, std::ostream & os) const
   {
-    Attribute * select_attr = template_element.find_attribute(XSL_SELECT);
+    Attribute const * select_attr = tmplt->find_attribute(XSL_SELECT);
     if (select_attr != nullptr)
     {
       auto it =_templates.find(select_attr->value());
       if (it != _templates.end())
       {
-        auto ce = dynamic_cast<CompositeElement const *>(it->second);
-        for (auto c : root_element.children())
+        for (auto c : element->children())
         {
           auto cec = dynamic_cast<CompositeElement const *>(c);
           if (cec != nullptr && cec->name() == select_attr->value())
           {
-            handle_ce(*ce, *cec, os);
+            TemplateRenderer tr(*this, cec, os);
+            tr.render_composite(static_cast<CompositeElement const *>(it->second));
             break;
           }
         }
       }
+      else
+      {
+        // this should never happen, provided that we're checking input
+      }
     }
     else // Output ALL the templates!
     {
-      for (auto c : root_element.children())
+      for (auto c : element->children())
       {
-        handle_apply_all_templates(c, os);
+        apply_all_templates(c, os);
       }
     }
-    //os << XSL_APPLY_TEMPLATES << std::endl;
   }
 
-  void Document::handle_apply_all_templates(Content const * c, std::ostream & os) const
+  void Document::value_of(Element const * tmplt, Element const * element, std::ostream & os) const
+  {
+    Attribute const & select_attr = *tmplt->find_attribute(XSL_SELECT);
+
+    if (select_attr.value() == ".")
+    {
+      auto ce = dynamic_cast<CompositeElement const *>(element);
+      if (ce != nullptr)
+      {
+        for (auto child : ce->children())
+        {
+          os << child->str() << std::endl;
+        }
+      }
+    }
+    else
+    {
+      for (auto c : element->children())
+      {
+        auto ce = dynamic_cast<CompositeElement const *>(c);
+        if (ce != nullptr && ce->name() == select_attr.value())
+        {
+          for (auto child : ce->children())
+          {
+            os << child->str() << std::endl;
+          }
+          break; // TODO only first one is written
+        }
+      }
+    }
+  }
+
+  void Document::for_each(Element const *, Element const *, std::ostream & os) const
+  {
+    os << XSL_FOR_EACH << std::endl;
+  }
+
+  void Document::apply_all_templates(Content const * c, std::ostream & os) const
   {
     auto e = dynamic_cast<Element const *>(c);
     if (e == nullptr)
@@ -180,54 +251,14 @@ namespace Xsl
     auto it = _templates.find(e->name());
     if (it !=_templates.end())
     {
-      auto ce = dynamic_cast<CompositeElement const *>(it->second);
-      handle_ce(*ce, *e, os);
+      TemplateRenderer tr(*this, e, os);
+      tr.render_composite(static_cast<CompositeElement const *>(it->second));
     }
     else // Recursion otherwise
     {
       for (auto c : e->children())
       {
-        handle_apply_all_templates(c, os);
-      }
-    }
-  }
-
-  void Document::handle_for_each(Element const & template_element,
-      Element const & root_element, std::ostream & os) const
-  {
-    os << XSL_FOR_EACH << std::endl;
-  }
-
-  void Document::handle_value_of(Element const & template_element,
-      Element const & root_element, std::ostream & os) const
-  {
-    Attribute const & select_attr = *template_element.find_attribute(XSL_SELECT);
-
-    if (select_attr.value() == ".")
-    {
-      auto ce = dynamic_cast<CompositeElement const *>(&root_element);
-      if (ce != nullptr)
-      {
-        //os << ce->str() << std::endl;
-        for (auto child : ce->children())
-        {
-          os << child->str() << std::endl;
-        }
-      }
-    }
-    else
-    {
-      for (auto c : root_element.children())
-      {
-        auto ce = dynamic_cast<CompositeElement const *>(c);
-        if (ce != nullptr && ce->name() == select_attr.value())
-        {
-          for (auto child : ce->children())
-          {
-            os << child->str() << std::endl;
-          }
-          break; // TODO only first one is written
-        }
+        apply_all_templates(c, os);
       }
     }
   }

@@ -13,6 +13,8 @@ namespace Helpers
   std::string & ltrim(std::string &);
   std::string & rtrim(std::string &);
   std::string & trim(std::string &);
+
+  std::string & lower(std::string &);
 }
 
 #endif // vim:ft=cpp et sw=2 sts=2:

@@ -43,6 +43,12 @@ namespace Helpers
   {
     return ltrim(rtrim(s));
   }
+
+  std::string & lower(std::string & s)
+  {
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    return s;
+  }
 }
 
 // vim:ft=cpp et sw=2 sts=2:
