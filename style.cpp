@@ -234,9 +234,19 @@ namespace Xsl
     }
   }
 
-  void Document::for_each(Element const *, Element const *, std::ostream & os) const
+  void Document::for_each(Element const * tmplt, Element const * element, std::ostream & os) const
   {
-    os << XSL_FOR_EACH << std::endl;
+    Attribute const & select_attr = *tmplt->find_attribute(XSL_SELECT);
+
+    for (auto c : element->children())
+    {
+      auto e = dynamic_cast<Element const *>(c);
+      if (e != nullptr && e->name() == select_attr.value())
+      {
+        TemplateRenderer tr(*this, e, os);
+        tr.render_composite(static_cast<CompositeElement const *>(tmplt));
+      }
+    }
   }
 
   void Document::apply_all_templates(Content const * c, std::ostream & os) const
