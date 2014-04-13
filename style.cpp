@@ -235,11 +235,19 @@ namespace Xsl
   void Document::for_each(Element const * tmplt, Element const * element, std::ostream & os) const
   {
     Attribute const & select_attr = *tmplt->find_attribute(XSL_SELECT);
+    std::string select_name = select_attr.value();
+
+    // FIXME find a better solution than ignore selection
+    auto slash_split = Helpers::split(select_name, '/');
+    if (slash_split.size() == 2)
+    {
+      select_name = slash_split.back();
+    }
 
     for (auto c : element->children())
     {
       auto e = dynamic_cast<Element const *>(c);
-      if (e != nullptr && e->name() == select_attr.value())
+      if (e != nullptr && e->name() == select_name)
       {
         TemplateRenderer tr(*this, e, os);
         tr.render_composite(static_cast<CompositeElement const *>(tmplt));
