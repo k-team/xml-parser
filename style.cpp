@@ -239,8 +239,10 @@ namespace Xsl
   }
 
   Attribute const * Document::get_directive_attribute(Element const * tmplt,
-      std::string const & attr, Element const * element, std::ostream & os) const
+      std::string const & _attr, Element const * element, std::ostream & os) const
   {
+    std::string attr(_attr);
+    Helpers::trim(attr);
     Attribute const * select_attr_ptr = tmplt->find_attribute(attr);
     if (select_attr_ptr == nullptr)
     {
