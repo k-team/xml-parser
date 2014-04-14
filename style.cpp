@@ -9,7 +9,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <algorithm>
+#include <stdexcept>
 
 #define XSL_NS "xsl"
 #define XSL_TEMPLATES "template"
@@ -47,6 +49,8 @@ namespace Xsl
 
     private:
       void apply_all_templates(Content const *, std::ostream &) const;
+      Attribute const * get_directive_attribute(Element const *,
+          std::string const &, Element const *, std::ostream &) const;
 
       CompositeElement const * _root_template;
       std::map<std::string, Element const *> _templates;
@@ -67,6 +71,33 @@ namespace Xsl
       Document const & _doc;
       Element const * _root_element;
       std::ostream & _os;
+  };
+
+  class Validator
+  {
+    public:
+      Validator(Element const &, std::ostream &);
+      ~Validator() = default;
+
+      bool operator()();
+
+    private:
+      // Checkers
+      void check_tag_levels();
+      void check_apply_templates_count();
+      void check_apply_templates_select();
+      void check_tag_lower_levels(Element const &);
+      void check_that_directive_has_attribute(std::string const &, std::string const &);
+      void check_that_directive_has_attribute_r(Element const &,
+          std::string const &, std::string const &);
+
+      // Helpers
+      size_t count_apply_all_templates(Element const &);
+      void get_all_apply_template_select(Element const &, std::vector<std::string> &);
+
+      Element const & _root;
+      std::ostream & _os;
+      bool _good;
   };
 
   Document::Document(XMLDocument const & doc):
@@ -99,7 +130,10 @@ namespace Xsl
   void Document::apply_style_to(XMLDocument const & xml, std::ostream & os) const
   {
     TemplateRenderer tr(*this, xml.root(), os);
-    tr.render_composite(_root_template);
+    if (_root_template != nullptr)
+    {
+      tr.render_composite(_root_template);
+    }
   }
 
   void TemplateRenderer::render_composite(CompositeElement const * tmplt)
@@ -184,7 +218,18 @@ namespace Xsl
       }
       else
       {
-        // this should never happen, provided that we're checking input
+        auto tmplt_ce = dynamic_cast<CompositeElement const *>(tmplt);
+        if (tmplt_ce != nullptr)
+        {
+          TemplateRenderer tr(*this, element, os);
+          os << tmplt_ce->begin_str() << std::endl;
+          tr.render_composite(tmplt_ce);
+          os << tmplt_ce->end_str() << std::endl;
+        }
+        else
+        {
+          os << tmplt->str() << std::endl;
+        }
       }
     }
     else // Output ALL the templates!
@@ -196,10 +241,39 @@ namespace Xsl
     }
   }
 
+  Attribute const * Document::get_directive_attribute(Element const * tmplt,
+      std::string const & _attr, Element const * element, std::ostream & os) const
+  {
+    std::string attr(_attr);
+    Helpers::trim(attr);
+    Attribute const * select_attr_ptr = tmplt->find_attribute(attr);
+    if (select_attr_ptr == nullptr)
+    {
+      auto tmplt_ce = dynamic_cast<CompositeElement const *>(tmplt);
+      if (tmplt_ce != nullptr)
+      {
+        TemplateRenderer tr(*this, element, os);
+        os << tmplt_ce->begin_str() << std::endl;
+        tr.render_composite(tmplt_ce);
+        os << tmplt_ce->end_str() << std::endl;
+      }
+      else
+      {
+        os << tmplt->str() << std::endl;
+      }
+    }
+    return select_attr_ptr;
+  }
+
   void Document::value_of(Element const * tmplt, Element const * element, std::ostream & os) const
   {
-    Attribute const & select_attr = *tmplt->find_attribute(XSL_SELECT);
+    Attribute const * select_attr_ptr = get_directive_attribute(tmplt, XSL_SELECT, element, os);
+    if (select_attr_ptr == nullptr)
+    {
+      return;
+    }
 
+    auto select_attr = *select_attr_ptr;
     if (select_attr.value() == ".")
     {
       auto ce = dynamic_cast<CompositeElement const *>(element);
@@ -222,7 +296,7 @@ namespace Xsl
           {
             os << child->str() << std::endl;
           }
-          break; // TODO only first one is written
+          break;
         }
       }
     }
@@ -230,7 +304,14 @@ namespace Xsl
 
   void Document::for_each(Element const * tmplt, Element const * element, std::ostream & os) const
   {
-    Attribute const & select_attr = *tmplt->find_attribute(XSL_SELECT);
+    Attribute const * select_attr_ptr = get_directive_attribute(tmplt, XSL_SELECT, element, os);
+    if (select_attr_ptr == nullptr)
+    {
+      return;
+    }
+
+    // Normal case
+    auto select_attr = *select_attr_ptr;
     std::string select_name = select_attr.value();
 
     // FIXME find a better solution than ignore selection
@@ -275,13 +356,12 @@ namespace Xsl
     }
   }
 
-  void apply_style(XMLDocument const & xml, XMLDocument const & xsl, std::ostream & os)
+  Validator::Validator(Element const & root, std::ostream & os):
+    _root(root), _os(os), _good(true)
   {
-    Document xsl_doc(xsl); // FIXME check for xsl:stylesheet root element
-    xsl_doc.apply_style_to(xml, os);
   }
 
-  static void check_xsl_lowers_tags_level(Element const & root, std::ostream & os)
+  void Validator::check_tag_lower_levels(Element const & root)
   {
     for (auto it : root.children())
     {
@@ -292,26 +372,26 @@ namespace Xsl
         std::string xsl_operation = ce->ns_split().second;
         if (xsl_operation == XSL_TEMPLATES || xsl_operation == XSL_STYLESHEET)
         {
-          os << "xsl lower level tag incorrect" << std::endl;
+          _os << "xsl lower level tag incorrect" << std::endl;
+          _good = false;
         }
         else
         {
-          check_xsl_lowers_tags_level(*ce, os);
+          check_tag_lower_levels(*ce);
         }
       }
     }
   }
 
-  static void check_xsl_tags_level(const Element &root, std::ostream & os)
+  void Validator::check_tag_levels()
   {
-    // Test presence of stylesheet on level 1
-    std::string xsl_operation_root = root.ns_split().second;
-    if (xsl_operation_root != XSL_STYLESHEET)
+    if (!is_element(_root, XSL_STYLESHEET))
     {
-      os << "xsl level 1 tag incorrect" << std::endl;
+      _os << "root directives should be " << XSL_STYLESHEET << std::endl;
+      _good = false;
     }
 
-    for (auto it : root.children())
+    for (auto it : _root.children())
     {
       CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
       if (ce != nullptr)
@@ -320,29 +400,33 @@ namespace Xsl
         std::string xsl_operation = ce->ns_split().second;
         if (xsl_operation != XSL_TEMPLATES)
         {
-          os << "xsl level 2 tag incorrect" << std::endl;
+          _os << "first child directives should all be " << XSL_TEMPLATES << std::endl;
+          _good = false;
         }
         else
         {
-          check_xsl_lowers_tags_level(*ce, os);
+          check_tag_lower_levels(*ce);
         }
       }
       else
       {
-        // This would indicate that the is smth that differs from composite element so it can not be a template
-        os << "xsl level 2 tag incorrect" << std::endl;
+        // This would indicate that this differs from a composite
+        // element therefore it can't be a template
+        _os << "xsl level 2 tag incorrect" << std::endl;
+        _good = false;
       }
     }
   }
 
-  static void check_xsl_multiples_apply_all(Element const & root, std::ostream & os, int & count)
+  size_t Validator::count_apply_all_templates(Element const & root)
   {
+    size_t count = 0;
     for (auto it : root.children())
     {
       CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
       if (ce != nullptr)
       {
-        check_xsl_multiples_apply_all(*ce, os, count);
+        count += count_apply_all_templates(*ce);
       }
       else
       {
@@ -359,9 +443,10 @@ namespace Xsl
         }
       }
     }
+    return count;
   }
 
-  static void get_all_apply_template_select(const Element & root, std::vector<std::string> & vect_select)
+  void Validator::get_all_apply_template_select(Element const & root, std::vector<std::string> & vect_select)
   {
     for (auto c : root.children())
     {
@@ -391,12 +476,12 @@ namespace Xsl
     }
   }
 
-  static void check_xsl_apply_template_select(Element const & root, std::ostream & os)
+  void Validator::check_apply_templates_select()
   {
     std::vector<std::string> vect_select;
-    get_all_apply_template_select(root, vect_select);
+    get_all_apply_template_select(_root, vect_select);
 
-    for (auto c : root.children())
+    for (auto c : _root.children())
     {
       CompositeElement * ce = dynamic_cast<CompositeElement *>(c);
       if (ce != nullptr)
@@ -420,26 +505,78 @@ namespace Xsl
 
     if (vect_select.size() > 0)
     {
-      os << "apply-template with no template corresponding" << std::endl;
+      _os << XSL_APPLY_TEMPLATES << " given with no corresponding template" << std::endl;
+      _good = false;
     }
   }
 
-  int validate(const Element & root, std::ostream & os)
+  void Validator::check_apply_templates_count()
   {
-    check_xsl_tags_level(root, os);
-
-    int count_apply_all = 0;
-    check_xsl_multiples_apply_all(root, os, count_apply_all);
-    if (count_apply_all > 1)
+    size_t count_apply_templates = count_apply_all_templates(_root);
+    if (count_apply_templates > 1)
     {
-      os << "multiple apply all templates" << count_apply_all << std::endl;
+      _os << "only one " << XSL_APPLY_TEMPLATES << " directive can be given,"
+        << " got " << count_apply_templates;
+      _good = false;
     }
+  }
 
-    check_xsl_apply_template_select(root, os);
+  void Validator::check_that_directive_has_attribute(std::string const & directive,
+      std::string const & attr_name)
+  {
+    check_that_directive_has_attribute_r(_root, directive, attr_name);
+  }
 
-    // TODO check if for-each and value-of have a select attribute
+  void Validator::check_that_directive_has_attribute_r(Element const & root,
+      std::string const & directive, std::string const & attr_name)
+  {
+    for (auto child : root.children())
+    {
+      auto e = dynamic_cast<Element const *>(child);
+      if (e != nullptr)
+      {
+        if (is_element(*e, directive))
+        {
+          auto attr = e->find_attribute(attr_name);
+          if (attr == nullptr || attr->value().empty())
+          {
+            _os << "directive needs a " << attr_name << " attribute" << std::endl;
+            _good = false;
+          }
+        }
+        check_that_directive_has_attribute_r(*e, directive, attr_name);
+      }
+    }
+  }
 
-    return 0;
+  bool Validator::operator()()
+  {
+    // Tag levels should be as specified (xsl:stylesheet)
+    check_tag_levels();
+
+    // The "apply-templates" directive can only be given once with no arguments
+    check_apply_templates_count();
+
+    // The "apply-templates" directive should either be empty or refer to a given template
+    check_apply_templates_select();
+
+    // "for-each" and "value-of" directives should have a "select" attribute
+    check_that_directive_has_attribute(XSL_FOR_EACH, XSL_SELECT);
+    check_that_directive_has_attribute(XSL_VALUE_OF, XSL_SELECT);
+
+    // Why so serious?
+    return true;//_good;
+  }
+
+  // Only public function of the module
+  void apply_style(XMLDocument const & xml, XMLDocument const & xsl,
+      std::ostream & out, std::ostream & err)
+  {
+    if (Validator(*xsl.root(), err)())
+    {
+      Document xsl_doc(xsl);
+      xsl_doc.apply_style_to(xml, out);
+    }
   }
 }
 
