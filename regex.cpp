@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <map>
+#include <regex.h>
 
 #include "document.h"
 #include "prolog.h"
@@ -26,6 +27,9 @@ static Node xsd_composite_element(CompositeElement * e, std::string const & xs_n
 static Node xsd_complexType(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types);
 static Node xsd_sequence(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types);
 static Node xsd_choice(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types);
+
+static bool xsd_validate(Element * e, std::map<std::string, Node> & xsd);
+static bool regex_validate(std::string const & str, std::string const & reg);
 
 static std::string schema_to_regex(CompositeElement *, std::string,
     std::map<std::string, Node> & nodes,
@@ -75,39 +79,34 @@ static const std::string re_Misc("(" + re_comment + "|" + re_PI + "|" + re_S + "
 static const std::string re_doctype_decl("<!DOCTYPE" + re_S + re_Name + "(" + re_S + re_Name + ")?(" + re_S + re_AttValue + ")?" + re_S + "?>");
 static const std::string re_prolog("(" + re_xml_decl + ")?" + re_Misc + "*(" + re_doctype_decl + re_Misc + "*)?");
 
-std::string xsd_to_regex(Document * doc)
+bool validate(Document * xsd, Document * doc)
 {
   // std::cout << "xml : " << re_xml_decl << std::endl;
   // std::cout << "doc : " << re_doctype_decl << std::endl;
   // std::cout << "com : " << re_comment << std::endl;
   // std::cout << "pi  : " << re_PI << std::endl;
   // std::cout << "pro : " << re_prolog << std::endl;
-  CompositeElement * root = dynamic_cast<CompositeElement *>(doc->root());
+  CompositeElement * root = dynamic_cast<CompositeElement *>(xsd->root());
   if (root == nullptr)
-    return "^$";
+    return false;
+
+  Element * doc_root = dynamic_cast<Element *>(doc->root());
+  if (doc_root == nullptr)
+    return false;
 
   auto it_ns = std::find_if(root->attributes().begin(), root->attributes().end(),
       [](Attribute * a) { return a->name().substr(0, 5) == "xmlns" && a->value().substr(a->value().length() - 9, 9) == "XMLSchema"; });
   if (it_ns == root->attributes().end())
-    return "^$";
+    return false;
 
   std::string xs_ns = (*it_ns)->name().substr(6);
   if (root->begin_tag() == xs_ns + ":schema")
   {
     std::map<std::string, Node> nodes;
-    std::map<std::string, Node> _nodes;
-    std::map<std::string, std::string> refs;
-    std::map<std::string, std::string> _types;
     std::map<std::string, Node> types;
-    std::string re("^" + re_prolog + schema_to_regex(root, xs_ns, _nodes, refs, _types) + re_Misc + "*$");
-    // std::cout << re << std::endl; // Mais oui c'est clair
-    // for(auto p : refs)
-    // {
-    //   std::cout << p.first << " : " << p.second << std::endl;
-    // }
-
     xsd_schema(root, xs_ns, nodes, types);
     xsd_schema(root, xs_ns, nodes, types); // Super hack
+
     for(auto p : nodes)
     {
       std::cout << p.first << " : " << std::endl;
@@ -123,9 +122,52 @@ std::string xsd_to_regex(Document * doc)
       std::cout << "Attr : " << p.second.reg_attr << std::endl;
       std::cout << "Cont : " << p.second.reg_content << std::endl;
     }
-    return re;
+
+    return xsd_validate(doc_root, nodes);
   }
-  return "^$";
+  return false;
+}
+
+bool xsd_validate(Element * e, std::map<std::string, Node> & xsd)
+{
+  auto it = xsd.find(e->name());
+  if (it == xsd.end())
+    return false;
+
+  auto name = it->first;
+  auto node = it->second;
+  bool re = true;
+  if (!node.reg_tag.empty())
+  {
+    auto ce = dynamic_cast<CompositeElement *>(e);
+    if (ce == nullptr)
+      return false;
+    std::string tags;
+    for (auto c : ce->content())
+    {
+      auto ie = dynamic_cast<Element *>(c);
+      if (ie != nullptr)
+        tags += "<" + ie->name() + ">";
+    }
+    std::cout << tags << std::endl;
+  }
+  if (!node.reg_content.empty())
+  {
+  }
+
+  re = false;
+  return re;
+}
+
+bool regex_validate(std::string const & str, std::string const & reg)
+{
+  regex_t regex;
+  if (regcomp(&regex, reg.c_str(), REG_EXTENDED | REG_NOSUB) != 0)
+    return false;
+
+  bool re = regexec(&regex, str.c_str(), 0, NULL, 0) == 0;
+  regfree(&regex);
+  return re;
 }
 
 void xsd_schema(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types)
@@ -141,19 +183,49 @@ void xsd_schema(CompositeElement * e, std::string const & xs_ns, std::map<std::s
     {
       auto it_name = std::find_if(ie->attributes().begin(), ie->attributes().end(),
           [](Attribute * a) { return a->name() == "name"; });
+      auto it_ref = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+          [](Attribute * a) { return a->name() == "ref"; });
       if (it_name != ie->attributes().end())
       {
         n.reg_tag += "<" + (*it_name)->value() + ">|";
-      }
 
-      CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
-      if (ce == nullptr)
-      {
-        xsd_empty_element(ie, xs_ns, nodes, types);
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
+        if (ce == nullptr)
+        {
+          xsd_empty_element(ie, xs_ns, nodes, types);
+        }
+        else
+        {
+          xsd_composite_element(ce, xs_ns, nodes, types);
+        }
       }
-      else
+      else if (it_ref != ie->attributes().end())
       {
-        xsd_composite_element(ce, xs_ns, nodes, types);
+        auto ref = (*it_ref)->value();
+        auto it = nodes.find(ref);
+        if (it != nodes.end())
+        {
+          auto it_minOccurs = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+              [](Attribute * a) { return a->name() == "minOccurs"; });
+          auto it_maxOccurs = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+              [](Attribute * a) { return a->name() == "maxOccurs"; });
+          std::string min = "1";
+          std::string max = "1";
+          if (it_minOccurs != ie->attributes().end())
+          {
+            auto minOccurs = (*it_minOccurs)->value();
+            min = minOccurs;
+          }
+          if (it_maxOccurs != ie->attributes().end())
+          {
+            auto maxOccurs = (*it_maxOccurs)->value();
+            if (maxOccurs == "unbounded")
+              max = "";
+            else
+              max = maxOccurs;
+          }
+          n.reg_tag += "<" + ref + ">{" + min + "," + max + "}|";
+        }
       }
     }
     if (ie->name() == xs_ns + ":complexType")
@@ -334,19 +406,49 @@ Node xsd_choice(CompositeElement * e, std::string const & xs_ns, std::map<std::s
     {
       auto it_name = std::find_if(ie->attributes().begin(), ie->attributes().end(),
           [](Attribute * a) { return a->name() == "name"; });
+      auto it_ref = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+          [](Attribute * a) { return a->name() == "ref"; });
       if (it_name != ie->attributes().end())
       {
         n.reg_tag += "<" + (*it_name)->value() + ">|";
-      }
 
-      CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
-      if (ce == nullptr)
-      {
-        xsd_empty_element(ie, xs_ns, nodes, types);
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
+        if (ce == nullptr)
+        {
+          xsd_empty_element(ie, xs_ns, nodes, types);
+        }
+        else
+        {
+          xsd_composite_element(ce, xs_ns, nodes, types);
+        }
       }
-      else
+      else if (it_ref != ie->attributes().end())
       {
-        xsd_composite_element(ce, xs_ns, nodes, types);
+        auto ref = (*it_ref)->value();
+        auto it = nodes.find(ref);
+        if (it != nodes.end())
+        {
+          auto it_minOccurs = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+              [](Attribute * a) { return a->name() == "minOccurs"; });
+          auto it_maxOccurs = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+              [](Attribute * a) { return a->name() == "maxOccurs"; });
+          std::string min = "1";
+          std::string max = "1";
+          if (it_minOccurs != ie->attributes().end())
+          {
+            auto minOccurs = (*it_minOccurs)->value();
+            min = minOccurs;
+          }
+          if (it_maxOccurs != ie->attributes().end())
+          {
+            auto maxOccurs = (*it_maxOccurs)->value();
+            if (maxOccurs == "unbounded")
+              max = "";
+            else
+              max = maxOccurs;
+          }
+          n.reg_tag += "<" + ref + ">{" + min + "," + max + "}|";
+        }
       }
     }
   }

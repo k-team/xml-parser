@@ -4,7 +4,6 @@
 #include <fstream>
 #include <string>
 #include <cstdio>
-#include <regex.h>
 #include "document.h"
 #include "regex.h"
 #include "style.h"
@@ -144,22 +143,7 @@ int handle_validate(int argc, const char ** argv)
   }
 
   // Done
-  std::string str_regex(xsd_to_regex(xsd_doc));
-  regex_t regex;
-
-  if (regcomp(&regex, str_regex.c_str(), REG_EXTENDED | REG_NOSUB) != 0)
-  {
-    delete xml_doc;
-    delete xsd_doc;
-    fprintf(stderr, "Could not compile regex\n");
-    return BAD_RETCODE;
-  }
-
-  std::ifstream ifs(argv[0]);
-  std::string xml_content((std::istreambuf_iterator<char>(ifs)),
-      (std::istreambuf_iterator<char>()));
-
-  if (regexec(&regex, xml_content.c_str(), 0, NULL, 0) == 0)
+  if (validate(xsd_doc, xml_doc))
   {
     std::cout << "The file " << argv[0] << " is valid wrt " << argv[1] << std::endl;
   }
@@ -168,7 +152,6 @@ int handle_validate(int argc, const char ** argv)
     std::cout << "The file " << argv[0] << " is not valid wrt " << argv[1] << std::endl;
   }
 
-  regfree(&regex);
   delete xml_doc;
   delete xsd_doc;
 
