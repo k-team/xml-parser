@@ -20,12 +20,12 @@ struct Node
   std::string reg_content;
 };
 
-static void xsd_schema(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes);
-static void xsd_empty_element(Element * e, std::string const & xs_ns, std::map<std::string, Node> & nodes);
-static void xsd_composite_element(Element * e, std::string const & xs_ns, std::map<std::string, Node> & nodes);
-static void xsd_complexType(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes);
-static void xsd_sequence(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes);
-static void xsd_choice(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes);
+static void xsd_schema(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types);
+static Node xsd_empty_element(Element * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types);
+static Node xsd_composite_element(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types);
+static Node xsd_complexType(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types);
+static Node xsd_sequence(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types);
+static Node xsd_choice(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types);
 
 static std::string schema_to_regex(CompositeElement *, std::string,
     std::map<std::string, Node> & nodes,
@@ -97,29 +97,31 @@ std::string xsd_to_regex(Document * doc)
     std::map<std::string, Node> nodes;
     std::map<std::string, Node> _nodes;
     std::map<std::string, std::string> refs;
-    std::map<std::string, std::string> types;
-    std::string re("^" + re_prolog + schema_to_regex(root, xs_ns, _nodes, refs, types) + re_Misc + "*$");
+    std::map<std::string, std::string> _types;
+    std::map<std::string, Node> types;
+    std::string re("^" + re_prolog + schema_to_regex(root, xs_ns, _nodes, refs, _types) + re_Misc + "*$");
     // std::cout << re << std::endl; // Mais oui c'est clair
     // for(auto p : refs)
     // {
     //   std::cout << p.first << " : " << p.second << std::endl;
     // }
 
-    xsd_schema(root, xs_ns, nodes);
-    for(auto p : nodes)
-    {
-      std::cout << p.first << " : " << std::endl;
-      std::cout << "Tags : " << p.second.reg_tag << std::endl;
-      std::cout << "Attr : " << p.second.reg_attr << std::endl;
-      std::cout << "Cont : " << p.second.reg_content << std::endl;
-    }
+    xsd_schema(root, xs_ns, nodes, types);
+    // for(auto p : nodes)
+    // {
+    //   std::cout << p.first << " : " << std::endl;
+    //   std::cout << "Tags : " << p.second.reg_tag << std::endl;
+    //   std::cout << "Attr : " << p.second.reg_attr << std::endl;
+    //   std::cout << "Cont : " << p.second.reg_content << std::endl;
+    // }
     return re;
   }
   return "^$";
 }
 
-void xsd_schema(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes)
+void xsd_schema(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types)
 {
+  Node n;
   for (auto c : e->content())
   {
     Element * ie = dynamic_cast<Element *>(c);
@@ -128,14 +130,21 @@ void xsd_schema(CompositeElement * e, std::string const & xs_ns, std::map<std::s
 
     if (ie->name() == xs_ns + ":element")
     {
+      auto it_name = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+          [](Attribute * a) { return a->name() == "name"; });
+      if (it_name != ie->attributes().end())
+      {
+        n.reg_tag += "<" + (*it_name)->value() + ">|";
+      }
+
       CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
       if (ce == nullptr)
       {
-        xsd_empty_element(e, xs_ns, nodes);
+        xsd_empty_element(ie, xs_ns, nodes, types);
       }
       else
       {
-        xsd_composite_element(ce, xs_ns, nodes);
+        xsd_composite_element(ce, xs_ns, nodes, types);
       }
     }
     if (ie->name() == xs_ns + ":complexType")
@@ -143,29 +152,162 @@ void xsd_schema(CompositeElement * e, std::string const & xs_ns, std::map<std::s
       CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
       if (ce == nullptr)
         continue;
-      xsd_complexType(ce, xs_ns, nodes);
+      xsd_complexType(ce, xs_ns, nodes, types);
     }
   }
+
+  if (!n.reg_tag.empty())
+    n.reg_tag = n.reg_tag.substr(0, n.reg_tag.length() - 1);
+  nodes[""] = n;
 }
 
-void xsd_empty_element(Element * e, std::string const & xs_ns, std::map<std::string, Node> & nodes)
+Node xsd_empty_element(Element * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types)
 {
+  auto it_name = std::find_if(e->attributes().begin(), e->attributes().end(),
+      [](Attribute * a) { return a->name() == "name"; });
+  if (it_name == e->attributes().end())
+    return Node();
+  auto name = (*it_name)->value();
+
+  auto it_type = std::find_if(e->attributes().begin(), e->attributes().end(),
+      [](Attribute * a) { return a->name() == "type"; });
+  if (it_type != e->attributes().end())
+  {
+    auto type = (*it_type)->value();
+    if (type == xs_ns + ":string")
+    {
+      Node n;
+      n.reg_content = re_string;
+      nodes[name] = n;
+      return n;
+    }
+    else if (type == xs_ns + ":date")
+    {
+      Node n;
+      n.reg_content = re_date;
+      nodes[name] = n;
+      return n;
+    }
+    else
+    {
+    }
+  }
+  return Node();
 }
 
-void xsd_composite_element(Element * e, std::string const & xs_ns, std::map<std::string, Node> & nodes)
+Node xsd_composite_element(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types)
 {
+  Node n;
+  if (e->content().size() != 1)
+    return n;
+  CompositeElement * ce = dynamic_cast<CompositeElement *>(e->content().front());
+  if (ce == nullptr)
+    return n;
+  if (ce->name() != xs_ns + ":complexType")
+    return n;
+
+  auto it_name = std::find_if(e->attributes().begin(), e->attributes().end(),
+      [](Attribute * a) { return a->name() == "name"; });
+  if (it_name == e->attributes().end())
+    return n;
+
+  auto name = (*it_name)->value();
+  n = xsd_complexType(ce, xs_ns, nodes, types);
+  nodes[name] = n;
+  return n;
 }
 
-void xsd_complexType(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes)
+Node xsd_complexType(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types)
 {
+  Node n;
+  if (e->content().size() != 1)
+    return n;
+  CompositeElement * ce = dynamic_cast<CompositeElement *>(e->content().front());
+  if (ce == nullptr)
+    return n;
+  if (ce->name() == xs_ns + ":sequence")
+  {
+    n = xsd_sequence(ce, xs_ns, nodes, types);
+  }
+  else if (ce->name() == xs_ns + ":choice")
+  {
+    n = xsd_choice(ce, xs_ns, nodes, types);
+  }
+
+  auto it_name = std::find_if(e->attributes().begin(), e->attributes().end(),
+      [](Attribute * a) { return a->name() == "name"; });
+  if (it_name != e->attributes().end())
+  {
+    types[(*it_name)->value()] = n;
+  }
+  return n;
 }
 
-void xsd_sequence(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes)
+Node xsd_sequence(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types)
 {
+  Node n;
+  for (auto c : e->content())
+  {
+    Element * ie = dynamic_cast<Element *>(c);
+    if (ie == nullptr)
+      continue;
+
+    if (ie->name() == xs_ns + ":element")
+    {
+      auto it_name = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+          [](Attribute * a) { return a->name() == "name"; });
+      if (it_name != ie->attributes().end())
+      {
+        n.reg_tag += "<" + (*it_name)->value() + ">";
+      }
+
+      CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
+      if (ce == nullptr)
+      {
+        xsd_empty_element(ie, xs_ns, nodes, types);
+      }
+      else
+      {
+        xsd_composite_element(ce, xs_ns, nodes, types);
+      }
+    }
+  }
+  return n;
 }
 
-void xsd_choice(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes)
+Node xsd_choice(CompositeElement * e, std::string const & xs_ns, std::map<std::string, Node> & nodes, std::map<std::string, Node> & types)
 {
+  Node n;
+  for (auto c : e->content())
+  {
+    Element * ie = dynamic_cast<Element *>(c);
+    if (ie == nullptr)
+      continue;
+
+    if (ie->name() == xs_ns + ":element")
+    {
+      auto it_name = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+          [](Attribute * a) { return a->name() == "name"; });
+      if (it_name != ie->attributes().end())
+      {
+        n.reg_tag += "<" + (*it_name)->value() + ">|";
+      }
+
+      CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
+      if (ce == nullptr)
+      {
+        xsd_empty_element(ie, xs_ns, nodes, types);
+      }
+      else
+      {
+        xsd_composite_element(ce, xs_ns, nodes, types);
+      }
+    }
+  }
+  if (!n.reg_tag.empty())
+    n.reg_tag = n.reg_tag.substr(0, n.reg_tag.length() - 1);
+  n.reg_tag = "(" + n.reg_tag + ")";
+  return n;
 }
 
 
