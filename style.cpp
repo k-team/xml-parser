@@ -9,7 +9,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <algorithm>
+#include <stdexcept>
 
 #define XSL_NS "xsl"
 #define XSL_TEMPLATES "template"
@@ -67,6 +69,26 @@ namespace Xsl
       Document const & _doc;
       Element const * _root_element;
       std::ostream & _os;
+  };
+
+  class Validator
+  {
+    public:
+      Validator(Element const &, std::ostream &);
+      ~Validator() = default;
+
+      bool operator()();
+
+    private:
+      void check_tag_levels();
+      void check_tag_lower_levels(Element const &);
+      size_t count_apply_all_templates(Element const &);
+      void get_all_apply_template_select(Element const &, std::vector<std::string> &);
+      void check_xsl_apply_template_select();
+
+      Element const & _root;
+      std::ostream & _os;
+      bool _good;
   };
 
   Document::Document(XMLDocument const & doc):
@@ -275,13 +297,12 @@ namespace Xsl
     }
   }
 
-  void apply_style(XMLDocument const & xml, XMLDocument const & xsl, std::ostream & os)
+  Validator::Validator(Element const & root, std::ostream & os):
+    _root(root), _os(os), _good(true)
   {
-    Document xsl_doc(xsl); // FIXME check for xsl:stylesheet root element
-    xsl_doc.apply_style_to(xml, os);
   }
 
-  static void check_xsl_lowers_tags_level(Element const & root, std::ostream & os)
+  void Validator::check_tag_lower_levels(Element const & root)
   {
     for (auto it : root.children())
     {
@@ -292,26 +313,28 @@ namespace Xsl
         std::string xsl_operation = ce->ns_split().second;
         if (xsl_operation == XSL_TEMPLATES || xsl_operation == XSL_STYLESHEET)
         {
-          os << "xsl lower level tag incorrect" << std::endl;
+          _os << "xsl lower level tag incorrect" << std::endl;
+          _good = false;
         }
         else
         {
-          check_xsl_lowers_tags_level(*ce, os);
+          check_tag_lower_levels(*ce);
         }
       }
     }
   }
 
-  static void check_xsl_tags_level(const Element &root, std::ostream & os)
+  void Validator::check_tag_levels()
   {
     // Test presence of stylesheet on level 1
-    std::string xsl_operation_root = root.ns_split().second;
+    std::string xsl_operation_root = _root.ns_split().second;
     if (xsl_operation_root != XSL_STYLESHEET)
     {
-      os << "xsl level 1 tag incorrect" << std::endl;
+      _os << "xsl level 1 tag incorrect" << std::endl;
+      _good = false;
     }
 
-    for (auto it : root.children())
+    for (auto it : _root.children())
     {
       CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
       if (ce != nullptr)
@@ -320,29 +343,32 @@ namespace Xsl
         std::string xsl_operation = ce->ns_split().second;
         if (xsl_operation != XSL_TEMPLATES)
         {
-          os << "xsl level 2 tag incorrect" << std::endl;
+          _os << "xsl level 2 tag incorrect" << std::endl;
+          _good = false;
         }
         else
         {
-          check_xsl_lowers_tags_level(*ce, os);
+          check_tag_lower_levels(*ce);
         }
       }
       else
       {
         // This would indicate that the is smth that differs from composite element so it can not be a template
-        os << "xsl level 2 tag incorrect" << std::endl;
+        _os << "xsl level 2 tag incorrect" << std::endl;
+        _good = false;
       }
     }
   }
 
-  static void check_xsl_multiples_apply_all(Element const & root, std::ostream & os, int & count)
+  size_t Validator::count_apply_all_templates(Element const & root)
   {
+    size_t count = 0;
     for (auto it : root.children())
     {
       CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
       if (ce != nullptr)
       {
-        check_xsl_multiples_apply_all(*ce, os, count);
+        count += count_apply_all_templates(*ce);
       }
       else
       {
@@ -359,9 +385,10 @@ namespace Xsl
         }
       }
     }
+    return count;
   }
 
-  static void get_all_apply_template_select(const Element & root, std::vector<std::string> & vect_select)
+  void Validator::get_all_apply_template_select(Element const & root, std::vector<std::string> & vect_select)
   {
     for (auto c : root.children())
     {
@@ -391,12 +418,12 @@ namespace Xsl
     }
   }
 
-  static void check_xsl_apply_template_select(Element const & root, std::ostream & os)
+  void Validator::check_xsl_apply_template_select()
   {
     std::vector<std::string> vect_select;
-    get_all_apply_template_select(root, vect_select);
+    get_all_apply_template_select(_root, vect_select);
 
-    for (auto c : root.children())
+    for (auto c : _root.children())
     {
       CompositeElement * ce = dynamic_cast<CompositeElement *>(c);
       if (ce != nullptr)
@@ -420,26 +447,37 @@ namespace Xsl
 
     if (vect_select.size() > 0)
     {
-      os << "apply-template with no template corresponding" << std::endl;
+      _os << "apply-template with no template corresponding" << std::endl;
+      _good = false;
     }
   }
 
-  int validate(const Element & root, std::ostream & os)
+  bool Validator::operator()()
   {
-    check_xsl_tags_level(root, os);
+    check_tag_levels();
 
-    int count_apply_all = 0;
-    check_xsl_multiples_apply_all(root, os, count_apply_all);
-    if (count_apply_all > 1)
+    // The "apply-templates" directive can only be given once with no arguments
+    size_t count_apply_templates = count_apply_all_templates(_root);
+    if (count_apply_templates > 1)
     {
-      os << "multiple apply all templates" << count_apply_all << std::endl;
+      _os << "multiple apply all templates" + std::to_string(count_apply_templates);
+      _good = false;
     }
 
-    check_xsl_apply_template_select(root, os);
+    check_xsl_apply_template_select();
 
     // TODO check if for-each and value-of have a select attribute
+    return _good;
+  }
 
-    return 0;
+  void apply_style(XMLDocument const & xml, XMLDocument const & xsl,
+      std::ostream & out, std::ostream & err)
+  {
+    if (Validator(*xsl.root(), err)())
+    {
+      Document xsl_doc(xsl);
+      xsl_doc.apply_style_to(xml, out);
+    }
   }
 }
 
