@@ -107,13 +107,22 @@ std::string xsd_to_regex(Document * doc)
     // }
 
     xsd_schema(root, xs_ns, nodes, types);
-    // for(auto p : nodes)
-    // {
-    //   std::cout << p.first << " : " << std::endl;
-    //   std::cout << "Tags : " << p.second.reg_tag << std::endl;
-    //   std::cout << "Attr : " << p.second.reg_attr << std::endl;
-    //   std::cout << "Cont : " << p.second.reg_content << std::endl;
-    // }
+    xsd_schema(root, xs_ns, nodes, types); // Super hack
+    for(auto p : nodes)
+    {
+      std::cout << p.first << " : " << std::endl;
+      std::cout << "Tags : " << p.second.reg_tag << std::endl;
+      std::cout << "Attr : " << p.second.reg_attr << std::endl;
+      std::cout << "Cont : " << p.second.reg_content << std::endl;
+    }
+    std::cout << std::endl;
+    for(auto p : types)
+    {
+      std::cout << p.first << " : " << std::endl;
+      std::cout << "Tags : " << p.second.reg_tag << std::endl;
+      std::cout << "Attr : " << p.second.reg_attr << std::endl;
+      std::cout << "Cont : " << p.second.reg_content << std::endl;
+    }
     return re;
   }
   return "^$";
@@ -190,6 +199,13 @@ Node xsd_empty_element(Element * e, std::string const & xs_ns, std::map<std::str
     }
     else
     {
+      auto it = types.find(type);
+      if (it != types.end())
+      {
+        Node n(it->second);
+        nodes[name] = n;
+        return n;
+      }
     }
   }
   return Node();
