@@ -49,6 +49,8 @@ namespace Xsl
 
     private:
       void apply_all_templates(Content const *, std::ostream &) const;
+      Attribute const * get_directive_attribute(Element const *,
+          std::string const &, Element const *, std::ostream &) const;
 
       CompositeElement const * _root_template;
       std::map<std::string, Element const *> _templates;
@@ -213,7 +215,18 @@ namespace Xsl
       }
       else
       {
-        // this should never happen, provided that we're checking input
+        auto tmplt_ce = dynamic_cast<CompositeElement const *>(tmplt);
+        if (tmplt_ce != nullptr)
+        {
+          TemplateRenderer tr(*this, element, os);
+          os << tmplt_ce->begin_str() << std::endl;
+          tr.render_composite(tmplt_ce);
+          os << tmplt_ce->end_str() << std::endl;
+        }
+        else
+        {
+          os << tmplt->str() << std::endl;
+        }
       }
     }
     else // Output ALL the templates!
@@ -225,10 +238,37 @@ namespace Xsl
     }
   }
 
+  Attribute const * Document::get_directive_attribute(Element const * tmplt,
+      std::string const & attr, Element const * element, std::ostream & os) const
+  {
+    Attribute const * select_attr_ptr = tmplt->find_attribute(attr);
+    if (select_attr_ptr == nullptr)
+    {
+      auto tmplt_ce = dynamic_cast<CompositeElement const *>(tmplt);
+      if (tmplt_ce != nullptr)
+      {
+        TemplateRenderer tr(*this, element, os);
+        os << tmplt_ce->begin_str() << std::endl;
+        tr.render_composite(tmplt_ce);
+        os << tmplt_ce->end_str() << std::endl;
+      }
+      else
+      {
+        os << tmplt->str() << std::endl;
+      }
+    }
+    return select_attr_ptr;
+  }
+
   void Document::value_of(Element const * tmplt, Element const * element, std::ostream & os) const
   {
-    Attribute const & select_attr = *tmplt->find_attribute(XSL_SELECT);
+    Attribute const * select_attr_ptr = get_directive_attribute(tmplt, XSL_SELECT, element, os);
+    if (select_attr_ptr == nullptr)
+    {
+      return;
+    }
 
+    auto select_attr = *select_attr_ptr;
     if (select_attr.value() == ".")
     {
       auto ce = dynamic_cast<CompositeElement const *>(element);
@@ -259,7 +299,14 @@ namespace Xsl
 
   void Document::for_each(Element const * tmplt, Element const * element, std::ostream & os) const
   {
-    Attribute const & select_attr = *tmplt->find_attribute(XSL_SELECT);
+    Attribute const * select_attr_ptr = get_directive_attribute(tmplt, XSL_SELECT, element, os);
+    if (select_attr_ptr == nullptr)
+    {
+      return;
+    }
+
+    // Normal case
+    auto select_attr = *select_attr_ptr;
     std::string select_name = select_attr.value();
 
     // FIXME find a better solution than ignore selection
@@ -489,6 +536,7 @@ namespace Xsl
           if (attr == nullptr || attr->value().empty())
           {
             _os << "directive needs a " << attr_name << " attribute" << std::endl;
+            _good = false;
           }
         }
         check_that_directive_has_attribute_r(*e, directive, attr_name);
@@ -511,7 +559,7 @@ namespace Xsl
     check_that_directive_has_attribute(XSL_FOR_EACH, XSL_SELECT);
     check_that_directive_has_attribute(XSL_VALUE_OF, XSL_SELECT);
 
-    return _good;
+    return true;//_good;
   }
 
   // Only public function of the module
