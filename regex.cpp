@@ -272,19 +272,49 @@ Node xsd_sequence(CompositeElement * e, std::string const & xs_ns, std::map<std:
     {
       auto it_name = std::find_if(ie->attributes().begin(), ie->attributes().end(),
           [](Attribute * a) { return a->name() == "name"; });
+      auto it_ref = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+          [](Attribute * a) { return a->name() == "ref"; });
       if (it_name != ie->attributes().end())
       {
         n.reg_tag += "<" + (*it_name)->value() + ">";
-      }
 
-      CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
-      if (ce == nullptr)
-      {
-        xsd_empty_element(ie, xs_ns, nodes, types);
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(ie);
+        if (ce == nullptr)
+        {
+          xsd_empty_element(ie, xs_ns, nodes, types);
+        }
+        else
+        {
+          xsd_composite_element(ce, xs_ns, nodes, types);
+        }
       }
-      else
+      else if (it_ref != ie->attributes().end())
       {
-        xsd_composite_element(ce, xs_ns, nodes, types);
+        auto ref = (*it_ref)->value();
+        auto it = nodes.find(ref);
+        if (it != nodes.end())
+        {
+          auto it_minOccurs = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+              [](Attribute * a) { return a->name() == "minOccurs"; });
+          auto it_maxOccurs = std::find_if(ie->attributes().begin(), ie->attributes().end(),
+              [](Attribute * a) { return a->name() == "maxOccurs"; });
+          std::string min = "1";
+          std::string max = "1";
+          if (it_minOccurs != ie->attributes().end())
+          {
+            auto minOccurs = (*it_minOccurs)->value();
+            min = minOccurs;
+          }
+          if (it_maxOccurs != ie->attributes().end())
+          {
+            auto maxOccurs = (*it_maxOccurs)->value();
+            if (maxOccurs == "unbounded")
+              max = "";
+            else
+              max = maxOccurs;
+          }
+          n.reg_tag += "<" + ref + ">{" + min + "," + max + "}";
+        }
       }
     }
   }
