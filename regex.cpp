@@ -135,16 +135,21 @@ bool xsd_validate(Element * e, std::map<std::string, Node> & xsd)
   if (!node.reg_tag.empty())
   {
     auto ce = dynamic_cast<CompositeElement *>(e);
-    if (ce == nullptr)
-      return false;
     std::string tags;
-    for (auto c : ce->content())
+    if (ce == nullptr)
     {
-      auto ie = dynamic_cast<Element *>(c);
-      if (ie != nullptr)
+      tags = "";
+    }
+    else
+    {
+      for (auto c : ce->content())
       {
-        tags += "<" + ie->name() + ">";
-        re &= xsd_validate(ie, xsd);
+        auto ie = dynamic_cast<Element *>(c);
+        if (ie != nullptr)
+        {
+          tags += "<" + ie->name() + ">";
+          re &= xsd_validate(ie, xsd);
+        }
       }
     }
     // std::cout << node.reg_tag << " : " << tags << std::endl;
