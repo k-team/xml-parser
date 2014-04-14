@@ -85,6 +85,9 @@ namespace Xsl
       void check_apply_templates_count();
       void check_apply_templates_select();
       void check_tag_lower_levels(Element const &);
+      void check_that_directive_has_attribute(std::string const &, std::string const &);
+      void check_that_directive_has_attribute_r(Element const &,
+          std::string const &, std::string const &);
 
       // Helpers
       size_t count_apply_all_templates(Element const &);
@@ -248,7 +251,7 @@ namespace Xsl
           {
             os << child->str() << std::endl;
           }
-          break; // TODO only first one is written
+          break;
         }
       }
     }
@@ -466,6 +469,33 @@ namespace Xsl
     }
   }
 
+  void Validator::check_that_directive_has_attribute(std::string const & directive,
+      std::string const & attr_name)
+  {
+    check_that_directive_has_attribute_r(_root, directive, attr_name);
+  }
+
+  void Validator::check_that_directive_has_attribute_r(Element const & root,
+      std::string const & directive, std::string const & attr_name)
+  {
+    for (auto child : root.children())
+    {
+      auto e = dynamic_cast<Element const *>(child);
+      if (e != nullptr)
+      {
+        if (is_element(*e, directive))
+        {
+          auto attr = e->find_attribute(attr_name);
+          if (attr == nullptr || attr->value().empty())
+          {
+            _os << "directive needs a " << attr_name << " attribute" << std::endl;
+          }
+        }
+        check_that_directive_has_attribute_r(*e, directive, attr_name);
+      }
+    }
+  }
+
   bool Validator::operator()()
   {
     // Tag levels should be as specified (xsl:stylesheet)
@@ -474,12 +504,17 @@ namespace Xsl
     // The "apply-templates" directive can only be given once with no arguments
     check_apply_templates_count();
 
+    // The "apply-templates" directive should either be empty or refer to a given template
     check_apply_templates_select();
 
-    // TODO check if for-each and value-of have a select attribute
+    // "for-each" and "value-of" directives should have a "select" attribute
+    check_that_directive_has_attribute(XSL_FOR_EACH, XSL_SELECT);
+    check_that_directive_has_attribute(XSL_VALUE_OF, XSL_SELECT);
+
     return _good;
   }
 
+  // Only public function of the module
   void apply_style(XMLDocument const & xml, XMLDocument const & xsl,
       std::ostream & out, std::ostream & err)
   {
