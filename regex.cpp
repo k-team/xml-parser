@@ -81,11 +81,6 @@ static const std::string re_prolog("(" + re_xml_decl + ")?" + re_Misc + "*(" + r
 
 bool validate(Document * xsd, Document * doc)
 {
-  // std::cout << "xml : " << re_xml_decl << std::endl;
-  // std::cout << "doc : " << re_doctype_decl << std::endl;
-  // std::cout << "com : " << re_comment << std::endl;
-  // std::cout << "pi  : " << re_PI << std::endl;
-  // std::cout << "pro : " << re_prolog << std::endl;
   CompositeElement * root = dynamic_cast<CompositeElement *>(xsd->root());
   if (root == nullptr)
     return false;
@@ -107,21 +102,21 @@ bool validate(Document * xsd, Document * doc)
     xsd_schema(root, xs_ns, nodes, types);
     xsd_schema(root, xs_ns, nodes, types); // Super hack
 
-    for(auto p : nodes)
-    {
-      std::cout << p.first << " : " << std::endl;
-      std::cout << "Tags : " << p.second.reg_tag << std::endl;
-      std::cout << "Attr : " << p.second.reg_attr << std::endl;
-      std::cout << "Cont : " << p.second.reg_content << std::endl;
-    }
-    std::cout << std::endl;
-    for(auto p : types)
-    {
-      std::cout << p.first << " : " << std::endl;
-      std::cout << "Tags : " << p.second.reg_tag << std::endl;
-      std::cout << "Attr : " << p.second.reg_attr << std::endl;
-      std::cout << "Cont : " << p.second.reg_content << std::endl;
-    }
+    // for(auto p : nodes)
+    // {
+    //   std::cout << p.first << " : " << std::endl;
+    //   std::cout << "Tags : " << p.second.reg_tag << std::endl;
+    //   std::cout << "Attr : " << p.second.reg_attr << std::endl;
+    //   std::cout << "Cont : " << p.second.reg_content << std::endl;
+    // }
+    // std::cout << std::endl;
+    // for(auto p : types)
+    // {
+    //   std::cout << p.first << " : " << std::endl;
+    //   std::cout << "Tags : " << p.second.reg_tag << std::endl;
+    //   std::cout << "Attr : " << p.second.reg_attr << std::endl;
+    //   std::cout << "Cont : " << p.second.reg_content << std::endl;
+    // }
 
     return xsd_validate(doc_root, nodes);
   }
@@ -147,22 +142,30 @@ bool xsd_validate(Element * e, std::map<std::string, Node> & xsd)
     {
       auto ie = dynamic_cast<Element *>(c);
       if (ie != nullptr)
+      {
         tags += "<" + ie->name() + ">";
+        re &= xsd_validate(ie, xsd);
+      }
     }
-    std::cout << tags << std::endl;
+    // std::cout << node.reg_tag << " : " << tags << std::endl;
+    re &= regex_validate(tags, node.reg_tag);
   }
   if (!node.reg_content.empty())
   {
+    auto ce = dynamic_cast<CompositeElement *>(e);
+    if (ce == nullptr)
+      return false;
+    std::string reg("<" + ce->name() + ">" + re_blank + "(" + node.reg_content + ")" + re_blank + "</" + ce->name() + ">");
+    re &= regex_validate(ce->str(), reg);
   }
 
-  re = false;
   return re;
 }
 
 bool regex_validate(std::string const & str, std::string const & reg)
 {
   regex_t regex;
-  if (regcomp(&regex, reg.c_str(), REG_EXTENDED | REG_NOSUB) != 0)
+  if (regcomp(&regex, ("^" + reg + "$").c_str(), REG_EXTENDED | REG_NOSUB) != 0)
     return false;
 
   bool re = regexec(&regex, str.c_str(), 0, NULL, 0) == 0;
@@ -224,7 +227,7 @@ void xsd_schema(CompositeElement * e, std::string const & xs_ns, std::map<std::s
             else
               max = maxOccurs;
           }
-          n.reg_tag += "<" + ref + ">{" + min + "," + max + "}|";
+          n.reg_tag += "(<" + ref + ">){" + min + "," + max + "}|";
         }
       }
     }
@@ -385,7 +388,7 @@ Node xsd_sequence(CompositeElement * e, std::string const & xs_ns, std::map<std:
             else
               max = maxOccurs;
           }
-          n.reg_tag += "<" + ref + ">{" + min + "," + max + "}";
+          n.reg_tag += "(<" + ref + ">){" + min + "," + max + "}";
         }
       }
     }
@@ -447,7 +450,7 @@ Node xsd_choice(CompositeElement * e, std::string const & xs_ns, std::map<std::s
             else
               max = maxOccurs;
           }
-          n.reg_tag += "<" + ref + ">{" + min + "," + max + "}|";
+          n.reg_tag += "(<" + ref + ">){" + min + "," + max + "}|";
         }
       }
     }
