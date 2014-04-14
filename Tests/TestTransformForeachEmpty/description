@@ -1,0 +1,1 @@
+Option -t des fichiers lisibles, dans le fichier xsl, appel à "for-each" avec un attribut "select" vide (espaces).
