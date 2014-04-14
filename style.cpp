@@ -561,6 +561,7 @@ namespace Xsl
     check_that_directive_has_attribute(XSL_FOR_EACH, XSL_SELECT);
     check_that_directive_has_attribute(XSL_VALUE_OF, XSL_SELECT);
 
+    // Why so serious?
     return true;//_good;
   }
 
