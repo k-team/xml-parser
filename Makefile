@@ -15,7 +15,9 @@ OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 
 EXE = xmltool
 
-.PHONY: all clean test
+RM = @rm
+
+.PHONY: all clean test mrproper
 
 all: $(EXE)
 
@@ -54,8 +56,11 @@ test: all
 	cd Tests; ./mktest.sh
 
 clean:
-	@rm -f $(OBJECTS) $(EXE)
-	@rm -f xml.tab.cpp xml.tab.h
-	@rm -f lex.xml.cpp xml.output
+	$(RM) -f $(OBJECTS)
+	$(RM) -f xml.tab.cpp xml.tab.h
+	$(RM) -f lex.xml.cpp xml.output
+
+mrproper: clean
+	$(RM) -f $(EXE)
 
 # vim:ft=make noet sw=4 ts=4:
