@@ -89,11 +89,8 @@ static Document * read_document(const char * fname)
   if (!oss117.str().empty())
   {
     std::cerr << "syntax error" << std::endl << oss117.str();
-    if (doc != nullptr)
-    {
-      delete doc;
-      doc = nullptr;
-    }
+    delete doc;
+    doc = nullptr;
   }
 
   return doc;

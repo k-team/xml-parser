@@ -100,7 +100,7 @@ void CompositeElement::to_be_or_not_to_be(std::ostream & os) const
     {
       os << "Missing closing namespace " << begin_ns_split[0] << std::endl;
     }
-    else
+    else if (!end_tag().empty())
     {
       if (begin_ns_split[0] != end_ns_split[0])
       {
