@@ -130,7 +130,10 @@ namespace Xsl
   void Document::apply_style_to(XMLDocument const & xml, std::ostream & os) const
   {
     TemplateRenderer tr(*this, xml.root(), os);
-    tr.render_composite(_root_template);
+    if (_root_template != nullptr)
+    {
+      tr.render_composite(_root_template);
+    }
   }
 
   void TemplateRenderer::render_composite(CompositeElement const * tmplt)
@@ -384,7 +387,7 @@ namespace Xsl
   {
     if (!is_element(_root, XSL_STYLESHEET))
     {
-      _os << "xsl level 1 tag incorrect" << std::endl;
+      _os << "root directives should be " << XSL_STYLESHEET << std::endl;
       _good = false;
     }
 
@@ -397,7 +400,7 @@ namespace Xsl
         std::string xsl_operation = ce->ns_split().second;
         if (xsl_operation != XSL_TEMPLATES)
         {
-          _os << "xsl level 2 tag incorrect" << std::endl;
+          _os << "first child directives should all be " << XSL_TEMPLATES << std::endl;
           _good = false;
         }
         else
