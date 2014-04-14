@@ -1,0 +1,1 @@
+Option -t des fichiers lisibles, dans le fichier xsl, appel à "apply-templates" en se référant à un template non défini.
