@@ -80,11 +80,15 @@ namespace Xsl
       bool operator()();
 
     private:
+      // Checkers
       void check_tag_levels();
+      void check_apply_templates_count();
+      void check_apply_templates_select();
       void check_tag_lower_levels(Element const &);
+
+      // Helpers
       size_t count_apply_all_templates(Element const &);
       void get_all_apply_template_select(Element const &, std::vector<std::string> &);
-      void check_xsl_apply_template_select();
 
       Element const & _root;
       std::ostream & _os;
@@ -326,9 +330,7 @@ namespace Xsl
 
   void Validator::check_tag_levels()
   {
-    // Test presence of stylesheet on level 1
-    std::string xsl_operation_root = _root.ns_split().second;
-    if (xsl_operation_root != XSL_STYLESHEET)
+    if (!is_element(_root, XSL_STYLESHEET))
     {
       _os << "xsl level 1 tag incorrect" << std::endl;
       _good = false;
@@ -353,7 +355,8 @@ namespace Xsl
       }
       else
       {
-        // This would indicate that the is smth that differs from composite element so it can not be a template
+        // This would indicate that this differs from a composite
+        // element therefore it can't be a template
         _os << "xsl level 2 tag incorrect" << std::endl;
         _good = false;
       }
@@ -418,7 +421,7 @@ namespace Xsl
     }
   }
 
-  void Validator::check_xsl_apply_template_select()
+  void Validator::check_apply_templates_select()
   {
     std::vector<std::string> vect_select;
     get_all_apply_template_select(_root, vect_select);
@@ -447,24 +450,31 @@ namespace Xsl
 
     if (vect_select.size() > 0)
     {
-      _os << "apply-template with no template corresponding" << std::endl;
+      _os << XSL_APPLY_TEMPLATES << " given with no corresponding template" << std::endl;
+      _good = false;
+    }
+  }
+
+  void Validator::check_apply_templates_count()
+  {
+    size_t count_apply_templates = count_apply_all_templates(_root);
+    if (count_apply_templates > 1)
+    {
+      _os << "only one " << XSL_APPLY_TEMPLATES << " directive can be given,"
+        << " got " << count_apply_templates;
       _good = false;
     }
   }
 
   bool Validator::operator()()
   {
+    // Tag levels should be as specified (xsl:stylesheet)
     check_tag_levels();
 
     // The "apply-templates" directive can only be given once with no arguments
-    size_t count_apply_templates = count_apply_all_templates(_root);
-    if (count_apply_templates > 1)
-    {
-      _os << "multiple apply all templates" + std::to_string(count_apply_templates);
-      _good = false;
-    }
+    check_apply_templates_count();
 
-    check_xsl_apply_template_select();
+    check_apply_templates_select();
 
     // TODO check if for-each and value-of have a select attribute
     return _good;
