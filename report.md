@@ -1,12 +1,59 @@
+# Transformation d'un document
+
+Un document est transformé à partir d'un fichier XSL.
+
+Le document XSL est d'abord lu puis parsé en arbre XML. C'est à partir de cet
+arbre XML qu'on pourra effectuer la transformation du fichier XML source en
+rendu XML à partir d'un modèle XSL.
+
+Il est important de noter que nous nous sommes limités au niveau de
+l'interprêtation des fichiers XSL :
+
+- Nous ne gérons que certaines directives XSL : *template*, *for-each*,
+  *value-of* et *apply-templates*, qui seront détaillés par la suite. Il faut
+  aussi noter que bien que nous ne traitons pas la directive *stylesheet*, nous
+  requérons sa présence dans le fichier XSL. Dans le cas d'une erreur
+  d'interprétation de ces directives, ou de la présence d'une directive
+  non-reconnue, nous recopions uniquement le texte correspondant.
+- En ce qui concerne la directive template, elle, permet de spécifier un
+  certain arbre XSL à appliquer pour un certain noeud source. C'est la base de
+  la transformation XSL, et le noeud source est spécifié à partir de l'attribut
+  "match".
+- En ce qui concerne la directive for-each, elle permet de répéter un certain
+  arbre XSL pour toutes les balises correspondant à la sélection précisée, via
+  l'attribut "select". Celui-ci ne peut correspondre qu'à une balise XML
+  directement présente dans le noeud d'application du for-each.
+- En ce qui concerne la directive value-of, elle ressemble beaucoup à la balise
+  for-each (toujours en spécifiant avec l'attribut "select"), mais au lieu de
+  répéter, applique l'arbre XSL uniquement pour le premier noeud correspondant.
+- En ce qui concerne la directive apply-templates, elle permet d'appliquer un
+  certain arbre XSL au niveau du noeud courant, soit en spécifiant celui à
+  appliquer (attribut "select"), soit sans le spécifier, auquel cas l'arbre XML source (fichier à
+  transformé) sera parcouru récursivement en appliquant tous les templates
+  possibles applicables.
+
+La plupart des algorithmes utilisés sont des simples applications récursives,
+traitant en fonction du type d'élément racine courant (simple, multiple, texte).
+
+Voici l'algorithme général de transformation d'un fichier XML :
+
+    fonction transformer_xml(ArbreXML xsl, ArbreXML xml)
+      Si xml n'est pas nul
+        transformer_element_multiple(xsl, xml)
+
+    fonction transformer_element_multiple(xsl, xml)
+      Pour chaque tag t de xml
+        # TODO
+
 # Validation d'un document
 
 Un document est validé grâce à un fichier XSD.
 
-Le document XSD est d'abord transformé en graphe nommée d'expressions
-régulières. Ce graphe est modélisé par une *std::map* de *std::string* vers
-*Node*. L'index représente le nom du tag XML et la valeur, les conditions de
-validation de ce tag. Ce dernier est développer par une structure C++ avec 3
-*std:string* :
+Le document XSD est d'abord lu, parsé en arbre XML, puis transformé en graphe
+nommée d'expressions régulières. Ce graphe est modélisé par une *std::map* de
+*std::string* vers *Node*. L'index représente le nom du tag XML et la valeur,
+les conditions de validation de ce tag. Ce dernier est développer par une
+structure C++ avec 3 *std:string* :
 
 - **reg_tag** : Expression régulière sur les tags intérieurs
 - **reg_attr** : Expression régulière sur les attributs (non utilisé
@@ -15,7 +62,7 @@ validation de ce tag. Ce dernier est développer par une structure C++ avec 3
 
 La construction du graphe se fait en parcourant uniquement le document XSD. Une
 autre *std::map* est fourni pour contenir les types déclarés pendant la
-construction pour gérer les tags *complexeType*. Afin de gérer les déclarations
+construction pour gérer les tags *complexType*. Afin de gérer les déclarations
 des types après leur utilisation, la construction est faite deux fois.
 
 Voici l'algorithme de construction du graphe :
