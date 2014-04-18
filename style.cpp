@@ -552,13 +552,6 @@ namespace Xsl
 
   void Validator::check_apply_templates_count()
   {
-    /*size_t count_apply_templates = count_apply_all_templates(_root);
-    if (count_apply_templates > 1)
-    {
-      _os << "only one " << XSL_APPLY_TEMPLATES << " directive can be given,"
-        << " got " << count_apply_templates;
-      _good = false;
-    }*/
 
     size_t count_apply_templates_root=0;// = count_apply_all_templates(_root);
 
@@ -590,6 +583,7 @@ namespace Xsl
         {
           //a good file should only have XSL_TEMPLATES under the root
           //as such we can ignore this case
+          //another test verify it
         }
 
     }
@@ -598,7 +592,7 @@ namespace Xsl
     if (count_apply_templates_root > 1)
     {
       _os << "only one " << XSL_APPLY_TEMPLATES << " directive can be given,"
-        << " got " << count_apply_templates_root;
+        << " got " << count_apply_templates_root <<std::endl;
       _good = false;
     }
   }
