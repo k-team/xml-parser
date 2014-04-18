@@ -1,0 +1,1 @@
+../xmltool -t ../files/catalog.xml ../files/catalog_apply_templates2.xsl
