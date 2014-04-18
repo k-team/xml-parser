@@ -130,9 +130,13 @@ namespace Xsl
 
   void Document::apply_style_to(XMLDocument const & xml, std::ostream & os) const
   {
-    TemplateRenderer tr(*this, xml.root(), os);
-    if (_root_template != nullptr)
+    if (_root_template == nullptr)
     {
+      apply_all_templates(xml.root(), os);
+    }
+    else
+    {
+      TemplateRenderer tr(*this, xml.root(), os);
       tr.render_composite(_root_template);
     }
   }
