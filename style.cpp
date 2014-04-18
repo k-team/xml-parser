@@ -87,6 +87,7 @@ namespace Xsl
       void check_apply_templates_count();
       void check_apply_templates_select();
       void check_tag_lower_levels(Element const &);
+      void check_that_there_at_least_one_root_template();
       void check_that_directive_has_attribute(std::string const &, std::string const &);
       void check_that_directive_has_attribute_r(Element const &,
           std::string const &, std::string const &);
@@ -383,6 +384,36 @@ namespace Xsl
     }
   }
 
+  void Validator::check_that_there_at_least_one_root_template()
+  {
+    for (auto it : _root.children())
+    {
+      CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
+      if (ce != nullptr)
+      {
+        // Test presence of things different from a template on level 2
+        std::string xsl_operation = ce->ns_split().second;
+        if (xsl_operation == XSL_TEMPLATES)
+        {
+          for (auto attr : ce->attributes())
+          {
+            if (attr->name() == XSL_MATCH)
+            {
+              if (attr->value()==XSL_ROOT_MATCH)
+              {
+                _good=true;
+                return;
+              }
+
+            }
+          }
+        }
+      }
+    }
+    _os << "xsl no root template found" << std::endl;
+    _good=false;
+  }
+
   void Validator::check_tag_levels()
   {
     if (!is_element(_root, XSL_STYLESHEET))
@@ -553,6 +584,9 @@ namespace Xsl
   {
     // Tag levels should be as specified (xsl:stylesheet)
     check_tag_levels();
+
+    //there have to be a root template ("/")
+    check_that_there_at_least_one_root_template();
 
     // The "apply-templates" directive can only be given once with no arguments
     check_apply_templates_count();
