@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <xsd:element name="div">
+      <xsd:complexType>
+         <xsd:choice>
+            <xsd:element ref="div" minOccurs="0" maxOccurs="unbounded" />
+         </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

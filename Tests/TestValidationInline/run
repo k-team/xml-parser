@@ -1,0 +1,1 @@
+../xmltool -v ../files/div_inline.xml ../files/div.xsd

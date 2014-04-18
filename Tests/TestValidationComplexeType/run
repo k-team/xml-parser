@@ -1,0 +1,1 @@
+../xmltool -v ../files/complex_type.xml ../files/complex_type.xsd

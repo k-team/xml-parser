@@ -131,7 +131,7 @@ bool xsd_validate(Element * e, std::map<std::string, Node> & xsd)
 
   auto name = it->first;
   auto node = it->second;
-  bool re = true;
+  auto re = true;
   if (!node.reg_tag.empty())
   {
     auto ce = dynamic_cast<CompositeElement *>(e);
@@ -173,7 +173,7 @@ bool regex_validate(std::string const & str, std::string const & reg)
   if (regcomp(&regex, ("^" + reg + "$").c_str(), REG_EXTENDED | REG_NOSUB) != 0)
     return false;
 
-  bool re = regexec(&regex, str.c_str(), 0, NULL, 0) == 0;
+  auto re = regexec(&regex, str.c_str(), 0, NULL, 0) == 0;
   regfree(&regex);
   return re;
 }
@@ -594,7 +594,7 @@ std::string complexe_type_to_regex(CompositeElement * e,
   if (ce == nullptr)
     return "";
 
-  bool mixed = false;
+  auto mixed = false;
   auto it_mixed = std::find_if(e->attributes().begin(), e->attributes().end(),
       [](Attribute * a) { return a->name() == "mixed"; });
   if (it_mixed != e->attributes().end()
