@@ -1,1 +1,0 @@
-../xmltool -t ../files/catalog.xml ../files/catalog_root_template_missing.xsl

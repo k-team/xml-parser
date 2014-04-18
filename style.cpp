@@ -405,10 +405,8 @@ namespace Xsl
             {
               if (attr->value()==XSL_ROOT_MATCH)
               {
-                _good=true;
                 return;
               }
-
             }
           }
         }
@@ -638,7 +636,7 @@ namespace Xsl
     check_that_there_at_least_one_root_template();
 
     // The "apply-templates" directive which send u to root can only be given once (to prevent infinite loop)
-    check_apply_templates_count();
+    // check_apply_templates_count();
 
     // The "apply-templates" directive should either be empty or refer to a given template
     check_apply_templates_select();
