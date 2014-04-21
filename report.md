@@ -40,10 +40,30 @@ Voici l'algorithme général de transformation d'un fichier XML :
     fonction transformer_xml(ArbreXML xsl, ArbreXML xml)
       Si xml n'est pas nul
         transformer_element_multiple(xsl, xml)
+      Sinon
+        appliquer_templates(xsl, xml)
 
-    fonction transformer_element_multiple(xsl, xml)
-      Pour chaque tag t de xml
-        # TODO
+    fonction transformer_element_multiple(xsl, elem)
+      Pour chaque tag t de elem
+        Si t est un element
+          transformer_element(xsl, t)
+        Sinon
+          t.afficher()
+
+    fonction transformer_element(xsl, elem)
+      Si elem est un element_xsl
+        transformer_element_xsl(xsl, elem)
+      SinonSi elem est un element_multiple
+        transformer_element_multiple(xsl, elem)
+      Sinon
+        elem.afficher()
+
+    fonction transformer_element_xsl(xsl, elem)
+      oper = operation_xsl(elem)
+      Si oper n'est pas nulle
+        oper.effectuer()
+      Sinon
+        elem.afficher()
 
 # Validation d'un document
 
