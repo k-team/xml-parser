@@ -633,10 +633,12 @@ namespace Xsl
     check_tag_levels();
 
     //there have to be a root template ("/")
-    check_that_there_at_least_one_root_template();
+    // since root is no longer compulsory this test is desactivated
+
+    // check_that_there_at_least_one_root_template();
 
     // The "apply-templates" directive which send u to root can only be given once (to prevent infinite loop)
-    // check_apply_templates_count();
+    check_apply_templates_count();
 
     // The "apply-templates" directive should either be empty or refer to a given template
     check_apply_templates_select();
