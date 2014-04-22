@@ -1,3 +1,16 @@
+# Validation sémantique d'un document
+
+L'arbre XML d'un document est validé sémantiquement en effectuant pour chaque
+noeud les vérifications suivantes :
+
+1. Validation du noeud.
+2. Validation des noeuds contenus (enfants).
+
+Pour cela, on considère que chaque noeud de l'arbre *peut* être validé une
+fois construit par la grammaire, et sait comment se valider lui et ses enfants.
+Au niveau de l'implémentation, cela constitue en une simple méthode virtuelle
+pour les noeuds de l'arbre, appelée au niveau de la racine du document.
+
 # Transformation d'un document
 
 Un document est transformé à partir d'un fichier XSL.
@@ -37,30 +50,30 @@ traitant en fonction du type d'élément racine courant (simple, multiple, texte
 
 Voici l'algorithme général de transformation d'un fichier XML :
 
-    fonction transformer_xml(ArbreXML xsl, ArbreXML xml)
+    fonction XSL::transformer_xml(ArbreXML xml)
       Si xml n'est pas nul
-        transformer_element_multiple(xsl, xml)
+        transformer_element_multiple(xml)
       Sinon
-        appliquer_templates(xsl, xml)
+        appliquer_tous_les_templates(xml)
 
-    fonction transformer_element(xsl, elem)
+    fonction XSL::transformer_element(Element elem)
       Si elem est un element_xsl
-        transformer_element_xsl(xsl, elem)
+        transformer_element_xsl(elem)
       SinonSi elem est un element_multiple
         elem.afficher_debut()
-        transformer_element_multiple(xsl, elem)
+        transformer_element_multiple(elem)
         elem.afficher_fin()
       Sinon
         elem.afficher()
 
-    fonction transformer_element_multiple(xsl, elem)
+    fonction XSL::transformer_element_multiple(ElementMultiple elem)
       Pour chaque tag t de elem
         Si t est un element
-          transformer_element(xsl, t)
+          transformer_element(t)
         Sinon
           t.afficher()
 
-    fonction transformer_element_xsl(xsl, elem)
+    fonction XSL::transformer_element_xsl(ElementXSL elem)
       oper = operation_xsl(elem)
       Si oper n'est pas nulle
         oper.effectuer()
