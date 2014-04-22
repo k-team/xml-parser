@@ -171,3 +171,30 @@ Voici l'algorithme de construction du graphe :
         Si reg_tag not empty
             reg_tag.pop_last() # On enlève le dernier caractère |
         retourner Node(reg_tag=reg_tag)
+
+Une fois le graphe de règles créé, le document XML est validé par un parcours en profondeur :
+
+      fonction validate(Element C, Graph G)
+          Si C.name n'est pas dans G
+              retourner Faux
+
+          regle = G[C.name]
+          tags = ""
+          Pour chaque Element E nommée nom dans C
+              tags += "<" + nom + ">"
+              Si validate(E, G) est Faux
+                  retourner Faux
+          Si regle.reg_tag existe et G[C.name].reg_tag.not_match(tags)
+              retourner Faux
+
+          Si regle.reg_content existe
+              regex = "<" + C.name + ">" \
+                + regex_blank + "(" + regle.reg_content + ")" + regex_blank \
+                + "</" + C.name + ">"
+              Si regex.not_match(C.toString())
+                retourner Faux
+          Retourner Vrai
+
+On appel cette fonction avec l'élément racine du document. Elle retourne vrai
+ou faux selon la validité du document XML par rapport aux document XSD.
+
