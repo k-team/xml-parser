@@ -1,0 +1,49 @@
+\documentclass[10pt, a4paper]{article}
+
+\usepackage[utf8x]{inputenc}
+\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+% Format du document
+\renewcommand{\familydefault}{\sfdefault}
+%\usepackage[top = 2.54cm, bottom = 2.54cm, left=2.5cm, right=2.5cm]{geometry}
+
+% Format des section
+\renewcommand{\thesection}{\Roman{section}}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\newcommand{\Document}[1]{
+    \begin{titlepage}
+        % Titre
+        \vspace*{\fill}
+        \centering
+        \HRule \\[0.4cm]
+        {\huge \bfseries PLD Système d'Information : \\ #1}
+        \HRule \\[1.5cm]
+
+        % Auteurs
+        \begin{minipage}{0.8\textwidth}
+            \centering
+            \large
+            Équipe H4314 -- \today
+        \end{minipage}
+
+        \vfill
+
+        \flushleft
+        \small
+        {\bfseries Membres de l'équipe} \\
+        Franck MPEMBA BONI \\
+        Grégoire CATTAN \\
+        Iler VIRARAGAVANE
+        Jean-Marie COMETS \\
+        Pierre TURPIN \\
+        Samuel CARENSAC \\
+        Van PHAN HAU \\
+    \end{titlepage}
+
+    \tableofcontents
+    \newpage
+}
