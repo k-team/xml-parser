@@ -1,3 +1,33 @@
+# Analyse lexicale et syntaxique
+
+L'analyse lexicale utilise largement celui fourni pour le TP. Une modification
+a été fait pour supprimer le token COLON. Celui-ci est en effet directement
+intégré au niveau du token NOM (valide selon XML) et l'étude de l'espace de nom
+se faire alors uniquement dans l'analyse sémantique.
+
+L'analyse syntaxique utilise les règles du XML et incorpore également le mot
+clé *error* dans certaines règles de grammaire afin d'avoir une exécution de
+Bison/Yacc laxiste. Les erreurs peuvent ainsi être détecté sans pour autant
+stopper le parsing et le traitement du flot de tokens. L'idée est alors de
+faire remonter toutes les erreurs syntaxique jusqu'à la règle racine afin de
+libérer proprement les ressources allouées et d'indiquer l'erreur à
+l'utilisateur.
+
+La construction de l'arbre d'objet représentant l'XML se fait en parallèle de
+la lecture du flot de donnée. C'est pourquoi, il est nécessaire de remonter
+toutes les erreurs pour libérer les objets construits.
+
+# Affichage
+
+L'affichage du document se fait de manière récursive en effectuant un parcours
+en profondeur de l'arbre. Chaque noeud parcouru ajoute sa sortie à un flux
+*std::ostream*.
+
+Chacun des éléments hérite d'une classe de base qui permet d'ajouter cette
+fonction *str()* qui permet de rendre le document sous forme d'un flux.
+L'aspect polymorphique permet alors à chaque élément de décrire son rendu
+lui-même. L'algorithme devient alors largement simplifié.
+
 # Validation sémantique d'un document
 
 L'arbre XML d'un document est validé sémantiquement en effectuant pour chaque
@@ -41,9 +71,9 @@ l'interprêtation des fichiers XSL :
   répéter, applique l'arbre XSL uniquement pour le premier noeud correspondant.
 - En ce qui concerne la directive apply-templates, elle permet d'appliquer un
   certain arbre XSL au niveau du noeud courant, soit en spécifiant celui à
-  appliquer (attribut "select"), soit sans le spécifier, auquel cas l'arbre XML source (fichier à
-  transformé) sera parcouru récursivement en appliquant tous les templates
-  possibles applicables.
+  appliquer (attribut "select"), soit sans le spécifier, auquel cas l'arbre XML
+  source (fichier à transformé) sera parcouru récursivement en appliquant tous
+  les templates possibles applicables.
 
 La plupart des algorithmes utilisés sont des simples applications récursives,
 traitant en fonction du type d'élément racine courant (simple, multiple, texte).
@@ -210,4 +240,3 @@ Une fois le graphe de règles créé, le document XML est validé par un parcour
 
 On appel cette fonction avec l'élément racine du document. Elle retourne vrai
 ou faux selon la validité du document XML par rapport aux document XSD.
-
