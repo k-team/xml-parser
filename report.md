@@ -1,8 +1,28 @@
+# Analyse lexicale et syntaxique
+
+L'analyse lexicale utilise largement celui fourni pour le TP. Une modification
+a été fait pour supprimer le token COLON. Celui-ci est en effet directement
+intégré au niveau du token NOM (valide selon XML) et l'étude de l'espace de nom
+se faire alors uniquement dans l'analyse sémantique.
+
+L'analyse syntaxique utilise les règles du XML et incorpore également le mot
+clé *error* dans certaines règles de grammaire afin d'avoir une exécution de
+Bison/Yacc laxiste. Les erreurs peuvent ainsi être détecté sans pour autant
+stopper le parsing et le traitement du flot de tokens. L'idée est alors de
+faire remonter toutes les erreurs syntaxique jusqu'à la règle racine afin de
+libérer proprement les ressources allouées et d'indiquer l'erreur à
+l'utilisateur.
+
+La construction de l'arbre d'objet représentant l'XML se fait en parallèle de
+la lecture du flot de donnée. C'est pourquoi, il est nécessaire de remonter
+toutes les erreurs pour libérer les objets construits.
+
 # Affichage
 
 L'affichage du document se fait de manière récursive en effectuant un parcours
 en profondeur de l'arbre. Chaque noeud parcouru ajoute sa sortie à un flux
 *std::ostream*.
+
 Chacun des éléments hérite d'une classe de base qui permet d'ajouter cette
 fonction *str()* qui permet de rendre le document sous forme d'un flux.
 L'aspect polymorphique permet alors à chaque élément de décrire son rendu
