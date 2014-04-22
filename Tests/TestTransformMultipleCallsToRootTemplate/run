@@ -1,0 +1,1 @@
+../xmltool -t ../files/catalog.xml ../files/catalog_multiples_calls_to_root_template.xsl

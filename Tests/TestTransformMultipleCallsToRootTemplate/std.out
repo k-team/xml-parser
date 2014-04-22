@@ -12,6 +12,7 @@ Title
 Artist
 </th>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Empire Burlesque
@@ -20,6 +21,7 @@ Empire Burlesque
 Bob Dylan
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Hide your heart
@@ -28,6 +30,7 @@ Hide your heart
 Bonnie Tyler
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Greatest Hits
@@ -36,6 +39,7 @@ Greatest Hits
 Dolly Parton
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Still got the blues
@@ -44,6 +48,7 @@ Still got the blues
 Gary Moore
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Eros
@@ -52,6 +57,7 @@ Eros
 Eros Ramazzotti
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 One night only
@@ -60,6 +66,7 @@ One night only
 Bee Gees
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Sylvias Mother
@@ -68,6 +75,7 @@ Sylvias Mother
 Dr.Hook
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Maggie May
@@ -76,6 +84,7 @@ Maggie May
 Rod Stewart
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Romanza
@@ -84,6 +93,7 @@ Romanza
 Andrea Bocelli
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 When a man loves a woman
@@ -92,6 +102,7 @@ When a man loves a woman
 Percy Sledge
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Black angel
@@ -100,6 +111,7 @@ Black angel
 Savage Rose
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 1999 Grammy Nominees
@@ -108,6 +120,7 @@ Savage Rose
 Many
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 For the good times
@@ -116,6 +129,7 @@ For the good times
 Kenny Rogers
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Big Willie style
@@ -124,6 +138,7 @@ Big Willie style
 Will Smith
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Tupelo Honey
@@ -132,6 +147,7 @@ Tupelo Honey
 Van Morrison
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Soulsville
@@ -140,6 +156,7 @@ Soulsville
 Jorn Hoel
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 The very best of
@@ -148,6 +165,7 @@ The very best of
 Cat Stevens
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Stop
@@ -156,6 +174,7 @@ Stop
 Sam Brown
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Bridge of Spies
@@ -164,6 +183,7 @@ Bridge of Spies
 T'Pau
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Private Dancer
@@ -172,6 +192,7 @@ Private Dancer
 Tina Turner
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Midt om natten
@@ -180,6 +201,7 @@ Midt om natten
 Kim Larsen
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Pavarotti Gala Concert
@@ -188,6 +210,7 @@ Pavarotti Gala Concert
 Luciano Pavarotti
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 The dock of the bay
@@ -196,6 +219,7 @@ The dock of the bay
 Otis Redding
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Picture book
@@ -204,6 +228,7 @@ Picture book
 Simply Red
 </td>
 </tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Red
@@ -212,214 +237,7 @@ Red
 The Communards
 </td>
 </tr>
-<tr>
-<td>
-Unchain my heart
-</td>
-<td>
-Joe Cocker
-</td>
-</tr>
-<tr>
-<td>
-Empire Burlesque
-</td>
-<td>
-Bob Dylan
-</td>
-</tr>
-<tr>
-<td>
-Hide your heart
-</td>
-<td>
-Bonnie Tyler
-</td>
-</tr>
-<tr>
-<td>
-Greatest Hits
-</td>
-<td>
-Dolly Parton
-</td>
-</tr>
-<tr>
-<td>
-Still got the blues
-</td>
-<td>
-Gary Moore
-</td>
-</tr>
-<tr>
-<td>
-Eros
-</td>
-<td>
-Eros Ramazzotti
-</td>
-</tr>
-<tr>
-<td>
-One night only
-</td>
-<td>
-Bee Gees
-</td>
-</tr>
-<tr>
-<td>
-Sylvias Mother
-</td>
-<td>
-Dr.Hook
-</td>
-</tr>
-<tr>
-<td>
-Maggie May
-</td>
-<td>
-Rod Stewart
-</td>
-</tr>
-<tr>
-<td>
-Romanza
-</td>
-<td>
-Andrea Bocelli
-</td>
-</tr>
-<tr>
-<td>
-When a man loves a woman
-</td>
-<td>
-Percy Sledge
-</td>
-</tr>
-<tr>
-<td>
-Black angel
-</td>
-<td>
-Savage Rose
-</td>
-</tr>
-<tr>
-<td>
-1999 Grammy Nominees
-</td>
-<td>
-Many
-</td>
-</tr>
-<tr>
-<td>
-For the good times
-</td>
-<td>
-Kenny Rogers
-</td>
-</tr>
-<tr>
-<td>
-Big Willie style
-</td>
-<td>
-Will Smith
-</td>
-</tr>
-<tr>
-<td>
-Tupelo Honey
-</td>
-<td>
-Van Morrison
-</td>
-</tr>
-<tr>
-<td>
-Soulsville
-</td>
-<td>
-Jorn Hoel
-</td>
-</tr>
-<tr>
-<td>
-The very best of
-</td>
-<td>
-Cat Stevens
-</td>
-</tr>
-<tr>
-<td>
-Stop
-</td>
-<td>
-Sam Brown
-</td>
-</tr>
-<tr>
-<td>
-Bridge of Spies
-</td>
-<td>
-T'Pau
-</td>
-</tr>
-<tr>
-<td>
-Private Dancer
-</td>
-<td>
-Tina Turner
-</td>
-</tr>
-<tr>
-<td>
-Midt om natten
-</td>
-<td>
-Kim Larsen
-</td>
-</tr>
-<tr>
-<td>
-Pavarotti Gala Concert
-</td>
-<td>
-Luciano Pavarotti
-</td>
-</tr>
-<tr>
-<td>
-The dock of the bay
-</td>
-<td>
-Otis Redding
-</td>
-</tr>
-<tr>
-<td>
-Picture book
-</td>
-<td>
-Simply Red
-</td>
-</tr>
-<tr>
-<td>
-Red
-</td>
-<td>
-The Communards
-</td>
-</tr>
+<xsl:apply-templates select="/" />
 <tr>
 <td>
 Unchain my heart

@@ -405,10 +405,8 @@ namespace Xsl
             {
               if (attr->value()==XSL_ROOT_MATCH)
               {
-                _good=true;
                 return;
               }
-
             }
           }
         }
@@ -505,6 +503,10 @@ namespace Xsl
                 vect_select.push_back(attrs->value());
               }
             }
+            if (e->attributes().size()<1){
+                // if there is no select we consider there si a select="."
+                vect_select.push_back(".");
+            }
           }
         }
       }
@@ -531,6 +533,11 @@ namespace Xsl
               {
                 vect_select.erase(vect_select.begin() + i);
                 --i;
+              }else if (vect_select[i] == ".")
+              {
+                // we need to remove all the select that indicate the current folder
+                vect_select.erase(vect_select.begin() + i);
+                --i;
               }
             }
           }
@@ -547,11 +554,47 @@ namespace Xsl
 
   void Validator::check_apply_templates_count()
   {
-    size_t count_apply_templates = count_apply_all_templates(_root);
-    if (count_apply_templates > 1)
+
+    size_t count_apply_templates_root=0;// = count_apply_all_templates(_root);
+
+    std::vector<std::string> vect_select;
+
+    for (auto it: _root.children()){
+        vect_select.clear();
+        CompositeElement * ce = dynamic_cast<CompositeElement *>(it);
+        if (ce != nullptr)
+        {
+            bool is_root_template= std::any_of(ce->attributes().begin(), ce->attributes().end(),
+                                               [](Attribute* attr) { return ((attr->name() == XSL_MATCH)&&(attr->value() == XSL_ROOT_MATCH)); });
+            get_all_apply_template_select(*ce, vect_select);
+            if (is_root_template)
+            {
+              if (std::find(vect_select.begin(),vect_select.end(),".")!=vect_select.end())
+              {
+                count_apply_templates_root++;
+              }
+            }
+
+            if (std::find(vect_select.begin(),vect_select.end(),XSL_ROOT_MATCH)!=vect_select.end())
+            {
+              count_apply_templates_root++;
+            }
+
+        }
+        else
+        {
+          //a good file should only have XSL_TEMPLATES under the root
+          //as such we can ignore this case
+          //another test verify it
+        }
+
+    }
+
+
+    if (count_apply_templates_root > 1)
     {
       _os << "only one " << XSL_APPLY_TEMPLATES << " directive can be given,"
-        << " got " << count_apply_templates;
+        << " got " << count_apply_templates_root <<std::endl;
       _good = false;
     }
   }
@@ -590,9 +633,11 @@ namespace Xsl
     check_tag_levels();
 
     //there have to be a root template ("/")
-    check_that_there_at_least_one_root_template();
+    // since root is no longer compulsory this test is desactivated
 
-    // The "apply-templates" directive can only be given once with no arguments
+    // check_that_there_at_least_one_root_template();
+
+    // The "apply-templates" directive which send u to root can only be given once (to prevent infinite loop)
     check_apply_templates_count();
 
     // The "apply-templates" directive should either be empty or refer to a given template
