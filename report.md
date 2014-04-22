@@ -1,3 +1,13 @@
+# Affichage
+
+L'affichage du document se fait de manière récursive en effectuant un parcours
+en profondeur de l'arbre. Chaque noeud parcouru ajoute sa sortie à un flux
+*std::ostream*.
+Chacun des éléments hérite d'une classe de base qui permet d'ajouter cette
+fonction *str()* qui permet de rendre le document sous forme d'un flux.
+L'aspect polymorphique permet alors à chaque élément de décrire son rendu
+lui-même. L'algorithme devient alors largement simplifié.
+
 # Transformation d'un document
 
 Un document est transformé à partir d'un fichier XSL.
@@ -28,9 +38,9 @@ l'interprêtation des fichiers XSL :
   répéter, applique l'arbre XSL uniquement pour le premier noeud correspondant.
 - En ce qui concerne la directive apply-templates, elle permet d'appliquer un
   certain arbre XSL au niveau du noeud courant, soit en spécifiant celui à
-  appliquer (attribut "select"), soit sans le spécifier, auquel cas l'arbre XML source (fichier à
-  transformé) sera parcouru récursivement en appliquant tous les templates
-  possibles applicables.
+  appliquer (attribut "select"), soit sans le spécifier, auquel cas l'arbre XML
+  source (fichier à transformé) sera parcouru récursivement en appliquant tous
+  les templates possibles applicables.
 
 La plupart des algorithmes utilisés sont des simples applications récursives,
 traitant en fonction du type d'élément racine courant (simple, multiple, texte).
