@@ -33,3 +33,8 @@ lex.xml.cpp
 
 # Test result files
 Tests/results.csv
+
+# LaTeX files
+*.aux
+*.log
+*.toc

@@ -5,50 +5,45 @@
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage[parfill]{parskip}
 
 % Format du document
-%\renewcommand{\familydefault}{\sfdefault}
+\renewcommand{\familydefault}{\sfdefault}
 %\usepackage[top = 2.54cm, bottom = 2.54cm, left=2.5cm, right=2.5cm]{geometry}
 
-% Format des section
-\renewcommand{\thesection}{\Roman{section}}
-
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
-\newcommand{\Document}[1]{
-    \begin{titlepage}
-        % Titre
-        \vspace*{\fill}
-        \centering
-        \HRule \\[0.4cm]
-        {\huge \bfseries PLD Système d'Information : \\ #1}
-        \HRule \\[1.5cm]
-
-        % Auteurs
-        \begin{minipage}{0.8\textwidth}
-            \centering
-            \large
-            Équipe H4314 -- \today
-        \end{minipage}
-
-        \vfill
-
-        \flushleft
-        \small
-        {\bfseries Membres de l'équipe} \\
-        Franck MPEMBA BONI \\
-        Grégoire CATTAN \\
-        Iler VIRARAGAVANE
-        Jean-Marie COMETS \\
-        Pierre TURPIN \\
-        Samuel CARENSAC \\
-        Van PHAN HAU \\
-    \end{titlepage}
-
-    \tableofcontents
-    \newpage
-}
 
 \begin{document}
+
+\begin{titlepage}
+    \vspace*{\fill}
+    \centering
+    \HRule \\[0.4cm]
+    {\huge \bfseries Projet Grammaire et Langages}
+    \HRule \\[1.5cm]
+
+    \begin{minipage}{0.8\textwidth}
+        \centering
+        \large
+        Équipe H4314 -- \today
+    \end{minipage}
+
+    \vfill
+
+    \flushleft
+    \small
+    {\bfseries Membres de l'équipe} \\
+    Franck MPEMBA BONI \\
+    Grégoire CATTAN \\
+    Iler VIRARAGAVANE
+    Jean-Marie COMETS \\
+    Pierre TURPIN \\
+    Samuel CARENSAC \\
+    Van PHAN HAU \\
+\end{titlepage}
+
+\tableofcontents
+\newpage
 
 \section{Analyse lexicale et
 syntaxique}\label{analyse-lexicale-et-syntaxique}
@@ -57,7 +52,7 @@ L'analyse lexicale utilise largement celui fourni pour le TP. Une
 modification a été fait pour supprimer le token COLON. Celui-ci est en
 effet directement intégré au niveau du token NOM (valide selon XML) et
 l'étude de l'espace de nom se faire alors uniquement dans l'analyse
-sémantique.
+sémantique. \\
 
 L'analyse syntaxique utilise les règles du XML et incorpore également le
 mot clé \emph{error} dans certaines règles de grammaire afin d'avoir une
@@ -65,7 +60,7 @@ exécution de Bison/Yacc laxiste. Les erreurs peuvent ainsi être détecté
 sans pour autant stopper le parsing et le traitement du flot de tokens.
 L'idée est alors de faire remonter toutes les erreurs syntaxique jusqu'à
 la règle racine afin de libérer proprement les ressources allouées et
-d'indiquer l'erreur à l'utilisateur.
+d'indiquer l'erreur à l'utilisateur. \\
 
 La construction de l'arbre d'objet représentant l'XML se fait en
 parallèle de la lecture du flot de donnée. C'est pourquoi, il est
@@ -76,7 +71,7 @@ construits.
 
 L'affichage du document se fait de manière récursive en effectuant un
 parcours en profondeur de l'arbre. Chaque noeud parcouru ajoute sa
-sortie à un flux \emph{std::ostream}.
+sortie à un flux \emph{std::ostream}. \\
 
 Chacun des éléments hérite d'une classe de base qui permet d'ajouter
 cette fonction \emph{str()} qui permet de rendre le document sous forme
@@ -112,7 +107,7 @@ Un document est transformé à partir d'un fichier XSL.
 
 Le document XSL est d'abord lu puis parsé en arbre XML. C'est à partir
 de cet arbre XML qu'on pourra effectuer la transformation du fichier XML
-source en rendu XML à partir d'un modèle XSL.
+source en rendu XML à partir d'un modèle XSL. \\
 
 Il est important de noter que nous nous sommes limités au niveau de
 l'interprêtation des fichiers XSL :
@@ -154,7 +149,7 @@ l'interprêtation des fichiers XSL :
 
 La plupart des algorithmes utilisés sont des simples applications
 récursives, traitant en fonction du type d'élément racine courant
-(simple, multiple, texte).
+(simple, multiple, texte). \\
 
 Voici l'algorithme général de transformation d'un fichier XML :
 
@@ -216,7 +211,7 @@ La construction du graphe se fait en parcourant uniquement le document
 XSD. Une autre \emph{std::map} est fourni pour contenir les types
 déclarés pendant la construction pour gérer les tags \emph{complexType}.
 Afin de gérer les déclarations des types après leur utilisation, la
-construction est faite deux fois.
+construction est faite deux fois. \\
 
 Voici l'algorithme de construction du graphe :
 
